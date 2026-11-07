@@ -166,3 +166,11 @@ await phoneAuth.verify({ phoneNumber: "+1234567890", code: "123456" });
 Husky and `lint-staged` are configured out-of-the-box:
 
 - On every `git commit`, `lint-staged` runs `eslint --fix` and `prettier --write` on staged TypeScript/JavaScript, JSON, and CSS files.
+
+---
+
+## License
+
+Copyright (C) 2026 [BabaBuilds.com](https://bababuilds.com).
+
+This project is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0-only)** - see the [LICENSE](LICENSE) file for details.

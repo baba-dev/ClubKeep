@@ -1,173 +1,125 @@
-# Clubkeep Boilerplate
+# ClubKeep
 
-A modern, production-ready full-stack web application boilerplate built with Next.js App Router, React 19, TypeScript, Tailwind CSS v4, shadcn/ui, Better Auth, Prisma ORM 7, PostgreSQL, Redis, Docker Compose, Zod, ESLint, Prettier, and Husky.
+> Run your club from your phone. Keep your members for life.
 
----
+ClubKeep is a polished, mobile-first platform for gyms, sports clubs, and yoga and dance studios. Owners run the whole business from one app, and members keep their profile, ID card and progress in another.
 
-## Tech Stack Overview
-
-- **Framework**: Next.js 16 (App Router, Turbopack, React 19, TypeScript)
-- **Styling & UI**: Tailwind CSS v4 + [shadcn/ui](https://ui.shadcn.com) (`Card`, `Button`, `Input`, `Label`, `Sonner` toast)
-- **Authentication**: [Better Auth](https://better-auth.com) with PostgreSQL Prisma adapter and built-in **Phone OTP** plugin support
-- **ORM & Database**: [Prisma ORM 7](https://www.prisma.io) with PostgreSQL and `@prisma/adapter-pg`
-- **Cache & Pub/Sub**: [Redis](https://redis.io) via `ioredis`
-- **Local Services**: Docker Compose for PostgreSQL 16 & Redis 7
-- **Validation**: [Zod](https://zod.dev) with ready-made auth and phone schemas
-- **Code Quality & Git Hooks**: ESLint 9 + Prettier (with Tailwind plugin) + Husky + lint-staged
+**Status:** early development. The first release is being built, so expect rapid change and no stable API yet.
 
 ---
 
-## Project Structure
+## Why ClubKeep
 
-```
-├── .husky/                  # Git hooks (pre-commit: lint-staged)
-├── docker-compose.yml       # Local PostgreSQL 16 and Redis 7 services
-├── prisma/
-│   └── schema.prisma        # Database schema (User, Session, Account, Verification)
-├── src/
-│   ├── app/
-│   │   ├── api/auth/[...all]/
-│   │   │   └── route.ts     # Better Auth API handler
-│   │   ├── globals.css      # Tailwind v4 styles & theme tokens
-│   │   ├── layout.tsx       # Root layout with Geist font & Sonner Toaster
-│   │   └── page.tsx         # Interactive starter demo page
-│   ├── components/
-│   │   └── ui/              # shadcn/ui components (button, card, input, label, sonner)
-│   ├── lib/
-│   │   ├── auth.ts          # Better Auth server configuration with Phone OTP
-│   │   ├── auth-client.ts   # Better Auth client instance (React hooks)
-│   │   ├── prisma.ts        # Prisma Client singleton with PG adapter
-│   │   ├── redis.ts         # Redis client singleton (ioredis)
-│   │   ├── utils.ts         # Utility helpers (cn)
-│   │   └── validations/
-│   │       └── auth.ts      # Zod validation schemas for auth & OTP
-├── .env.example             # Template environment variables
-├── eslint.config.mjs        # ESLint flat config with Prettier integration
-├── package.json             # Scripts & dependencies
-└── tsconfig.json            # TypeScript configuration
-```
+Small clubs still run on registers, spreadsheets and WhatsApp groups. The tools built for them are often expensive, dated, or made only for owners. ClubKeep aims to be:
 
----
+- **Beautiful.** A calm, polished interface that owners and members enjoy opening.
+- **Quick to start.** Add a member with just a mobile number; no forms or passwords.
+- **Affordable.** Low flat monthly plans, with no lock-in and data export at any time.
+- **Competitive and social.** Season-based leaderboards that clubs verify themselves.
 
-## Getting Started
+## Features
 
-### 1. Environment Setup
+### For club owners
 
-Copy `.env.example` to `.env`:
+- Add and invite members by mobile number
+- Membership plans, renewals and member list
+- Check-in by QR code, GPS or manual entry
+- Payment records for cash, UPI and card fees (ClubKeep records payments; it does not process them)
+- Overview of active and lapsing members
+
+### For members
+
+- Sign up and join a club with a mobile number
+- Personal profile with bio stats such as weight, height and measurements
+- Digital and printable club ID card with a QR code linking to your profile
+- Club leaderboards across four calendar seasons a year, ranked on each activity's own measures
+
+### Planned
+
+- City leaderboards across clubs
+- AI-written WhatsApp messages sent from the owner's own number (renewals, class reminders, nudges)
+- Templates for yoga, dance and sports academies
+- Progress charts and goals
+
+## Tech stack
+
+- [Next.js](https://nextjs.org) 16 (App Router) with React 19 and TypeScript
+- [Tailwind CSS](https://tailwindcss.com) v4 and [shadcn/ui](https://ui.shadcn.com)
+- [Better Auth](https://better-auth.com) with phone OTP sign-in
+- [Prisma ORM](https://www.prisma.io) 7 on PostgreSQL
+- Redis (via `ioredis`) for caching and counters
+- [Zod](https://zod.dev) for validation
+- Docker Compose for local PostgreSQL and Redis
+- ESLint, Prettier and Husky for code quality
+
+## Getting started
+
+### Prerequisites
+
+- Node.js 20 or newer
+- Docker (for local PostgreSQL and Redis)
+
+### Setup
 
 ```bash
+# 1. Install dependencies
+npm install
+
+# 2. Create your environment file and adjust values if needed
 cp .env.example .env
-```
 
-Adjust the database credentials or secret keys if necessary.
-
-### 2. Start Local PostgreSQL & Redis
-
-Run Docker Compose in the background:
-
-```bash
+# 3. Start PostgreSQL and Redis
 docker compose up -d
-```
 
-To stop containers:
-
-```bash
-docker compose down
-```
-
-### 3. Database Schema & Migration
-
-Generate Prisma Client and push the schema to PostgreSQL:
-
-```bash
-# Push schema directly to the database
+# 4. Create the database tables
 npm run db:push
 
-# Or run Prisma migrations
-npm run db:migrate
-```
-
-To inspect your database records visually:
-
-```bash
-npm run db:studio
-```
-
-### 4. Run Development Server
-
-```bash
+# 5. Start the dev server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3000](http://localhost:3000).
 
----
+In development, phone OTP codes are printed in the server console instead of being sent as SMS.
 
-## Phone OTP Authentication
+### Useful scripts
 
-Better Auth is pre-configured with the `phoneNumber` plugin in `src/lib/auth.ts`:
+| Command                | What it does                           |
+| ---------------------- | -------------------------------------- |
+| `npm run dev`          | Start the development server           |
+| `npm run build`        | Build for production                   |
+| `npm run start`        | Run the production build               |
+| `npm run lint`         | Run ESLint                             |
+| `npm run format`       | Format the project with Prettier       |
+| `npm run db:generate`  | Generate the Prisma client             |
+| `npm run db:migrate`   | Create and apply a Prisma migration    |
+| `npm run db:push`      | Push the schema straight to the DB     |
+| `npm run db:studio`    | Open Prisma Studio                     |
 
-```typescript
-import { betterAuth } from "better-auth";
-import { prismaAdapter } from "better-auth/adapters/prisma";
-import { phoneNumber } from "better-auth/plugins";
-import { prisma } from "@/lib/prisma";
+## Project structure
 
-export const auth = betterAuth({
-  database: prismaAdapter(prisma, { provider: "postgresql" }),
-  emailAndPassword: { enabled: true },
-  plugins: [
-    phoneNumber({
-      sendOTP: async ({ phoneNumber, code }) => {
-        // Logs OTP in server console for local development
-        console.log(`[SMS OTP] To: ${phoneNumber} | Code: ${code}`);
-        // For production, integrate your SMS provider (Twilio, AWS SNS, Msg91, etc.)
-      },
-    }),
-  ],
-  secret: process.env.BETTER_AUTH_SECRET,
-  baseURL: process.env.BETTER_AUTH_URL,
-});
+```
+├── prisma/schema.prisma     # Database schema
+├── src/
+│   ├── app/                 # Next.js routes and API handlers
+│   ├── components/ui/       # shadcn/ui components
+│   ├── lib/                 # Auth, Prisma, Redis, utilities, Zod schemas
+│   └── generated/prisma/    # Generated Prisma client (do not edit)
+├── docs/                    # Product, architecture and roadmap notes
+├── docker-compose.yml       # Local PostgreSQL and Redis
+└── AGENTS.md                # Guide for AI coding agents
 ```
 
-Client usage in `src/lib/auth-client.ts`:
+## Documentation
 
-```typescript
-import { phoneAuth } from "@/lib/auth-client";
+- [Product brief](docs/PRODUCT.md): who it is for and what it does
+- [Architecture](docs/ARCHITECTURE.md): stack, data model and rules
+- [Roadmap](docs/ROADMAP.md): the first-release build plan
+- [AGENTS.md](AGENTS.md): conventions for AI coding agents
 
-// Send OTP to phone
-await phoneAuth.sendOtp({ phoneNumber: "+1234567890" });
+## Contributing
 
-// Verify OTP
-await phoneAuth.verify({ phoneNumber: "+1234567890", code: "123456" });
-```
-
----
-
-## Available NPM Scripts
-
-| Command                | Description                                     |
-| ---------------------- | ----------------------------------------------- |
-| `npm run dev`          | Start Next.js development server with Turbopack |
-| `npm run build`        | Build the Next.js application for production    |
-| `npm run start`        | Start the production server                     |
-| `npm run lint`         | Run ESLint check                                |
-| `npm run format`       | Format entire project using Prettier            |
-| `npm run format:check` | Check code formatting                           |
-| `npm run db:generate`  | Generate Prisma client types                    |
-| `npm run db:push`      | Push schema changes directly to DB              |
-| `npm run db:migrate`   | Create and apply Prisma migrations              |
-| `npm run db:studio`    | Open Prisma Studio database UI                  |
-
----
-
-## Git Hooks & Code Quality
-
-Husky and `lint-staged` are configured out-of-the-box:
-
-- On every `git commit`, `lint-staged` runs `eslint --fix` and `prettier --write` on staged TypeScript/JavaScript, JSON, and CSS files.
-
----
+ClubKeep is at an early stage. Please open an issue to discuss an idea before sending a pull request. Run `npm run lint` and `npm run format:check` before you push; a pre-commit hook also formats staged files.
 
 ## License
 

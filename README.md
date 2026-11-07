@@ -1,36 +1,168 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Clubkeep Boilerplate
+
+A modern, production-ready full-stack web application boilerplate built with Next.js App Router, React 19, TypeScript, Tailwind CSS v4, shadcn/ui, Better Auth, Prisma ORM 7, PostgreSQL, Redis, Docker Compose, Zod, ESLint, Prettier, and Husky.
+
+---
+
+## Tech Stack Overview
+
+- **Framework**: Next.js 16 (App Router, Turbopack, React 19, TypeScript)
+- **Styling & UI**: Tailwind CSS v4 + [shadcn/ui](https://ui.shadcn.com) (`Card`, `Button`, `Input`, `Label`, `Sonner` toast)
+- **Authentication**: [Better Auth](https://better-auth.com) with PostgreSQL Prisma adapter and built-in **Phone OTP** plugin support
+- **ORM & Database**: [Prisma ORM 7](https://www.prisma.io) with PostgreSQL and `@prisma/adapter-pg`
+- **Cache & Pub/Sub**: [Redis](https://redis.io) via `ioredis`
+- **Local Services**: Docker Compose for PostgreSQL 16 & Redis 7
+- **Validation**: [Zod](https://zod.dev) with ready-made auth and phone schemas
+- **Code Quality & Git Hooks**: ESLint 9 + Prettier (with Tailwind plugin) + Husky + lint-staged
+
+---
+
+## Project Structure
+
+```
+├── .husky/                  # Git hooks (pre-commit: lint-staged)
+├── docker-compose.yml       # Local PostgreSQL 16 and Redis 7 services
+├── prisma/
+│   └── schema.prisma        # Database schema (User, Session, Account, Verification)
+├── src/
+│   ├── app/
+│   │   ├── api/auth/[...all]/
+│   │   │   └── route.ts     # Better Auth API handler
+│   │   ├── globals.css      # Tailwind v4 styles & theme tokens
+│   │   ├── layout.tsx       # Root layout with Geist font & Sonner Toaster
+│   │   └── page.tsx         # Interactive starter demo page
+│   ├── components/
+│   │   └── ui/              # shadcn/ui components (button, card, input, label, sonner)
+│   ├── lib/
+│   │   ├── auth.ts          # Better Auth server configuration with Phone OTP
+│   │   ├── auth-client.ts   # Better Auth client instance (React hooks)
+│   │   ├── prisma.ts        # Prisma Client singleton with PG adapter
+│   │   ├── redis.ts         # Redis client singleton (ioredis)
+│   │   ├── utils.ts         # Utility helpers (cn)
+│   │   └── validations/
+│   │       └── auth.ts      # Zod validation schemas for auth & OTP
+├── .env.example             # Template environment variables
+├── eslint.config.mjs        # ESLint flat config with Prettier integration
+├── package.json             # Scripts & dependencies
+└── tsconfig.json            # TypeScript configuration
+```
+
+---
 
 ## Getting Started
 
-First, run the development server:
+### 1. Environment Setup
+
+Copy `.env.example` to `.env`:
+
+```bash
+cp .env.example .env
+```
+
+Adjust the database credentials or secret keys if necessary.
+
+### 2. Start Local PostgreSQL & Redis
+
+Run Docker Compose in the background:
+
+```bash
+docker compose up -d
+```
+
+To stop containers:
+
+```bash
+docker compose down
+```
+
+### 3. Database Schema & Migration
+
+Generate Prisma Client and push the schema to PostgreSQL:
+
+```bash
+# Push schema directly to the database
+npm run db:push
+
+# Or run Prisma migrations
+npm run db:migrate
+```
+
+To inspect your database records visually:
+
+```bash
+npm run db:studio
+```
+
+### 4. Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Phone OTP Authentication
 
-## Learn More
+Better Auth is pre-configured with the `phoneNumber` plugin in `src/lib/auth.ts`:
 
-To learn more about Next.js, take a look at the following resources:
+```typescript
+import { betterAuth } from "better-auth";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import { phoneNumber } from "better-auth/plugins";
+import { prisma } from "@/lib/prisma";
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+export const auth = betterAuth({
+  database: prismaAdapter(prisma, { provider: "postgresql" }),
+  emailAndPassword: { enabled: true },
+  plugins: [
+    phoneNumber({
+      sendOTP: async ({ phoneNumber, code }) => {
+        // Logs OTP in server console for local development
+        console.log(`[SMS OTP] To: ${phoneNumber} | Code: ${code}`);
+        // For production, integrate your SMS provider (Twilio, AWS SNS, Msg91, etc.)
+      },
+    }),
+  ],
+  secret: process.env.BETTER_AUTH_SECRET,
+  baseURL: process.env.BETTER_AUTH_URL,
+});
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Client usage in `src/lib/auth-client.ts`:
 
-## Deploy on Vercel
+```typescript
+import { phoneAuth } from "@/lib/auth-client";
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+// Send OTP to phone
+await phoneAuth.sendOtp({ phoneNumber: "+1234567890" });
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+// Verify OTP
+await phoneAuth.verify({ phoneNumber: "+1234567890", code: "123456" });
+```
+
+---
+
+## Available NPM Scripts
+
+| Command                | Description                                     |
+| ---------------------- | ----------------------------------------------- |
+| `npm run dev`          | Start Next.js development server with Turbopack |
+| `npm run build`        | Build the Next.js application for production    |
+| `npm run start`        | Start the production server                     |
+| `npm run lint`         | Run ESLint check                                |
+| `npm run format`       | Format entire project using Prettier            |
+| `npm run format:check` | Check code formatting                           |
+| `npm run db:generate`  | Generate Prisma client types                    |
+| `npm run db:push`      | Push schema changes directly to DB              |
+| `npm run db:migrate`   | Create and apply Prisma migrations              |
+| `npm run db:studio`    | Open Prisma Studio database UI                  |
+
+---
+
+## Git Hooks & Code Quality
+
+Husky and `lint-staged` are configured out-of-the-box:
+
+- On every `git commit`, `lint-staged` runs `eslint --fix` and `prettier --write` on staged TypeScript/JavaScript, JSON, and CSS files.

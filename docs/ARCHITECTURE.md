@@ -29,6 +29,8 @@ src/generated/prisma/    generated Prisma client (never edit)
 prisma/schema.prisma     schema (currently User, Session, Account, Verification)
 ```
 
+Design tokens, theme and the `/design` mockup routes are documented in `docs/DESIGN.md`.
+
 Current environment variables (`.env.example`): `DATABASE_URL`, `REDIS_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `NEXT_PUBLIC_APP_URL`.
 
 ## Tenancy and access

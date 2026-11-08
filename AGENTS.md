@@ -21,6 +21,7 @@ Read before coding:
 - `docs/PRODUCT.md`: decisions, pricing tiers, feature rules (the source of truth for behavior)
 - `docs/ARCHITECTURE.md`: stack, folder rules, proposed data model, security rules
 - `docs/ROADMAP.md`: the ordered month-1 task list; pick work from here
+- `docs/DESIGN.md`: approved design tokens and theme (Luxe: orange + gold, light and dark); follow it for all UI
 
 If code and docs disagree, stop and ask; do not guess. When a decision changes, update the doc in the same change.
 

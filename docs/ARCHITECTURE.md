@@ -1,6 +1,6 @@
 # ClubKeep architecture
 
-Last updated: 7 Nov 2026. Sections marked **Proposed** are not built yet; confirm them before running a migration.
+Last updated: 9 Nov 2026. Existing club stack remains early-stage; Personal expansion is proposed. Sections marked **Proposed** are not built yet; confirm them before running a migration.
 
 ## Stack (already set up in the repo)
 
@@ -29,9 +29,21 @@ src/generated/prisma/    generated Prisma client (never edit)
 prisma/schema.prisma     schema (currently User, Session, Account, Verification)
 ```
 
-Design tokens, theme and the `/design` mockup routes are documented in `docs/DESIGN.md`.
+Design tokens, theme and the `/design` mockup routes are documented in `docs/DESIGN.md`. Binding scope lives in [BUSINESS_SPEC.md](BUSINESS_SPEC.md); [ENTITLEMENTS.md](ENTITLEMENTS.md), [HEALTH_INTEGRATIONS.md](HEALTH_INTEGRATIONS.md) and [DELIVERY_PLAN.md](DELIVERY_PLAN.md) are cross-product specifications.
 
 Current environment variables (`.env.example`): `DATABASE_URL`, `REDIS_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `NEXT_PUBLIC_APP_URL`.
+
+## Standalone Personal — proposed, not implemented
+
+- One account can have a Personal profile independent of zero or more club memberships. Club-owned rows remain `clubId` scoped; Personal observations, medication, documents, insurance, ABHA link and user-created care plans are **user-owned** and never accessible merely via club membership.
+- Store metric-scoped, explicit, revocable grants for any Personal-to-club sharing; sponsored Personal Pro entitlements change features, not permissions.
+- Mobile-native HealthKit and Health Connect + direct vendor OAuth adapters; authorized reads; writes restricted to user-created workouts and activities with explicit system permissions and provenance.
+- Encrypted cloud sync with encrypted offline mobile caches, conflict handling, provider sync cursor, consent audit, document-source verification and regional/teen safeguards.
+- External Groq/NVIDIA NIM model routing uses per-provider explicit consent for identifiable medical payloads, region/privacy eligibility and 5/50/250 monthly AI quotas.
+- Business Free 25 members/1 staff with usage quotas, plus original Starter/Growth/Pro plans; Growth/Pro sponsor unknown quantities of Personal Pro seats. Unknown member quota or sponsor counts must not be fabricated.
+- Clinical AI remains separately validated; clinician messaging is design-blocked by Round 2 #22 (no dedicated clinician accounts) versus #24 (secure two-way messaging).
+- Optional India ABDM/ABHA link uses legitimate consent-based health information exchange; ABHA alone neither authorizes access nor verifies insurance policy coverage. Marketplace 15% completed-booking commission uses separate billing/settlement.
+- These are future schema/services, not features present in the existing Prisma models. No migration has been authorized by this document.
 
 ## Tenancy and access
 

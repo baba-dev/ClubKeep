@@ -79,7 +79,8 @@ Three methods, all writing the same attendance record: QR scan (signed, rotating
 
 | Tier    | India per month | Global per month | Includes                                                                                                                  |
 | ------- | --------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| Free    | ₹0              | $0               | 25 club members, 1 staff account; essential workflows with monthly quotas OPEN; no sponsored Personal Pro |\n| Starter | ₹299            | $5               | 1 location, up to 75 active members, 2 staff, QR and manual check-in, ID cards, club leaderboard, payment records        |
+| Free    | ₹0              | $0               | 25 club members, 1 staff account; essential workflows with monthly quotas OPEN; no sponsored Personal Pro |
+| Starter | ₹299            | $5               | 1 location, up to 75 active members, 2 staff, QR and manual check-in, ID cards, club leaderboard, payment records        |
 | Growth  | ₹749            | $15              | Up to 300 active members, 10 staff, GPS check-in, city leaderboards, insights, WhatsApp AI (50 messages a day)            |
 | Pro     | ₹1,799          | $25              | Unlimited members, multi-location, data export API, priority support, WhatsApp AI (200 messages a day)                    |
 

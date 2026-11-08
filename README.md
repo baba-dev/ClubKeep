@@ -116,7 +116,11 @@ In development, phone OTP codes are printed in the server console instead of bei
 
 ## Documentation
 
-- [Product brief](docs/PRODUCT.md): original gym-first business scope\n- [Locked business decisions](docs/BUSINESS_SPEC.md): all 40 Round 1–2 owner choices and unresolved conflicts\n- [Pricing and feature matrix](docs/ENTITLEMENTS.md): Personal and Business tiers and sponsorship\n- [Wearable, medical, AI and ABHA integrations](docs/HEALTH_INTEGRATIONS.md): technical/privacy gates\n- [Delivery phases](docs/DELIVERY_PLAN.md): staged cross-product roadmap
+- [Product brief](docs/PRODUCT.md): original gym-first business scope
+- [Locked business decisions](docs/BUSINESS_SPEC.md): all 40 Round 1–2 owner choices and unresolved conflicts
+- [Pricing and feature matrix](docs/ENTITLEMENTS.md): Personal and Business tiers and sponsorship
+- [Wearable, medical, AI and ABHA integrations](docs/HEALTH_INTEGRATIONS.md): technical/privacy gates
+- [Delivery phases](docs/DELIVERY_PLAN.md): staged cross-product roadmap
 - [Architecture](docs/ARCHITECTURE.md): stack, data model and rules
 - [Roadmap](docs/ROADMAP.md): the first-release build plan
 - [AGENTS.md](AGENTS.md): conventions for AI coding agents

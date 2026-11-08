@@ -2,6 +2,12 @@
 
 Last updated: 7 Nov 2026. This is the source of truth for product behavior. Change it in the same commit as the code.
 
+## Scope expansion: ClubKeep Personal (Round 1 locked, 9 Nov 2026)
+
+ClubKeep is now a two-sided platform: **ClubKeep Personal** (a standalone B2C health, wellness, fitness, medical-record and clinician-workflow product) and **ClubKeep Business** (the existing B2B club management product), using one shared user identity. Personal is useful without joining a club. See [BUSINESS_SPEC.md](BUSINESS_SPEC.md) for all 15 owner-approved Round 1 decisions, revenue rules, privacy boundaries, implementation gates and unresolved Round 2 choices.
+
+**Precedence:** This 9 Nov 2026 addition supersedes earlier assumptions that individuals only use ClubKeep through clubs, that all club owners must start on a paid plan, or that the Personal experience is exclusively free. The existing club requirements and published Starter/Growth/Pro prices remain otherwise unchanged, pending explicit Round 2 entitlement and free-club cap choices. **Do not interpret planned features as implemented.**
+
 ## Vision
 
 ClubKeep is a polished, mobile-first operating system for small fitness and activity clubs. Owners run the whole business from one app, and members keep their own progress in another.

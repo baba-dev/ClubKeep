@@ -2,9 +2,9 @@
 
 > Run your club from your phone. Keep your members for life.
 
-ClubKeep is a polished, mobile-first platform for gyms, sports clubs, and yoga and dance studios. Owners run the whole business from one app, and members keep their profile, ID card and progress in another.
+ClubKeep is a two-sided platform: **ClubKeep Business** for gyms, sports clubs, yoga and dance studios, and independent **ClubKeep Personal** for health and fitness users with or without a club. They share one account while keeping personal health records independently private.
 
-**Status:** early development. The first release is being built, so expect rapid change and no stable API yet.
+**Status:** early development. The present code is a scaffold and Luxe design prototypes; Personal, clinical, insurance, wearable and ABHA integrations are product commitments **not shipped features**. The first club-focused release is being built, with no stable API yet.
 
 ---
 
@@ -40,6 +40,10 @@ Small clubs still run on registers, spreadsheets and WhatsApp groups. The tools 
 - AI-written WhatsApp messages sent from the owner's own number (renewals, class reminders, nudges)
 - Templates for yoga, dance and sports academies
 - Progress charts and goals
+
+## Approved Personal expansion (not implemented yet)
+
+Personal Free / Pro / Premium-AI will support native Apple Health and Android Health Connect, progressively available direct wearables, user-owned medical and insurance documents, AI via Groq/NVIDIA NIM, verified OCR/FHIR, optional India ABHA consent-based integration, and opt-in community. Clinical decision support is a separately validated phase. Business adds a limited Free tier (25 members, 1 staff) without changing existing paid club plan prices.
 
 ## Tech stack
 
@@ -112,7 +116,11 @@ In development, phone OTP codes are printed in the server console instead of bei
 
 ## Documentation
 
-- [Product brief](docs/PRODUCT.md): who it is for and what it does
+- [Product brief](docs/PRODUCT.md): original gym-first business scope
+- [Locked business decisions](docs/BUSINESS_SPEC.md): all 40 Round 1–2 owner choices and unresolved conflicts
+- [Pricing and feature matrix](docs/ENTITLEMENTS.md): Personal and Business tiers and sponsorship
+- [Wearable, medical, AI and ABHA integrations](docs/HEALTH_INTEGRATIONS.md): technical/privacy gates
+- [Delivery phases](docs/DELIVERY_PLAN.md): staged cross-product roadmap
 - [Architecture](docs/ARCHITECTURE.md): stack, data model and rules
 - [Roadmap](docs/ROADMAP.md): the first-release build plan
 - [AGENTS.md](AGENTS.md): conventions for AI coding agents

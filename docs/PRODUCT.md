@@ -1,12 +1,12 @@
 # ClubKeep product brief
 
-Last updated: 7 Nov 2026. This is the source of truth for product behavior. Change it in the same commit as the code.
+Last updated: 9 Nov 2026 (Rounds 1–2 reconciled; original club scope preserved). This is the source of truth for product behavior. Change it in the same commit as the code.
 
-## Scope expansion: ClubKeep Personal (Round 1 locked, 9 Nov 2026)
+## Scope expansion: ClubKeep Personal + Business (Rounds 1–2 locked, 9 Nov 2026)
 
-ClubKeep is now a two-sided platform: **ClubKeep Personal** (a standalone B2C health, wellness, fitness, medical-record and clinician-workflow product) and **ClubKeep Business** (the existing B2B club management product), using one shared user identity. Personal is useful without joining a club. See [BUSINESS_SPEC.md](BUSINESS_SPEC.md) for all 15 owner-approved Round 1 decisions, revenue rules, privacy boundaries, implementation gates and unresolved Round 2 choices.
+ClubKeep is now a two-sided platform: **ClubKeep Personal** (a standalone B2C health, wellness, fitness, medical-record and clinician-workflow product) and **ClubKeep Business** (the existing B2B club management product), using one shared user identity. Personal is useful without joining a club. See [BUSINESS_SPEC.md](BUSINESS_SPEC.md) for **all 40 locked Round 1/2 decisions**, insurance and India ABHA scope; [ENTITLEMENTS.md](ENTITLEMENTS.md) for Personal/Business tier matrices; [HEALTH_INTEGRATIONS.md](HEALTH_INTEGRATIONS.md) for provider/medical/AI safeguards; and [DELIVERY_PLAN.md](DELIVERY_PLAN.md) for delivery sequencing.
 
-**Precedence:** This 9 Nov 2026 addition supersedes earlier assumptions that individuals only use ClubKeep through clubs, that all club owners must start on a paid plan, or that the Personal experience is exclusively free. The existing club requirements and published Starter/Growth/Pro prices remain otherwise unchanged, pending explicit Round 2 entitlement and free-club cap choices. **Do not interpret planned features as implemented.**
+**Precedence:** This 9 Nov 2026 addition supersedes earlier assumptions that individuals only use ClubKeep through clubs, that all club owners must start on a paid plan, or that the Personal experience is exclusively free. Existing Starter/Growth/Pro club prices and stated features remain unchanged. Business Free is **25 members / 1 staff account**, with core workflows and as-yet-unfixed monthly quotas; Growth/Pro get fixed but currently unspecified numbers of sponsored Personal Pro seats. Personal Free/Pro/Premium-AI are distinct subscription tiers. **Do not interpret planned features as implemented.**
 
 ## Vision
 
@@ -30,9 +30,9 @@ ClubKeep is a polished, mobile-first operating system for small fitness and acti
 
 ## Users
 
-- **Owner or manager:** runs a small club (one location, a few staff). Buys the subscription.
+- **Owner or manager:** runs a small club and may use the limited Business Free tier or purchase a paid subscription.
 - **Staff or trainer:** checks members in, records payments, approves scores.
-- **Member:** joins with a mobile number, sees plans, ID card, bio stats and leaderboards. The member app is free.
+- **Member / individual:** may use standalone Personal without a club; essential personal tracking is free, with optional Pro and Premium-AI subscriptions. Club members may additionally see club plans, IDs and leaderboards, and optionally share specific health metrics.
 
 ## Feature rules
 
@@ -75,19 +75,20 @@ Three methods, all writing the same attendance record: QR scan (signed, rotating
 - Opt-in by the owner after a clear warning about the risk of number bans, messages only to members who joined, member opt-out, and an approve-before-send mode.
 - The connection uses the unofficial Baileys library, so it sits behind a channel interface that can be swapped for the official WhatsApp Business API.
 
-## Pricing (final)
+## Business pricing (locked: original paid tiers + new Free tier)
 
 | Tier    | India per month | Global per month | Includes                                                                                                                  |
 | ------- | --------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Free    | ₹0              | $0               | 25 club members, 1 staff account; essential workflows with monthly quotas OPEN; no sponsored Personal Pro |
 | Starter | ₹299            | $5               | 1 location, up to 75 active members, 2 staff, QR and manual check-in, ID cards, club leaderboard, payment records        |
 | Growth  | ₹749            | $15              | Up to 300 active members, 10 staff, GPS check-in, city leaderboards, insights, WhatsApp AI (50 messages a day)            |
 | Pro     | ₹1,799          | $25              | Unlimited members, multi-location, data export API, priority support, WhatsApp AI (200 messages a day)                    |
 
-Plan limits are stored per club and enforced on the server.
+Plan limits are stored per club and enforced on the server. Original paid feature guarantees remain unchanged; Growth and Pro have an **undetermined** number of sponsored Personal Pro seats. Personal: Free (5 AI requests/mo), Pro (₹199/$4; 50), Premium-AI (₹499/$10; 250); annual Personal approximately 20% off, rounding OPEN. See ENTITLEMENTS.md.
 
-## Month-1 scope
+## Month-1 scope — Business track only
 
-Easy phone onboarding, members and plans, QR/GPS/manual check-in, payment records, digital and printable ID card, club leaderboard, member profile with bio stats, basic owner insights, and owner subscription billing. Everything else waits.
+Easy phone onboarding, members and plans, QR/GPS/manual check-in, payment records, digital and printable ID card, club leaderboard, member profile with bio stats, basic owner insights, and owner subscription billing. Everything else waits. Standalone Personal, native wearables, medical records and India ABHA belong to a separate gated development track in DELIVERY_PLAN.md, not this one-month club MVP.
 
 ## Open decisions
 

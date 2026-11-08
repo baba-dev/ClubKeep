@@ -22,6 +22,10 @@ Read before coding:
 - `docs/ARCHITECTURE.md`: stack, folder rules, proposed data model, security rules
 - `docs/ROADMAP.md`: the ordered month-1 task list; pick work from here
 - `docs/DESIGN.md`: approved design tokens and theme (Luxe: orange + gold, light and dark); follow it for all UI
+- `docs/BUSINESS_SPEC.md`: authoritative **40 locked Round 1–2 choices**, privacy and unresolved conflicts
+- `docs/ENTITLEMENTS.md`: Personal and Business prices, caps, sponsorship and AI quotas
+- `docs/HEALTH_INTEGRATIONS.md`: medical, insurance, ABDM/ABHA, wearable, age and AI constraints
+- `docs/DELIVERY_PLAN.md`: separate Club and Personal stages, with regulated-feature release gates
 
 If code and docs disagree, stop and ask; do not guess. When a decision changes, update the doc in the same change.
 
@@ -53,6 +57,12 @@ A Husky pre-commit hook runs `eslint --fix` and `prettier --write` on staged fil
 6. **WhatsApp messaging** goes through a channel interface, is available on Growth and Pro plans only, and is capped per owner per day (Growth 50, Pro 200). Messages go only to members who joined, with opt-out and an approve-before-send mode. Baileys is an unofficial library, so keep it behind the interface so it can be swapped.
 7. **Member data is sensitive** (bio stats are health-adjacent). Collect only what the feature needs, never log phone numbers, OTP codes or bio stats, and keep export and delete paths possible.
 8. **Secrets stay out of git.** Never commit `.env`; add new variables to `.env.example` with a safe placeholder.
+9. **Personal remains standalone.** Sensitive health, medical, insurance and ABHA data belongs to the individual independent of club affiliation. Club subscriptions or sponsorship never grant access.
+10. **Strict health advertising isolation.** Do not send any health data to ad systems. AdSense only on eligible public adult educational/discovery web pages; not on private health/medical pages or teen surfaces.
+11. **Provider consent.** Groq/NVIDIA NIM require explicit revocable provider consent before identifiable medical data transfers. No unapproved fallback. Personal monthly AI requests: 5 Free / 50 Pro / 250 Premium.
+12. **Entitlement locks.** Business Free: 25 club members and 1 staff, core access with still-OPEN monthly usage quotas; existing Starter/Growth/Pro unchanged. Growth/Pro get a fixed but **unselected** number of sponsored Personal Pro seats. Personal monthly Pro ₹199/$4 and Premium-AI ₹499/$10.
+13. **Medical and teen gates.** Clinical decision support requires a separate validated release; teen accounts require jurisdiction-specific age/guardian controls. No clinician accounts (#22); secure clinician messaging (#24) remains design-blocked pending explicit resolution.
+14. **Insurance and ABHA.** Insurance vault is Personal; India ABHA requires optional, approved ABDM consented exchange, not automatic insurance verification.
 
 ## Code conventions
 

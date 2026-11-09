@@ -10,9 +10,9 @@
 - Regional and age policy engine must guard features **at the API level**, not solely in UI.
 - Keep ClubKeep's original Luxe visual design direction; add a distinct, complementary Personal health experience rather than duplicating a club dashboard.
 
-## Phase 0 — Correct current scaffold (critical prerequisite)
+## Phase 0 — Correct current scaffold (critical prerequisite; detailed plan in [PHASE_0_FOUNDATION.md](PHASE_0_FOUNDATION.md))
 
-**Deliver:** production-safe phone OTP instead of simulated homepage `setTimeout`, actual email/phone auth end-to-end, an SMS provider with non-production console-only fallback, default Prisma 7 config/migrations, session/security/role tests, GitHub CI (lint, typecheck, build, tests and migration smoke), app-shell design tokens and mobile/desktop accessibility.
+**Deliver:** production-safe phone OTP instead of simulated homepage `setTimeout`, actual phone/email account flow (including phone-first signup and account collision handling), verified sessions, a real configurable SMS provider with non-production test-only delivery, standard Prisma 7 config/migrations, one global user identity, independent PersonalProfile, basic Club and ClubMembership permissions, session/security/role tests, GitHub CI (lint, typecheck, build, test and migration smoke), Luxe app shell and accessible mobile/desktop auth. Phase 0 does **not** store medical records or implement clinical/insurance UIs.
 
 **Gate:** automated tests validate authentication, schema migration on empty DB, no exposed OTPs/secrets, logged-out denial and an accessible real sign-in journey. Avoid deploying Personal health data into current scaffold.
 
@@ -26,7 +26,7 @@
 
 ## Phase P1 — Independent Personal core (first usable release)
 
-**Deliver:** standalone Personal onboarding and dashboard, private health observations and user-owned workouts/measurements, sleep/recovery/nutrition, blood pressure/glucose/medication entries, PDF/images of medical records, local encrypted mobile cache and encrypted cloud sync, baselines of goal/community functions, 5/50/250 AI allowance ledger, three Personal tiers with agreed prices, web/Apple/Google purchase entitlement reconciliation, privacy center, record export/deletion.
+**Deliver:** standalone Personal onboarding and dashboard, essential **Free fitness/wellness** observations, user-owned workouts/measurements, sleep/recovery/nutrition, and **Free limited medical-information vault (insurance, blood type, user-authored biological instructions)**; paid **Pro/Premium** blood-pressure/glucose clinical history, medications and PDF/images of clinical records; encrypted local cache/cloud sync, initial goals/community, 5/50/250 AI allowances, three Personal tiers and compliant web/Apple/Google purchase entitlements. Clinical history must not be stored for Free accounts via generic device imports.
 
 **Native clients:** implement Apple HealthKit and Health Connect permission requests/readers plus a common sync queue; progressive first direct vendor integrations through the connector framework. Persist all authorized history actually exposed by providers. Support only user-created workout/activity writeback.
 
@@ -36,11 +36,11 @@
 
 ## Phase P2 — Deeper health records and non-clinical AI
 
-**Deliver:** OCR drafts with user sign-off, structured lab/medical record models and FHIR exchange on applicable resources, private insurance entries, medication tracking, history comparisons, advanced charts, personal care plans, appointments and user notes, conversational fitness coaching with Groq and NVIDIA NIM task-aware routing. Add progress challenges/friends/community on opt-in.
+**Deliver:** **paid Pro/Premium** OCR drafts with user sign-off, structured lab/medical records and FHIR exchange on applicable resources, paid medication history, advanced analytics, user-authored care plans, appointment notes and conversational fitness coaching with Groq/NVIDIA NIM. **Free** retains limited private insurance information, blood type and user-entered biological instructions; insurer verification remains separate. Add progress challenges/friends/community on opt-in.
 
 **Gate:** medical extraction quality evaluations against annotated samples; no unverified clinical inference committed to records; explicit per-provider AI consent, consent withdrawal tests, no sensitive model fallbacks, AI caps and vendor cost accounting; private analytics separated from advertising.
 
-**Do not:** represent user-created care plans as clinician-authored treatment. #22 and #24 are inconsistent regarding a verified message recipient.
+**Do not:** represent user-created plans as clinician-authored treatments. **No dedicated clinician accounts** under latest owner direction; any two-way secure messaging with an external clinician requires a separate, explicitly approved recipient authentication design. No such messaging is part of current delivery.
 
 ## Phase P3 — India ABHA/ABDM and insurance interoperability
 
@@ -60,9 +60,9 @@
 
 **Gate:** commission base, withholding/tax, merchant-of-record, KYC/verification and settlement policy selected; payout ledger balanced and idempotent. Do not open clinical provider marketplace until provider verification and local care regulations are reviewed.
 
-## Phase C1 — Clinician collaboration and validated clinical AI (separate approval)
+## Phase C1 — Separately validated clinical AI; external-recipient messaging remains deferred
 
-**Blocked design decision:** #22 says no clinician accounts, while #24 wants secure clinician-patient messages/appointments. Keep user-owned care plans/appointments first. Only design authenticated clinician communications after a **new explicit answer** describes the trusted recipient/verification/identity model.
+**Final clinician account rule:** **No dedicated clinician accounts or portals**. User-owned plans and appointment notes may ship without a clinical actor. In-app verified clinician-to-patient messages remain deferred pending a distinct **external recipient** verification/consent/security decision, which must not create clinician accounts.
 
 **Clinical decision support:** phase separately, with documented intended uses, clinician expertise in evaluation, evidence and bias testing, regulatory classification by geography, incident monitoring and rollback. Health-alert UI gives educational abnormal-reading prompts and clinician follow-up suggestions but **no emergency monitoring service**.
 
@@ -78,7 +78,7 @@
 
 ## Owner decisions still needed before respective go-live gates
 
-1. Clinician identity and secure messaging design (#22/#24).
+1. If secure external-clinician messaging is pursued, its **non-account recipient** verification/consent model (clinician accounts are prohibited).
 2. Exact Free Club monthly quotas, owner/staff counting and club location allowance.
 3. Growth and Pro fixed sponsored Personal Pro seat counts and reassignment/stacking policy.
 4. Per-vendor entitlement differences and fee coverage, actual wearable/provider API approvals.

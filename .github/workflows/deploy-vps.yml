@@ -1,0 +1,160 @@
+name: Deploy ClubKeep VPS
+
+# Unattended deploy is opt-in: set repository variable CLUBKEEP_AUTO_DEPLOY=true
+# only after the first manual deployment and rollback rehearsal succeed.
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: "Current main's full 40-character commit SHA"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: clubkeep-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: >-
+      ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+          (github.event_name == 'workflow_run' &&
+           vars.CLUBKEEP_AUTO_DEPLOY == 'true' &&
+           github.event.workflow_run.conclusion == 'success' &&
+           github.event.workflow_run.event == 'push' &&
+           github.event.workflow_run.head_branch == 'main' &&
+           github.event.workflow_run.head_repository.full_name == github.repository) }}
+    runs-on: ubuntu-24.04-arm
+    environment: production
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TARGET_SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.release_sha || github.event.workflow_run.head_sha }}
+      SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+      VPS_HOST: ${{ secrets.CLUBKEEP_VPS_HOST }}
+      VPS_SSH_KEY: ${{ secrets.CLUBKEEP_DEPLOY_SSH_KEY }}
+      VPS_SSH_KNOWN_HOSTS: ${{ secrets.CLUBKEEP_VPS_KNOWN_HOSTS }}
+      VPS_PORT: ${{ vars.CLUBKEEP_VPS_SSH_PORT || '22' }}
+      NODE_OPTIONS: --max-old-space-size=4096
+    steps:
+      - name: Verify exact eligible main revision
+        id: source
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          [[ "$TARGET_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "Full SHA required"; exit 1; }
+          latest="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')"
+          if [[ "$TARGET_SHA" != "$latest" ]]; then
+            echo "Superseded revision; refusing production deployment"
+            exit 1
+          fi
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_run" ]]; then
+            gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID" |
+              jq -e --arg repo "$GITHUB_REPOSITORY" --arg sha "$TARGET_SHA" '
+                .name == "CI" and .path == ".github/workflows/ci.yml" and
+                .head_repository.full_name == $repo and .head_sha == $sha and
+                .head_branch == "main" and .event == "push" and
+                .status == "completed" and .conclusion == "success"
+              ' >/dev/null
+          else
+            # Manual release also requires a passing main push CI run at this SHA.
+            gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$TARGET_SHA&event=push&per_page=100" |
+              jq -e --arg sha "$TARGET_SHA" '
+                any(.workflow_runs[]?;
+                  .name == "CI" and .head_sha == $sha and
+                  .head_branch == "main" and .status == "completed" and
+                  .conclusion == "success")
+              ' >/dev/null
+          fi
+          echo "sha=$TARGET_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout exact reviewed commit
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ steps.source.outputs.sha }}
+          persist-credentials: false
+
+      - name: Node 24 on ARM64
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Build exact ARM64 production release
+        env:
+          HUSKY: "0"
+          DATABASE_URL: postgresql://build:synthetic@127.0.0.1:5432/clubkeep_build?schema=public
+          REDIS_URL: redis://127.0.0.1:6383
+          AUTH_RATE_LIMIT_REDIS_URL: redis://127.0.0.1:6383
+          BETTER_AUTH_SECRET: synthetic-build-only-secret-not-used-on-production-123456789
+          BETTER_AUTH_URL: https://clubkeep.bababuilds.com
+          NEXT_PUBLIC_APP_URL: https://clubkeep.bababuilds.com
+          GOOGLE_AUTH_ENABLED: "false"
+          EMAIL_LINK_AUTH_ENABLED: "false"
+          PASSKEY_AUTH_ENABLED: "false"
+          NEXT_TELEMETRY_DISABLED: "1"
+        run: |
+          set -Eeuo pipefail
+          test "$(node -p 'process.arch')" = arm64
+          npm ci --no-fund
+          npm run db:validate
+          npm run db:generate
+          npm run typecheck
+          npm run test
+          npm run security:audit
+          npm run build
+          bash infra/deploy/package-release.sh "$TARGET_SHA"
+
+      - name: Confirm revision remains current before deploy
+        run: |
+          set -Eeuo pipefail
+          test "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')" = "$TARGET_SHA" || {
+            echo "Main changed while building; do not deploy superseded artifact"
+            exit 1
+          }
+
+      - name: Configure pinned SSH host
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          [[ "$VPS_HOST" =~ ^[A-Za-z0-9.-]+$ && "$VPS_PORT" =~ ^[0-9]{1,5}$ ]] || exit 1
+          [[ -n "$VPS_SSH_KEY" && -n "$VPS_SSH_KNOWN_HOSTS" ]] || {
+            echo "Configure ClubKeep production environment SSH secrets first"; exit 1;
+          }
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' "$VPS_SSH_KEY" > "$HOME/.ssh/clubkeep_deploy"
+          printf '%s\n' "$VPS_SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/clubkeep_deploy" "$HOME/.ssh/known_hosts"
+          ssh-keygen -lf "$HOME/.ssh/known_hosts" >/dev/null
+
+      - name: Transfer verified release and activate
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          sha="$TARGET_SHA"
+          archive="clubkeep-$sha-linux-arm64.tar.gz"
+          sha256sum -c --strict "$archive.sha256"
+          digest="$(cut -d' ' -f1 "$archive.sha256")"
+          ssh_opts=(-i "$HOME/.ssh/clubkeep_deploy" -o IdentitiesOnly=yes
+            -o BatchMode=yes -o StrictHostKeyChecking=yes
+            -o UserKnownHostsFile="$HOME/.ssh/known_hosts"
+            -o ConnectTimeout=12 -o ServerAliveInterval=15 -o ServerAliveCountMax=4)
+          scp "${ssh_opts[@]}" -P "$VPS_PORT" "$archive" \
+            "clubkeep-deploy@$VPS_HOST:/var/lib/clubkeep/incoming/$archive"
+          ssh "${ssh_opts[@]}" -p "$VPS_PORT" "clubkeep-deploy@$VPS_HOST" \
+            "sudo -n /usr/local/sbin/clubkeep-release '$sha' '$digest'"
+          echo "Deployed ClubKeep SHA $sha" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Smoke test public HTTPS and existing workloads
+        run: |
+          set -Eeuo pipefail
+          curl -fsS --retry 4 --retry-delay 2 --connect-timeout 10 \
+            -o /dev/null https://clubkeep.bababuilds.com/auth/sign-in
+          echo "ClubKeep public HTTPS responded; host helper also validated MenuMinute services." >> "$GITHUB_STEP_SUMMARY"

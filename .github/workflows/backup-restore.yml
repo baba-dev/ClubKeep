@@ -1,0 +1,141 @@
+name: ClubKeep PostgreSQL backup restore rehearsal
+
+# Independent of the product CI and production deploy workflow. No production
+# credentials, SSH, or server access; disposable native PostgreSQL 17 only.
+on:
+  pull_request:
+    paths:
+      - "infra/backup/**"
+      - ".github/workflows/backup-restore.yml"
+      - "docs/BACKUP_RESTORE.md"
+  push:
+    branches: [main]
+    paths:
+      - "infra/backup/**"
+      - ".github/workflows/backup-restore.yml"
+      - "docs/BACKUP_RESTORE.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  restore:
+    name: Native PG17 backup and disposable restore (x64)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      HUSKY: "0"
+      BETTER_AUTH_SECRET: ci-synthetic-only-not-for-production-123456789
+      BETTER_AUTH_URL: https://ci.clubkeep.invalid
+      NEXT_PUBLIC_APP_URL: https://ci.clubkeep.invalid
+    steps:
+      - name: Checkout review revision
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Validate shell syntax and default-deny behaviour
+        run: |
+          set -Eeuo pipefail
+          bash -n infra/backup/clubkeep-restore-drill.sh
+          # An unprivileged CI shell can never run even the inspect step.
+          if bash infra/backup/clubkeep-restore-drill.sh --inspect /tmp/fake.dump >/dev/null 2>&1; then
+            echo "Restore script wrongly accepted non-root execution" >&2
+            exit 1
+          fi
+
+      - name: Set up Node 24
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install pinned dependencies
+        run: npm ci --no-fund
+      - name: Install native PostgreSQL 17 on disposable runner
+        run: |
+          set -Eeuo pipefail
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq ca-certificates curl postgresql-common
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc             -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc
+          printf 'Types: deb\nURIs: https://apt.postgresql.org/pub/repos/apt\nSuites: noble-pgdg\nComponents: main\nSigned-By: /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc\n' |
+            sudo tee /etc/apt/sources.list.d/pgdg.sources >/dev/null
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq postgresql-17
+          if ! pg_lsclusters -h | awk '$1=="17" && $2=="main" { found=1 } END { exit !found }'; then
+            sudo pg_createcluster 17 main -p 5543 --start
+          fi
+          PG17_PORT="$(pg_lsclusters -h | awk '$1=="17" && $2=="main" {print $3}')"
+          test -n "$PG17_PORT"
+          if ! pg_isready -p "$PG17_PORT"; then
+            sudo pg_ctlcluster 17 main start
+          fi
+          sudo -u postgres psql -p "$PG17_PORT" -v ON_ERROR_STOP=1             -c "CREATE ROLE clubkeep_restore_ci LOGIN PASSWORD 'synthetic-restore-test'"
+          sudo -u postgres createdb -p "$PG17_PORT" -O clubkeep_restore_ci clubkeep_restore_ci
+          echo "PG17_PORT=$PG17_PORT" >> "$GITHUB_ENV"
+          echo "DATABASE_URL=postgresql://clubkeep_restore_ci:synthetic-restore-test@127.0.0.1:$PG17_PORT/clubkeep_restore_ci?schema=public" >> "$GITHUB_ENV"
+          sudo -u postgres psql -p "$PG17_PORT" -Atqc "SHOW server_version"
+      - name: Migrate and create synthetic ClubKeep fixture
+        run: |
+          set -Eeuo pipefail
+          npm run db:validate
+          npm run db:deploy
+          npm run db:deploy
+          PGPASSWORD=synthetic-restore-test psql \
+            -h 127.0.0.1 -p "$PG17_PORT" -U clubkeep_restore_ci \
+            -d clubkeep_restore_ci -v ON_ERROR_STOP=1 <<'SQL'
+          INSERT INTO "user" ("id","name","email","updatedAt")
+          VALUES ('restore-user','Backup Test','restore-user@example.invalid',NOW());
+          INSERT INTO "Club" ("id","slug","name","updatedAt")
+          VALUES ('restore-club','restore-test-club','Synthetic Backup Club',NOW());
+          INSERT INTO "ClubMembership" ("id","clubId","userId","role","updatedAt")
+          VALUES ('restore-membership','restore-club','restore-user','OWNER',NOW());
+          SQL
+
+      - name: Create root-owned custom-format ClubKeep backup
+        run: |
+          set -Eeuo pipefail
+          sudo install -d -o root -g root -m 0700 /var/lib/clubkeep/backups
+          archive="/var/lib/clubkeep/backups/clubkeep-20261110T000000Z-$GITHUB_SHA.dump"
+          sudo install -o root -g root -m 0600 /dev/null "$archive"
+          sudo -u postgres pg_dump -p "$PG17_PORT" -Fc --no-owner \
+            -d clubkeep_restore_ci | sudo tee "$archive" >/dev/null
+          echo "RESTORE_TEST_ARCHIVE=$archive" >> "$GITHUB_ENV"
+
+      - name: Verify archive, restore it privately and drop scratch DB
+        run: |
+          set -Eeuo pipefail
+          sudo bash infra/backup/clubkeep-restore-drill.sh \
+            --inspect "$RESTORE_TEST_ARCHIVE" --port "$PG17_PORT"
+          sudo bash infra/backup/clubkeep-restore-drill.sh \
+            --execute "$RESTORE_TEST_ARCHIVE" --port "$PG17_PORT" |
+            tee "$RUNNER_TEMP/clubkeep-restore-evidence.txt"
+          grep -Fq "Restored row counts (global users / clubs / applied migrations): 1/1/2" \
+            "$RUNNER_TEMP/clubkeep-restore-evidence.txt"
+          test "$(sudo -u postgres psql -p "$PG17_PORT" -d postgres -Atqc \
+            "SELECT count(*) FROM pg_database WHERE datname LIKE 'clubkeep_drill_%'")" = "0"
+
+      - name: Reject corrupt, untrusted and symlink backup archives
+        run: |
+          set -Eeuo pipefail
+          root=/var/lib/clubkeep/backups
+          bad="$root/clubkeep-20261110T010000Z-$GITHUB_SHA.dump"
+          sudo install -o root -g root -m 0600 /dev/null "$bad"
+          if sudo bash infra/backup/clubkeep-restore-drill.sh \
+            --execute "$bad" --port "$PG17_PORT" > /dev/null 2>&1; then
+            echo "Corrupt backup was accepted" >&2
+            exit 1
+          fi
+          sudo rm -f "$bad"
+          sudo ln -s "$RESTORE_TEST_ARCHIVE" "$bad"
+          if sudo bash infra/backup/clubkeep-restore-drill.sh \
+            --inspect "$bad" --port "$PG17_PORT" > /dev/null 2>&1; then
+            echo "Symlink backup was accepted" >&2
+            exit 1
+          fi
+          sudo rm -f "$bad"
+
+      - name: Report rehearsal evidence
+        if: success()
+        run: |
+          echo "Verified ClubKeep PG17 custom-format backup, synthetic rows, migration history, disposable restore and scratch cleanup." >> "$GITHUB_STEP_SUMMARY"

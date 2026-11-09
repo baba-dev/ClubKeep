@@ -38,7 +38,8 @@ test("Redis connection is required and protocol restricted", () => {
 test("auth configuration must have a non-placeholder secret and public HTTPS origin", () => {
   assert.throws(() => requireAuthConfig({}), /BETTER_AUTH_SECRET/);
   assert.throws(
-    () => requireAuthConfig({ BETTER_AUTH_SECRET: "123", BETTER_AUTH_URL: "http://localhost:3000" }),
+    () =>
+      requireAuthConfig({ BETTER_AUTH_SECRET: "123", BETTER_AUTH_URL: "http://localhost:3000" }),
     /32 characters/
   );
   assert.throws(
@@ -105,11 +106,16 @@ test("passkey origins must match the relying-party domain", () => {
   };
   assert.doesNotThrow(() => validateOptionalIntegrations(passkey));
   assert.throws(
-    () => validateOptionalIntegrations({ ...passkey, PASSKEY_EXPECTED_ORIGIN: "https://evil.test" }),
+    () =>
+      validateOptionalIntegrations({ ...passkey, PASSKEY_EXPECTED_ORIGIN: "https://evil.test" }),
     /Passkey origin/
   );
   assert.throws(
-    () => validateOptionalIntegrations({ ...passkey, PASSKEY_EXPECTED_ORIGIN: "http://clubkeep.example.com" }),
+    () =>
+      validateOptionalIntegrations({
+        ...passkey,
+        PASSKEY_EXPECTED_ORIGIN: "http://clubkeep.example.com",
+      }),
     /HTTPS/
   );
 });

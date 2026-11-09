@@ -134,6 +134,7 @@ The eventual production deployment is an isolated ClubKeep systemd service on th
 - [Phase 0B identity and migrations plan](docs/PHASE_0B_IDENTITY_MIGRATIONS.md): global users, passkeys, tenant roles, seven-day invites, additive and legacy database migrations
 - [Phase 0B database runbook](docs/PHASE_0B_RUNBOOK.md): disposable migration validation, populated baseline handling, recovery and production isolation
 - [Phase 0B Better Auth compatibility](docs/PHASE_0B_SCHEMA_COMPATIBILITY.md): pinned core/passkey fields, legacy phone and required-email decisions
+- [Phase 0C authentication plan](docs/PHASE_0C_AUTHENTICATION_PLAN.md): verified Google, explicit linking, passkeys, five-minute Mail-in-a-Box email links, CI and production activation gates
 - [Bare-metal co-hosting plan](docs/BAREMETAL_DEPLOYMENT.md): ClubKeep on MenuMinute host, isolated systemd, Nginx, DB, Redis security and backup
 - [Architecture](docs/ARCHITECTURE.md): stack, data model and rules
 - [Roadmap](docs/ROADMAP.md): the first-release build plan

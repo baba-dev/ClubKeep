@@ -67,10 +67,11 @@ test("two clubs allow one global user with different roles and reject duplicate 
     );
     await db.query("SAVEPOINT reject_cross_club_contact");
     await assert.rejects(
-      () => db.query(
-        'INSERT INTO "ClubContact" ("id","clubId","membershipId","updatedAt") VALUES ($1,$2,$3,NOW())',
-        ["attached-invalid", "id-club-b", "member-a"]
-      ),
+      () =>
+        db.query(
+          'INSERT INTO "ClubContact" ("id","clubId","membershipId","updatedAt") VALUES ($1,$2,$3,NOW())',
+          ["attached-invalid", "id-club-b", "member-a"]
+        ),
       (err) => err.code === "23503"
     );
     await db.query("ROLLBACK TO SAVEPOINT reject_cross_club_contact");

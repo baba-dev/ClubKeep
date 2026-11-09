@@ -31,6 +31,7 @@ Read before coding:
 - `docs/PHASE_0B_IDENTITY_MIGRATIONS.md`: authoritative design for global identity/tenancy, baseline and migrations
 - `docs/PHASE_0B_SCHEMA_COMPATIBILITY.md`: Better Auth 1.7.18 original-model snapshot and passkey field contract
 - `docs/PHASE_0B_RUNBOOK.md`: **required** steps for disposable native PostgreSQL 17 migration testing and legacy baselining; never run against MenuMinute
+- `docs/PHASE_0C_AUTHENTICATION_PLAN.md`: **source of truth for Phase 0C** real Google OAuth, explicit account linking, hashed single-use magic links on owner Mail-in-a-Box SMTP, session-required passkeys and auth-abuse controls
 - `docs/BAREMETAL_DEPLOYMENT.md`: isolated ClubKeep systemd/Nginx and DB/Redis setup on existing MenuMinute server; no Docker
 
 If code and docs disagree, stop and ask; do not guess. When a decision changes, update the doc in the same change.

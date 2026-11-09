@@ -26,13 +26,14 @@ Read before coding:
 - `docs/ENTITLEMENTS.md`: Personal and Business prices, caps, sponsorship and AI quotas
 - `docs/HEALTH_INTEGRATIONS.md`: medical, insurance, ABDM/ABHA, wearable, age and AI constraints
 - `docs/DELIVERY_PLAN.md`: separate Club and Personal stages, with regulated-feature release gates
-- `docs/PHASE_0_FOUNDATION.md`: proposed execution detail for auth, migrations, shared identity, security, CI and staging gates
+- `docs/PHASE_0_FOUNDATION.md`: **authoritative Phase 0 plan** for Google/passkey/magic-link auth, 7-day invite/QR, migrations, identity, security and CI
+- `docs/BAREMETAL_DEPLOYMENT.md`: isolated ClubKeep systemd/Nginx and DB/Redis setup on existing MenuMinute server; no Docker
 
 If code and docs disagree, stop and ask; do not guess. When a decision changes, update the doc in the same change.
 
 ## Stack
 
-Next.js 16 (App Router, React 19, TypeScript), Tailwind CSS v4 with shadcn/ui (`@base-ui/react`), Better Auth (phone OTP), Prisma 7 on PostgreSQL (`@prisma/adapter-pg`), Redis (`ioredis`), Zod 4, Docker Compose locally. `next.config.ts` enables `cacheComponents` and `partialPrefetching`, so read the Next.js docs in `node_modules/next/dist/docs/` before writing data fetching or caching code.
+Next.js 16 (App Router, React 19, TypeScript), Tailwind CSS v4 with shadcn/ui (`@base-ui/react`), Better Auth (**Google OAuth, passkeys, magic links to replace legacy phone OTP**), Prisma 7 on **bare-metal PostgreSQL shared daemon with separate database**, isolated Redis auth state (`ioredis`), Zod 4, native PostgreSQL/Redis for local development (**no Docker**). `next.config.ts` enables `cacheComponents` and `partialPrefetching`, so read the Next.js docs in `node_modules/next/dist/docs/` before writing data fetching or caching code.
 
 ## Commands
 
@@ -43,7 +44,7 @@ npm run format:check   # Prettier check; use `npm run format` to fix
 npm run build          # production build (run before finishing larger changes)
 npm run db:generate    # regenerate Prisma client after schema edits
 npm run db:migrate     # create/apply a migration (preferred over db:push for real changes)
-docker compose up -d   # local PostgreSQL 16 and Redis 7
+# Start native PostgreSQL and Redis services independently; no Docker/Compose in the approved setup
 ```
 
 A Husky pre-commit hook runs `eslint --fix` and `prettier --write` on staged files.
@@ -53,10 +54,10 @@ A Husky pre-commit hook runs `eslint --fix` and `prettier --write` on staged fil
 1. **Multi-tenant by club.** Every club-owned row carries a `clubId`, and every query and mutation is scoped to the caller's club and checked against their role on the server. Never trust a `clubId` sent by the client without checking membership.
 2. **ClubKeep never processes club payments.** Club fees paid by members (cash, UPI, card) are only recorded in a ledger. Do not add payment collection for club fees. Only owner subscriptions to ClubKeep are billed: Razorpay for India, Stripe elsewhere, behind one billing interface.
 3. **Money is stored as integer minor units plus a currency code.** Never use floats for money.
-4. **Phone numbers are stored in E.164 format** (for example `+919876543210`) and validated with Zod before use.
+4. **Phone numbers are optional unverified contact data**, in E.164 format when present, and **not globally unique** until separately proven. Owner-entered phones or Google People API values do **not** verify ownership and cannot authorize/merge a user.
 5. **Leaderboards count only club-approved scores** from members attached to a club. The club is the verification authority.
 6. **WhatsApp messaging** goes through a channel interface, is available on Growth and Pro plans only, and is capped per owner per day (Growth 50, Pro 200). Messages go only to members who joined, with opt-out and an approve-before-send mode. Baileys is an unofficial library, so keep it behind the interface so it can be swapped.
-7. **Member data is sensitive** (bio stats are health-adjacent). Collect only what the feature needs, never log phone numbers, OTP codes or bio stats, and keep export and delete paths possible.
+7. **Member data is sensitive** (bio stats are health-adjacent). Collect only what the feature needs; never log unverified phone numbers, invite/magic-link tokens, passkey challenges or bio stats, and keep export/delete paths possible.
 8. **Secrets stay out of git.** Never commit `.env`; add new variables to `.env.example` with a safe placeholder.
 9. **Personal remains standalone.** Sensitive health, medical, insurance and ABHA data belongs to the individual independent of club affiliation. Club subscriptions or sponsorship never grant access.
 10. **Strict health advertising isolation.** Do not send any health data to ad systems. AdSense only on eligible public adult educational/discovery web pages; not on private health/medical pages or teen surfaces.
@@ -64,7 +65,9 @@ A Husky pre-commit hook runs `eslint --fix` and `prettier --write` on staged fil
 12. **Entitlement locks.** Business Free: 25 club members and 1 staff, core access with still-OPEN monthly usage quotas; existing Starter/Growth/Pro unchanged. Growth/Pro get a fixed but **unselected** number of sponsored Personal Pro seats. Personal monthly Pro ₹199/$4 and Premium-AI ₹499/$10.
 13. **Medical and teen gates.** Clinical decision support requires separate validation; teen accounts require age/guardian jurisdiction rules. **No clinician accounts or clinician portals**, reaffirmed by owner. Verified external-recipient messaging is deferred unless separately approved.
 14. **Insurance and ABHA.** Free Personal medical-information vault is **insurance info, blood type and user-written biological instructions only; no medical history**. Pro/Premium may later offer clinical history and ABDM record exchange subject to consent/approval. ABHA is not insurance verification.
-15. **Phase 0 isolation.** Only real auth, migrations, CI, security and shared global identity/club roles. No clinical, insurer, wearable, AI, billing or clinician modules in Phase 0. Read PHASE_0_FOUNDATION.md.
+15. **Phase 0 isolation.** Only real **Google/passkey/email-link authentication**, **atomic seven-day single-use member invite/QR**, Prisma migrations, CI, security and shared global identity/club roles. **No SMS/phone OTP** and no clinical, insurer, wearable, AI, billing or clinician modules. Read PHASE_0_FOUNDATION.md.
+16. **Bare-metal and tenant isolation.** Deploy ClubKeep on the existing MenuMinute server, **not Docker**, with separate systemd/release, PostgreSQL database and role, non-evicting Redis auth security state, secrets, Nginx virtual host and backup/restore target. Do not restart or alter MenuMinute.
+17. **Identity and recovery boundaries.** A club invite authorizes **club membership only**, never phone verification or recovery of a person's Personal account. Staff can revoke/reissue membership links, not global identities. Passkeys require independent Google/email/backup-passkey recovery.
 
 ## Code conventions
 

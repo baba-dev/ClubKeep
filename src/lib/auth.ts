@@ -2,22 +2,50 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "@/lib/prisma";
 import { requireAuthConfig } from "@/lib/server-env";
+import { resolveAuthConfig } from "@/lib/auth-config";
+import { getGoogleProvider, GOOGLE_ACCOUNT_LINK_POLICY } from "@/lib/oauth-policy";
 
 const { secret, baseURL } = requireAuthConfig();
+const config = resolveAuthConfig();
 
 export const auth = betterAuth({
-  database: prismaAdapter(prisma, {
-    provider: "postgresql",
-  }),
-  // Preserve existing password accounts. Google, magic links and passkeys
-  // are separately delivered in Phase 0C after schema reviews in 0B.
-  emailAndPassword: {
-    enabled: true,
-    autoSignIn: true,
-  },
-  // No SMS provider, no phone OTP plugin, and no logging verification codes.
+  database: prismaAdapter(prisma, { provider: "postgresql" }),
   secret,
   baseURL,
+  trustedOrigins: [config.origin],
+  account: { accountLinking: GOOGLE_ACCOUNT_LINK_POLICY },
+
+  // Never silently lock out previously enrolled password users. New signup
+  // must proceed through independently verified Google/email magic links.
+  emailAndPassword: {
+    enabled: true,
+    disableSignUp: true,
+    autoSignIn: false,
+  },
+
+  socialProviders: getGoogleProvider(config),
+  advanced: {
+    // Only trust an operator-confirmed, Nginx-overwritten header. Never accept
+    // arbitrary X-Forwarded-For from the public Internet.
+    ipAddress: { ipAddressHeaders: config.trustedIpHeader ? [config.trustedIpHeader] : [] },
+  },
+  session: { cookieCache: { enabled: false } },
+
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user) => {
+          // One independent Personal profile exists even with zero clubs.
+          // Idempotent against concurrent OAuth creation callbacks.
+          await prisma.personalProfile.upsert({
+            where: { userId: user.id },
+            create: { userId: user.id },
+            update: {},
+          });
+        },
+      },
+    },
+  },
 });
 
 export type Auth = typeof auth;

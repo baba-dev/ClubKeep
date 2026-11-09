@@ -4,6 +4,19 @@
 
 **Related:** [PRODUCT.md](PRODUCT.md) (existing club features, roadmap and current paid club tiers), [ARCHITECTURE.md](ARCHITECTURE.md), [ROADMAP.md](ROADMAP.md). Later decisions must explicitly supersede this document rather than silently reverting the choices.
 
+## New owner direction — SMS-free identity and deployment (9 November 2026)
+
+**LOCKED:**
+- No SMS provider, SMS OTP, or phone-number-based sign-in/registration. Google OAuth, WebAuthn/passkeys, optional email magic links and a single global user identity are the planned identity foundation. Existing email/password users should remain operable during transition.
+- Owners authorize members with **single-use club invitation links or QR codes**, **7-day** expiry, revoke/reissue, and audited claiming. A club invite proves **permission to join the club only**; a forwarded link can be claimed by someone else and therefore is **not evidence of phone or real-world identity**.
+- Phone fields are **optional unverified contact information**, not globally unique and not authentication or account-linking factors. Only a phone separately verified through an appropriate proof may be globally unique. Owner-entered numbers must never squat an account.
+- Google standard OAuth establishes the Google account identity and optionally verified email, **not a guaranteed verified mobile number**. Optional Google People API phone import (with additional consent) is merely an **unverified contact**, may be absent, and is NOT a mandatory sign-up step.
+- After identity onboarding, members should enroll **passkeys** for return sign-in, with Google or a separately verified email magic-link as recovery. Staff may revoke/reissue **club membership**, never seize or reset an individual's independent Personal account. A person with no remaining authenticator requires a separately designed high-assurance recovery process.
+- **WhatsApp inbound phone-verification** is a possible **later** method only. Opening a prefilled message is not proof; an authenticated received message with short-lived challenge/sender validation is necessary, and official API/number requirements and pricing must be reviewed.
+- Deploy **bare metal on the existing MenuMinute server**, not Docker/Compose. Host hardware can be shared but ClubKeep's application/systemd service, secrets, database identity, production releases, logs, backup restoration and auth security state must be isolated. Existing MenuMinute operations must not be disrupted. See [PHASE_0_FOUNDATION.md](PHASE_0_FOUNDATION.md) and [BAREMETAL_DEPLOYMENT.md](BAREMETAL_DEPLOYMENT.md).
+
+**These later instructions supersede any earlier requirement** for phone-only onboarding, SMS providers/OTP, Docker, dedicated host or staff-mediated global account recovery. Provider brand/free tier, exact production hostname and verified-phone implementation remain open and are not invented.
+
 ## Latest owner amendments — 9 November 2026 (supersede affected Round 2 selections)
 
 1. **No clinician accounts, tenants, portals or clinician subscriptions.** Individuals manage their own care plans/appointment notes. The earlier interest in secure clinician-patient messages (#24) does **not** authorize clinician accounts. Two-way clinician messaging is **not an approved implementation**, and remains deferred unless an external-recipient identity mechanism is explicitly chosen.

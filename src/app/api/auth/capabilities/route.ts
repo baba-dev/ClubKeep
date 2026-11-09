@@ -1,5 +1,4 @@
-import { NextResponse } from "next/server";
-import { connection } from "next/server";
+import { NextResponse, connection } from "next/server";
 import { publicAuthFeatures } from "@/lib/auth-config";
 
 export async function GET() {

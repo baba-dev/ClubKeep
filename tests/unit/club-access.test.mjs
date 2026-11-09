@@ -17,9 +17,7 @@ function fakeDb(records) {
           calls.push(query);
           const { clubId, userId } = query.where.clubId_userId;
           const record = records.find((x) => x.clubId === clubId && x.userId === userId);
-          return record
-            ? { id: record.id, role: record.role, status: record.status }
-            : null;
+          return record ? { id: record.id, role: record.role, status: record.status } : null;
         },
       },
     },
@@ -34,9 +32,18 @@ const records = [
 
 test("rejects absent identity before database access", async () => {
   const client = fakeDb(records);
-  await assert.rejects(() => requireActiveClubMembership(client.db, "", "club-a"), AccessDeniedError);
-  await assert.rejects(() => requireActiveClubMembership(client.db, null, "club-a"), AccessDeniedError);
-  await assert.rejects(() => requireActiveClubMembership(client.db, "person-1", ""), AccessDeniedError);
+  await assert.rejects(
+    () => requireActiveClubMembership(client.db, "", "club-a"),
+    AccessDeniedError
+  );
+  await assert.rejects(
+    () => requireActiveClubMembership(client.db, null, "club-a"),
+    AccessDeniedError
+  );
+  await assert.rejects(
+    () => requireActiveClubMembership(client.db, "person-1", ""),
+    AccessDeniedError
+  );
   assert.equal(client.calls.length, 0);
 });
 
@@ -77,7 +84,10 @@ test("suspended and left memberships cannot authorize reads", async () => {
 
 test("role permissions always default to deny, including empty allowlist", async () => {
   const client = fakeDb(records);
-  await assert.rejects(() => requireClubRole(client.db, "person-1", "club-a", []), AccessDeniedError);
+  await assert.rejects(
+    () => requireClubRole(client.db, "person-1", "club-a", []),
+    AccessDeniedError
+  );
   await assert.rejects(
     () => requireClubRole(client.db, "person-1", "club-b", ["OWNER"]),
     AccessDeniedError

@@ -143,6 +143,11 @@ jobs:
           printf 'Types: deb\nURIs: https://apt.postgresql.org/pub/repos/apt\nSuites: noble-pgdg\nComponents: main\nSigned-By: /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc\n' | sudo tee /etc/apt/sources.list.d/pgdg.sources >/dev/null
           sudo apt-get update -qq
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq postgresql-17
+          # Some hosted images disable auto-creation of a 17/main cluster.
+          # Create one only on this disposable GitHub-hosted runner.
+          if ! pg_lsclusters -h | awk '$1 == "17" && $2 == "main" { found=1 } END { exit !found }'; then
+            sudo pg_createcluster 17 main -p 5543 --start
+          fi
           PG17_PORT="$(pg_lsclusters -h | awk '$1 == "17" && $2 == "main" { print $3 }')"
           test -n "$PG17_PORT"
           if ! pg_isready -p "$PG17_PORT"; then sudo pg_ctlcluster 17 main start; fi

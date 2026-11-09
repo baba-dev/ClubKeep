@@ -21,7 +21,10 @@ async function tx(fn) {
 async function rejectsUnique(db, query, values) {
   await db.query("SAVEPOINT unique_case");
   try {
-    await assert.rejects(() => db.query(query, values), (err) => err.code === "23505");
+    await assert.rejects(
+      () => db.query(query, values),
+      (err) => err.code === "23505"
+    );
   } finally {
     await db.query("ROLLBACK TO SAVEPOINT unique_case");
   }
@@ -58,14 +61,15 @@ test("two clubs allow one global user with different roles and reject duplicate 
     );
 
     // A club role cannot supply global PersonalProfile ownership.
-    await db.query(
-      'INSERT INTO "PersonalProfile" ("userId", "updatedAt") VALUES ($1,NOW())',
-      ["id-user-1"]
-    );
+    await db.query('INSERT INTO "PersonalProfile" ("userId", "updatedAt") VALUES ($1,NOW())', [
+      "id-user-1",
+    ]);
     assert.equal(
-      (await db.query('SELECT count(*)::int AS n FROM "PersonalProfile" WHERE "userId" = $1', [
-        "id-user-1",
-      ])).rows[0].n,
+      (
+        await db.query('SELECT count(*)::int AS n FROM "PersonalProfile" WHERE "userId" = $1', [
+          "id-user-1",
+        ])
+      ).rows[0].n,
       1
     );
   });
@@ -84,21 +88,25 @@ test("unverified phone contacts are nonunique and cannot create global accounts"
       ["phone-contact-a", "phone-club-a", phone, "phone-contact-b", "phone-club-b", phone]
     );
     assert.equal(
-      (await db.query('SELECT count(*)::int AS n FROM "ClubContact" WHERE "phoneE164" = $1', [
-        phone,
-      ])).rows[0].n,
+      (
+        await db.query('SELECT count(*)::int AS n FROM "ClubContact" WHERE "phoneE164" = $1', [
+          phone,
+        ])
+      ).rows[0].n,
       2
     );
     // Legacy User.phoneNumber is preserved but not globally unique after 0B.
-    await db.query(`
+    await db.query(
+      `
       INSERT INTO "user" ("id", "name", "email", "phoneNumber", "updatedAt")
       VALUES ('legacy-phone-1', 'Contact One', 'legacy1@example.invalid', $1, NOW()),
              ('legacy-phone-2', 'Contact Two', 'legacy2@example.invalid', $1, NOW())
-    `, [phone]);
+    `,
+      [phone]
+    );
     assert.equal(
-      (await db.query('SELECT count(*)::int AS n FROM "user" WHERE "phoneNumber" = $1', [
-        phone,
-      ])).rows[0].n,
+      (await db.query('SELECT count(*)::int AS n FROM "user" WHERE "phoneNumber" = $1', [phone]))
+        .rows[0].n,
       2
     );
   });
@@ -119,7 +127,8 @@ test("passkey IDs, OAuth subjects and invitation hashes are globally unique", as
       'INSERT INTO "passkey" ("id", "publicKey", "userId", "credentialID", "counter", "deviceType", "backedUp") VALUES ($1,$2,$3,$4,0,$5,false)',
       ["passkey-a", "TEST_PUBLIC_KEY_A", "token-user-1", "credential-unique", "singleDevice"]
     );
-    await rejectsUnique(db,
+    await rejectsUnique(
+      db,
       'INSERT INTO "passkey" ("id","publicKey","userId","credentialID","counter","deviceType","backedUp") VALUES ($1,$2,$3,$4,0,$5,false)',
       ["passkey-b", "TEST_PUBLIC_KEY_B", "token-user-2", "credential-unique", "multiDevice"]
     );
@@ -127,7 +136,8 @@ test("passkey IDs, OAuth subjects and invitation hashes are globally unique", as
       'INSERT INTO "account" ("id","providerId","accountId","userId","updatedAt") VALUES ($1,$2,$3,$4,NOW())',
       ["oauth-1", "google", "google-subject-1", "token-user-1"]
     );
-    await rejectsUnique(db,
+    await rejectsUnique(
+      db,
       'INSERT INTO "account" ("id","providerId","accountId","userId","updatedAt") VALUES ($1,$2,$3,$4,NOW())',
       ["oauth-2", "google", "google-subject-1", "token-user-2"]
     );
@@ -135,7 +145,8 @@ test("passkey IDs, OAuth subjects and invitation hashes are globally unique", as
       'INSERT INTO "ClubInvite" ("id","clubId","issuedByUserId","tokenHash","expiresAt") VALUES ($1,$2,$3,$4,NOW() + INTERVAL \'7 days\')',
       ["token-invite-a", "token-club", "token-user-1", "hmac-digest-a"]
     );
-    await rejectsUnique(db,
+    await rejectsUnique(
+      db,
       'INSERT INTO "ClubInvite" ("id","clubId","issuedByUserId","tokenHash","expiresAt") VALUES ($1,$2,$3,$4,NOW() + INTERVAL \'7 days\')',
       ["token-invite-b", "token-club", "token-user-1", "hmac-digest-a"]
     );

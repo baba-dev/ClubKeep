@@ -1,7 +1,4 @@
-import type {
-  ClubRole,
-  PrismaClient,
-} from "@/generated/prisma/client";
+import type { ClubRole, PrismaClient } from "@/generated/prisma/client";
 
 /**
  * Default-deny data access. Call only after the server verified a Better Auth

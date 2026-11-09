@@ -26,15 +26,19 @@ test("preexisting Better Auth identities survive baseline resolution and additiv
     assert.equal(account.rows[0].providerId, "credential");
     assert.equal(account.rows[0].password, "fixture-password-not-a-real-hash");
     assert.equal(
-      (await db.query('SELECT count(*)::int AS n FROM "session" WHERE "userId"=$1', [
-        "legacy-user-1",
-      ])).rows[0].n,
+      (
+        await db.query('SELECT count(*)::int AS n FROM "session" WHERE "userId"=$1', [
+          "legacy-user-1",
+        ])
+      ).rows[0].n,
       1
     );
     assert.equal(
-      (await db.query('SELECT count(*)::int AS n FROM "verification" WHERE "identifier"=$1', [
-        "legacy@example.invalid",
-      ])).rows[0].n,
+      (
+        await db.query('SELECT count(*)::int AS n FROM "verification" WHERE "identifier"=$1', [
+          "legacy@example.invalid",
+        ])
+      ).rows[0].n,
       1
     );
     const tables = await db.query(

@@ -1,5 +1,8 @@
 import { betterAuth } from "better-auth";
 import { magicLink } from "better-auth/plugins";
+import { passkey } from "@better-auth/passkey";
+import { createAuthMiddleware, APIError } from "better-auth/api";
+import { mayRemovePasskey } from "@/lib/passkey-policy";
 import { sendMagicLinkEmail } from "@/lib/mail-transport";
 import { maySendLoginLink } from "@/lib/magic-link-policy";
 import { prismaAdapter } from "better-auth/adapters/prisma";
@@ -28,6 +31,15 @@ export const auth = betterAuth({
 
   socialProviders: getGoogleProvider(config),
   plugins: [
+    ...(config.features.passkey && config.webauthn
+      ? [passkey({
+          rpID: config.webauthn.rpID,
+          rpName: "ClubKeep",
+          origin: config.webauthn.origin,
+          registration: { requireSession: true },
+          authenticatorSelection: { userVerification: "required" },
+        })]
+      : []),
     ...(config.features.emailLink
       ? [
           magicLink({
@@ -51,6 +63,36 @@ export const auth = betterAuth({
     ipAddress: { ipAddressHeaders: config.trustedIpHeader ? [config.trustedIpHeader] : [] },
   },
   session: { cookieCache: { enabled: false } },
+  hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path !== "/passkey/delete-passkey") return;
+      // Every call to the underlying Better Auth deletion route is checked;
+      // this cannot be bypassed by skipping our own UI.
+      const session = await auth.api.getSession({ headers: ctx.headers });
+      if (!session?.user || !session.session) {
+        throw new APIError("UNAUTHORIZED", { message: "Authentication required" });
+      }
+      const userId = session.user.id;
+      const [count, accounts] = await Promise.all([
+        prisma.passkey.count({ where: { userId } }),
+        prisma.account.findMany({
+          where: { userId },
+          select: { providerId: true },
+        }),
+      ]);
+      if (!mayRemovePasskey({
+        passkeys: count,
+        providerIds: accounts.map((account) => account.providerId),
+        verifiedEmailRecovery: config.features.emailLink && session.user.emailVerified,
+        sessionCreatedAt: new Date(session.session.createdAt).getTime(),
+        now: Date.now(),
+      })) {
+        throw new APIError("FORBIDDEN", {
+          message: "Recent sign-in and another recovery method are required",
+        });
+      }
+    }),
+  },
 
   databaseHooks: {
     user: {

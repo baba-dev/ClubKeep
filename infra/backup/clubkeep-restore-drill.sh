@@ -25,6 +25,10 @@ fi
 (( 10#$port >= 1 && 10#$port <= 65535 )) || die "Invalid PostgreSQL port"
 
 readonly BACKUPS=/var/lib/clubkeep/backups
+readonly PG_BIN=/usr/lib/postgresql/17/bin
+for cmd in pg_restore pg_isready psql createdb dropdb; do
+  [[ -x "$PG_BIN/$cmd" ]] || die "PostgreSQL 17 client missing: $cmd"
+done
 [[ ! -L "$BACKUPS" && -d "$BACKUPS" &&
     "$(readlink -f "$BACKUPS")" == "$BACKUPS" ]] ||
     die "Expected physical ClubKeep backup directory"
@@ -35,7 +39,7 @@ readonly BACKUPS=/var/lib/clubkeep/backups
     die "Archive must be a root-owned regular 0400/0600 file"
 [[ "$(head -c 5 -- "$archive")" == PGDMP ]] || die "Not a PostgreSQL custom-format archive"
 [[ "$(stat -c %s "$archive")" -gt 512 ]] || die "Archive is suspiciously small"
-pg_restore --list "$archive" >/dev/null || die "pg_restore cannot read the archive TOC"
+"$PG_BIN/pg_restore" --list "$archive" >/dev/null || die "pg_restore cannot read the archive TOC"
 echo "ClubKeep archive verified: $(basename "$archive")"
 echo "Size: $(stat -c %s "$archive") bytes"
 sha256sum "$archive" | awk '{print "SHA256:", $1}'
@@ -51,8 +55,8 @@ exec 9>/run/lock/clubkeep-restore-drill.lock
 flock -n 9 || die "Another restore drill is running"
 
 command -v runuser >/dev/null || die "runuser is required"
-pg_isready -q -h /var/run/postgresql -p "$port" || die "Local PostgreSQL is unavailable"
-major="$(runuser -u postgres -- psql -p "$port" -d postgres -Atqc 'SHOW server_version_num')"
+"$PG_BIN/pg_isready" -q -h /var/run/postgresql -p "$port" || die "Local PostgreSQL is unavailable"
+major="$(runuser -u postgres -- "$PG_BIN/psql" -p "$port" -d postgres -Atqc 'SHOW server_version_num')"
 [[ "$major" =~ ^17[0-9]{4}$ ]] || die "The drill requires local PostgreSQL 17"
 
 # Fixed-format server-generated scratch name. It can never match production
@@ -66,7 +70,7 @@ cleanup() {
   trap - EXIT
   if (( created == 1 )); then
     echo "Removing disposable drill database $scratch"
-    if ! runuser -u postgres -- dropdb -p "$port" --if-exists --force "$scratch"; then
+    if ! runuser -u postgres -- "$PG_BIN/dropdb" -p "$port" --if-exists --force "$scratch"; then
       echo "WARNING: disposable drill DB $scratch needs operator inspection" >&2
       result=1
     fi
@@ -78,22 +82,22 @@ trap 'exit 130' INT
 trap 'exit 143' TERM
 
 # Fail if a name collision occurs; never take ownership of an existing DB.
-existing="$(runuser -u postgres -- psql -p "$port" -d postgres -Atqc "SELECT count(*) FROM pg_database WHERE datname = '$scratch'")"
+existing="$(runuser -u postgres -- "$PG_BIN/psql" -p "$port" -d postgres -Atqc "SELECT count(*) FROM pg_database WHERE datname = '$scratch'")"
 [[ "$existing" == 0 ]] || die "Disposable database already exists"
-runuser -u postgres -- createdb -p "$port" --owner=postgres --template=template0 --encoding=UTF8 "$scratch"
+runuser -u postgres -- "$PG_BIN/createdb" -p "$port" --owner=postgres --template=template0 --encoding=UTF8 "$scratch"
 created=1
-runuser -u postgres -- psql -p "$port" -d postgres -v ON_ERROR_STOP=1 \
+runuser -u postgres -- "$PG_BIN/psql" -p "$port" -d postgres -v ON_ERROR_STOP=1 \
   -c "REVOKE CONNECT, TEMPORARY ON DATABASE \"$scratch\" FROM PUBLIC" >/dev/null
 
 # The file stays root-readable only. PostgreSQL receives it on stdin, so
 # its service account never needs permissions to the protected backup folder.
 echo "Restoring into isolated scratch database (no production DB connections)"
-runuser -u postgres -- pg_restore -p "$port" --dbname="$scratch" \
+runuser -u postgres -- "$PG_BIN/pg_restore" -p "$port" --dbname="$scratch" \
   --no-owner --no-acl --single-transaction --exit-on-error < "$archive"
 
 # Verify the immutable baseline + identity tables, migration history and
 # absence of unresolved failed migration entries, without printing user data.
-structure="$(runuser -u postgres -- psql -p "$port" -d "$scratch" -Atq <<'SQL'
+structure="$(runuser -u postgres -- "$PG_BIN/psql" -p "$port" -d "$scratch" -Atq <<'SQL'
 SELECT CASE WHEN
   to_regclass('public.user') IS NOT NULL AND
   to_regclass('public."Club"') IS NOT NULL AND
@@ -105,12 +109,12 @@ THEN 1 ELSE 0 END;
 SQL
 )"
 [[ "$structure" == 1 ]] || die "Required ClubKeep identity/tenant tables missing"
-bad_migrations="$(runuser -u postgres -- psql -p "$port" -d "$scratch" -Atqc '
+bad_migrations="$(runuser -u postgres -- "$PG_BIN/psql" -p "$port" -d "$scratch" -Atqc '
   SELECT count(*) FROM public._prisma_migrations
   WHERE finished_at IS NULL AND rolled_back_at IS NULL
 ')"
 [[ "$bad_migrations" == 0 ]] || die "Archive includes an unresolved failed migration"
-counts="$(runuser -u postgres -- psql -p "$port" -d "$scratch" -AtF / -c '
+counts="$(runuser -u postgres -- "$PG_BIN/psql" -p "$port" -d "$scratch" -AtF / -c '
   SELECT
     (SELECT count(*) FROM public."user"),
     (SELECT count(*) FROM public."Club"),

@@ -26,6 +26,7 @@ Read before coding:
 - `docs/ENTITLEMENTS.md`: Personal and Business prices, caps, sponsorship and AI quotas
 - `docs/HEALTH_INTEGRATIONS.md`: medical, insurance, ABDM/ABHA, wearable, age and AI constraints
 - `docs/DELIVERY_PLAN.md`: separate Club and Personal stages, with regulated-feature release gates
+- `docs/PHASE_0_FOUNDATION.md`: proposed execution detail for auth, migrations, shared identity, security, CI and staging gates
 
 If code and docs disagree, stop and ask; do not guess. When a decision changes, update the doc in the same change.
 
@@ -61,8 +62,9 @@ A Husky pre-commit hook runs `eslint --fix` and `prettier --write` on staged fil
 10. **Strict health advertising isolation.** Do not send any health data to ad systems. AdSense only on eligible public adult educational/discovery web pages; not on private health/medical pages or teen surfaces.
 11. **Provider consent.** Groq/NVIDIA NIM require explicit revocable provider consent before identifiable medical data transfers. No unapproved fallback. Personal monthly AI requests: 5 Free / 50 Pro / 250 Premium.
 12. **Entitlement locks.** Business Free: 25 club members and 1 staff, core access with still-OPEN monthly usage quotas; existing Starter/Growth/Pro unchanged. Growth/Pro get a fixed but **unselected** number of sponsored Personal Pro seats. Personal monthly Pro ₹199/$4 and Premium-AI ₹499/$10.
-13. **Medical and teen gates.** Clinical decision support requires a separate validated release; teen accounts require jurisdiction-specific age/guardian controls. No clinician accounts (#22); secure clinician messaging (#24) remains design-blocked pending explicit resolution.
-14. **Insurance and ABHA.** Insurance vault is Personal; India ABHA requires optional, approved ABDM consented exchange, not automatic insurance verification.
+13. **Medical and teen gates.** Clinical decision support requires separate validation; teen accounts require age/guardian jurisdiction rules. **No clinician accounts or clinician portals**, reaffirmed by owner. Verified external-recipient messaging is deferred unless separately approved.
+14. **Insurance and ABHA.** Free Personal medical-information vault is **insurance info, blood type and user-written biological instructions only; no medical history**. Pro/Premium may later offer clinical history and ABDM record exchange subject to consent/approval. ABHA is not insurance verification.
+15. **Phase 0 isolation.** Only real auth, migrations, CI, security and shared global identity/club roles. No clinical, insurer, wearable, AI, billing or clinician modules in Phase 0. Read PHASE_0_FOUNDATION.md.
 
 ## Code conventions
 

@@ -2,6 +2,8 @@
 
 **As of 9 November 2026.** **LOCKED** means user-approved. **OPEN** means no entitlement quantity or operational policy has been authorized. No code has been implemented by this document. [BUSINESS_SPEC.md](BUSINESS_SPEC.md) is the binding decision register.
 
+**Latest owner change (9 Nov 2026):** Free medical information is limited to **insurance information, blood type and user-authored biological instructions** (meaning to be finalized). **No medical history on Free.** Pro and Premium/AI contain the paid medical-history entitlement once implemented. This overrides earlier Free clinical-document/history inclusion. The same user keeps appropriate rights to export or delete previous paid medical records after downgrade. No clinician accounts or portals.
+
 ## Personal B2C — approved price/entitlement matrix
 
 | Capability | Personal Free | Personal Pro | Personal Premium/AI |
@@ -9,21 +11,21 @@
 | Monthly India / global target | **₹0 / $0** | **₹199 / $4** | **₹499 / $10** |
 | Annual billing | Not applicable | Approximately 20% off monthly total; final checkout rounding OPEN | Approximately 20% off monthly total; final checkout rounding OPEN |
 | AI requests per month | **5** | **50** | **250** |
-| Manual health, body, workout and condition-related tracking | **Included, unlimited essential tracking** | Included | Included |
-| Authorized Apple Health / Health Connect imports | **Included, with provider permissions** | Included | Included |
+| Manual fitness/body/wellness tracking | **Unlimited essential fitness tracking; NO clinical history** | Fitness + medical history capability | Pro + medical history capability |
+| Authorized Apple Health / Health Connect imports | **Basic fitness/activity imports** where permitted | Fitness + permitted clinical-history imports | Pro capabilities |
 | Direct wearables | Progressive basic imports where supported; named launches OPEN | Basic + premium/advanced licensed connector capabilities, exact list OPEN | Pro capabilities |
-| Existing synced data and raw historical records | **Available and retained; import all allowed history** | Same underlying data | Same underlying data |
+| Historical records | **All permitted general fitness/activity history; NO medical history feature** | Fitness + eligible clinical/medical history | Pro capabilities |
 | Charts & insights | **Basic graphs** | Advanced charts, custom dashboards, expanded history analysis, deeper insights | Pro + larger AI allowance |
 | Goals, progress, community | Basic goals; optional friends, challenges, badges and achievements | Enhanced goals/programs/coaching | Pro + AI allowance |
-| Personal medical documents and medications | **Included**, subject to storage/anti-abuse policies; unverified OCR results are drafts | Included | Included |
-| Insurance policy records | In scope, stored privately; eligibility verification is separate | Included | Included |
-| India ABHA consent-based exchange | Intended regional feature, contingent on ABDM approval | Same consent-based eligibility | Same consent-based eligibility |
+| Medical history, medications, laboratory reports and clinical PDFs/OCR/FHIR | **Not included** | **Included**, after privacy/regional release gates | Included |
+| Limited medical-information vault: insurance, blood type, biological instructions | **Included** (sensitive, user-authored; no verified clinical status) | Included | Included |
+| India ABHA consent-based clinical-history exchange | **Not included** | Eligible only after ABDM onboarding and user consent | Same as Pro |
 | Export/delete of own health data | Must remain available | Included | Included |
 | AI fitness conversational coaching | Up to 5 eligible requests/mo | Up to 50 requests/mo | Up to 250 requests/mo |
 | Clinical decision support | **Not launched without independent medical validation** | No subscription-based bypass | No subscription-based bypass |
 | Ads | Contextual/non-health-derived AdSense **only** on adult-eligible public education/guides/discovery web/PWA routes | No ads | No ads |
 
-**Interpretive boundaries:** Free historical records and medical data must not be hidden, shortened or deleted upon downgrade; Pro "longer history" is **analytical lookback**, not stored-data retention. Free imports are not equal to every commercial premium vendor capability: contract-bound advanced connections may be premium. Enhanced features and which vendor capabilities are premium remain OPEN.
+**Interpretive boundaries (amended):** Free retains unrestricted essential fitness data and all supported historic *activity* backfill, NOT clinical records, lab reports, diagnoses, medical OCR or medication history. Pro has a medical-history entitlement and extended fitness analytics; Premium inherits it. Downgrading must **never delete** previously stored paid medical history; suspend paid history tools, keep an encrypted inactive archive and preserve legally required free portability/export/deletion. The optional limited read-only viewing policy after downgrade is OPEN. Insurance-policy documents are not medical reports. Free imports do not guarantee premium commercial wearable APIs; enhanced connector tiers remain OPEN.
 
 **Annual discount arithmetic (illustrative only, NOT approved price points):** ₹199 × 12 × 0.8 = ₹1,910.40; $4 × 12 × 0.8 = $38.40; ₹499 × 12 × 0.8 = ₹4,790.40; $10 × 12 × 0.8 = $96. Rounding and inclusive/exclusive taxes OPEN. App-store purchase requirements apply by region and app capability. Groq and NVIDIA NIM routing must respect privacy consent and each tier's 5/50/250 limits; cost-weighted accounting or top-ups are NOT approved.
 
@@ -58,7 +60,7 @@
 - A user's **Personal subscription** and access are keyed to their global user identity, never club-scoped. The user's Club membership is keyed to club tenant + identity.
 - A paid Growth/Pro club can assign its finite sponsored **Personal Pro** seats to consenting eligible members. **Sponsorship changes feature entitlement only**: it never permits club staff to view private health metrics.
 - A member's effective Pro entitlement may come from their own subscription or a club sponsorship. Upgrading to Premium/AI is a separate personal action; sponsored Pro is not Premium.
-- When sponsorship ends, the user loses only the sponsored premium tools (unless another entitlement exists), keeps data and Free features, and is offered a personal upgrade. Handling overlapping paid subscriptions, proration and simultaneous club sponsorships remains **OPEN**.
+- When sponsorship ends, the user loses only the sponsored Pro tools (including paid medical-history UI unless independently subscribed), keeps all fitness and limited Free vault access, retains encrypted medical-history data without deletion and lawful export/deletion rights, and is offered a personal upgrade. Handling overlapping paid subscriptions, proration and simultaneous club sponsorships remains **OPEN**.
 - Clubs can request specific fitness metrics via a revocable, metric-scoped share grant. Medical records, insurance, ABHA and other highly sensitive fields are **never automatically shared**. A share grant is not an enrollment requirement.
 - Teen club enrollment must respect guardian controls, privacy and regional restrictions. Club-sponsored Pro does not waive age gates.
 
@@ -75,6 +77,10 @@
 - Do not use biometric data, conditions, visits, device import, inferred health profile, ABHA, insurance or medical context for ad selection. Even public health-related content may trigger sensitive-content ad policy restrictions and should be reviewed before enabling ad inventory.
 - Teen profiles receive **no authenticated product ads**, and no personalized tracking or social discovery by default. Implement appropriate age/guardian gating for the user's region.
 - Business tier sponsorship and Personal subscription plan never override legal/clinical restrictions.
+
+## No-clinician-account rule
+
+There are **no dedicated clinician accounts or clinician-specific portal subscriptions**. User-authored care plans and appointment notes may be designed in later phases. Any two-way clinical messaging would need a separately approved secure **external-recipient** mechanism; Phase 0 cannot add clinician identities.
 
 ## Not decided, by design
 

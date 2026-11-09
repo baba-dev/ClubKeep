@@ -1,6 +1,6 @@
 # ClubKeep architecture
 
-Last updated: 9 Nov 2026. Existing club stack remains early-stage; Personal expansion is proposed. Sections marked **Proposed** are not built yet; confirm them before running a migration.
+Last updated: 9 Nov 2026. Existing club stack remains early-stage; the [Phase 0 foundation plan](PHASE_0_FOUNDATION.md) details authentication, migrations, shared identity, CI and security. Sections marked **Proposed** are not built yet; confirm them before running a migration.
 
 ## Stack (already set up in the repo)
 
@@ -41,9 +41,9 @@ Current environment variables (`.env.example`): `DATABASE_URL`, `REDIS_URL`, `BE
 - Encrypted cloud sync with encrypted offline mobile caches, conflict handling, provider sync cursor, consent audit, document-source verification and regional/teen safeguards.
 - External Groq/NVIDIA NIM model routing uses per-provider explicit consent for identifiable medical payloads, region/privacy eligibility and 5/50/250 monthly AI quotas.
 - Business Free 25 members/1 staff with usage quotas, plus original Starter/Growth/Pro plans; Growth/Pro sponsor unknown quantities of Personal Pro seats. Unknown member quota or sponsor counts must not be fabricated.
-- Clinical AI remains separately validated; clinician messaging is design-blocked by Round 2 #22 (no dedicated clinician accounts) versus #24 (secure two-way messaging).
+- Clinical AI remains separately validated; there are **no dedicated clinician accounts**. Two-way messaging is deferred unless an explicitly approved secure external-recipient model works without clinician identities inside ClubKeep.
 - Optional India ABDM/ABHA link uses legitimate consent-based health information exchange; ABHA alone neither authorizes access nor verifies insurance policy coverage. Marketplace 15% completed-booking commission uses separate billing/settlement.
-- These are future schema/services, not features present in the existing Prisma models. No migration has been authorized by this document.
+- Free Personal's future limited medical-information vault contains **insurance information, blood type and user-authored biological instructions**, but **no medical history**. Pro/Premium medical history and ABDM record exchange require separate eligible releases. These are future services, not features in current Prisma models. Phase 0 adds no medical tables.
 
 ## Tenancy and access
 

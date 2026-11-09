@@ -1,0 +1,108 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: clubkeep-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  quality:
+    name: Quality and native service smoke (x64)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      HUSKY: "0"
+      DATABASE_URL: postgresql://clubkeep_ci:ci-only-synthetic@127.0.0.1:5432/clubkeep_ci?schema=public
+      REDIS_URL: redis://127.0.0.1:6379
+      BETTER_AUTH_SECRET: ci-only-synthetic-secret-not-for-production-123456789
+      BETTER_AUTH_URL: http://localhost:3000
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Node 24
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate and generate Prisma client (no migration in Phase 0A)
+        run: |
+          npm run db:validate
+          npm run db:generate
+
+      - name: Lint, format, and typecheck
+        run: |
+          npm run lint
+          npm run format:check
+          npm run typecheck
+
+      - name: Unit tests
+        run: npm run test
+
+      - name: Start native PostgreSQL and Redis on hosted runner
+        run: |
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq postgresql redis-server
+          sudo systemctl start postgresql
+          sudo systemctl start redis-server
+          sudo -u postgres psql -v ON_ERROR_STOP=1 -c "CREATE ROLE clubkeep_ci LOGIN PASSWORD 'ci-only-synthetic'"
+          sudo -u postgres createdb -O clubkeep_ci clubkeep_ci
+          pg_isready -h 127.0.0.1 -p 5432
+          redis-cli -h 127.0.0.1 -p 6379 ping
+
+      - name: Native service integration smoke
+        run: npm run test:integration
+
+      - name: Build Next.js
+        run: npm run build
+
+      - name: Audit production dependency critical vulnerabilities
+        run: npm run security:audit
+
+  arm64:
+    name: Production architecture smoke (ARM64)
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 25
+    env:
+      HUSKY: "0"
+      DATABASE_URL: postgresql://clubkeep_ci:ci-only-synthetic@127.0.0.1:5432/clubkeep_ci?schema=public
+      REDIS_URL: redis://127.0.0.1:6379
+      BETTER_AUTH_SECRET: ci-only-synthetic-secret-not-for-production-123456789
+      BETTER_AUTH_URL: http://localhost:3000
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Node 24
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate and generate Prisma client
+        run: |
+          npm run db:validate
+          npm run db:generate
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build standalone output on ARM64
+        run: npm run build

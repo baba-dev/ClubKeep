@@ -3,6 +3,7 @@ import { magicLink } from "better-auth/plugins";
 import { passkey } from "@better-auth/passkey";
 import { createAuthMiddleware, APIError } from "better-auth/api";
 import { mayRemovePasskey } from "@/lib/passkey-policy";
+import { isRecentProviderLinkSession } from "@/lib/provider-link-policy";
 import { createConfiguredLimiter } from "@/lib/auth-rate-limit";
 import { sendMagicLinkEmail } from "@/lib/mail-transport";
 import { maySendLoginLink } from "@/lib/magic-link-policy";
@@ -83,6 +84,24 @@ export const auth = betterAuth({
   },
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path === "/link-social") {
+        if (!ctx.headers) {
+          throw new APIError("UNAUTHORIZED", { message: "Authentication required" });
+        }
+        const session = await auth.api.getSession({ headers: ctx.headers });
+        if (
+          !session?.user ||
+          !session.session ||
+          !isRecentProviderLinkSession(
+            new Date(session.session.createdAt).getTime(),
+            Date.now()
+          )
+        ) {
+          throw new APIError("FORBIDDEN", {
+            message: "Sign in again before linking an account",
+          });
+        }
+      }
       if (ctx.path === "/sign-in/magic-link") {
         if (!config.features.emailLink || !limiter) {
           throw new APIError("FORBIDDEN", { message: "Email sign-in unavailable" });

@@ -87,6 +87,9 @@ advertise disabled methods. Real secrets belong only in separately protected
   Existing auth accounts must remain intact. Keep a backup/restore proof.
 - Start/restart **ClubKeep only** using an independent systemd service behind
   its own HTTPS Nginx host; separately verify MenuMinute's worker/web health.
+- Account linking through `/link-social` requires a server-verified session
+  established within the last ten minutes. A stolen long-lived session cookie
+  cannot silently attach a new Google identity.
 - Test Google first login, same `sub` returning login, same-email collision
   yielding `account_not_linked`, and explicit Google linking from signed-in
   security panel. Never auto-merge or verify a phone number.

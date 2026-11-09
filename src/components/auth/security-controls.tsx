@@ -100,7 +100,7 @@ export function SecurityControls({
         provider: "google",
         callbackURL: "/account/security",
       });
-      if (result.error) setNotice("Google account linking could not be started.");
+      if (result.error) setNotice("Please sign in again before linking your Google account.");
     } catch {
       setNotice("Google account linking is unavailable.");
     } finally {

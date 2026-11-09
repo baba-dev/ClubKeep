@@ -1,0 +1,21 @@
+[Unit]
+Description=ClubKeep isolated artifact and backup retention
+Documentation=https://github.com/baba-dev/ClubKeep/blob/main/docs/PRODUCTION_RELEASE.md
+ConditionPathExists=/var/www/clubkeep/current
+After=local-fs.target
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/usr/local/sbin/clubkeep-cleanup --apply
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectHome=yes
+ProtectSystem=strict
+ReadWritePaths=/var/www/clubkeep/releases /var/lib/clubkeep/incoming /var/lib/clubkeep/backups /run/lock
+Nice=10
+IOSchedulingClass=idle
+TimeoutStartSec=300
+StandardOutput=journal
+StandardError=journal

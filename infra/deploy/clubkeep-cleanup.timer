@@ -1,0 +1,12 @@
+[Unit]
+Description=Daily ClubKeep retention cleanup
+Documentation=https://github.com/baba-dev/ClubKeep/blob/main/docs/PRODUCTION_RELEASE.md
+
+[Timer]
+OnCalendar=*-*-* 04:30:00 UTC
+RandomizedDelaySec=30m
+Persistent=true
+Unit=clubkeep-cleanup.service
+
+[Install]
+WantedBy=timers.target

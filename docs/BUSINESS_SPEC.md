@@ -4,6 +4,10 @@
 
 **Related:** [PRODUCT.md](PRODUCT.md) (existing club features, roadmap and current paid club tiers), [ARCHITECTURE.md](ARCHITECTURE.md), [ROADMAP.md](ROADMAP.md). Later decisions must explicitly supersede this document rather than silently reverting the choices.
 
+## Mail delivery choice — Mail-in-a-Box SMTP (9 November 2026)
+
+**Owner-selected provider:** use the existing self-hosted **Mail-in-a-Box SMTP service at `mx.bababuilds.com`** for transactional email and magic links. Do **not** add a third-party free-tier email service, an SMS provider or an unauthenticated relay. Use authenticated submission on port **587 with mandatory STARTTLS**, a dedicated sender mailbox owned by the operator, strict TLS certificate validation, credential rotation, and app-specific per-user/per-IP mail send rate limits. The sender mailbox address and secret are not provided yet and **must remain OPEN**, not guessed. No live credentials in repository, command history or audit logs. SMTP belongs in protected ClubKeep server environment when enabled; Phase 0A config/docs only, Phase 0C actual magic-link send/recovery.
+
 ## New owner direction — SMS-free identity and deployment (9 November 2026)
 
 **LOCKED:**

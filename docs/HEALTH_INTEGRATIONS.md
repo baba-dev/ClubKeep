@@ -1,6 +1,6 @@
 # ClubKeep health, wearable, AI and ABHA integration plan
 
-**Status:** implementation design (recommended), constrained by owner-approved [BUSINESS_SPEC.md](BUSINESS_SPEC.md), 9 Nov 2026. Nothing here claims a provider partnership, deployed API or regulatory approval. See [ENTITLEMENTS.md](ENTITLEMENTS.md) for tier constraints.
+**Status:** implementation design (recommended) constrained by [BUSINESS_SPEC.md](BUSINESS_SPEC.md), including later **no-clinician-account** and **Free-limited-medical-vault** amendments on 9 Nov 2026. No partner, live API, medical clearance or deployed feature is claimed. See [ENTITLEMENTS.md](ENTITLEMENTS.md) and [PHASE_0_FOUNDATION.md](PHASE_0_FOUNDATION.md).
 
 ## Boundaries and architecture
 
@@ -38,7 +38,7 @@ Do **not** immediately implement these as database tables without reviewing priv
 - Use queued per-user/per-provider jobs, encrypted credentials, refresh/retry with bounded backoff, pagination, rate-limit handling, source priorities, cursor checkpointing, deterministic deduplication and explicit tombstones.
 - Maintain a **source-of-truth hierarchy**: user-verified medical record values > imported clinical originals with provenance > activity provider readings > self-entered health metrics, without automatically overwriting conflicting observations. Show conflicts.
 - Cloud encrypted at rest and in transit; local encrypted cache for offline mobile, write queue with idempotency keys, conflict review, device sign-out and remote revoke. Avoid sensitive details in push content, crash reports, logs or analytics.
-- For historical imports Free retains **all permitted** raw data and ongoing basic access; Pro extended-history analysis does **not** gate the underlying records.
+- Free retains all permitted **general fitness and activity** imported history and basic graphs; **medical/clinical history is Pro/Premium only** once implemented, including medical BP/glucose timelines, medications, diagnoses, medical PDFs, OCR/FHIR and ABHA clinical exchange. Provider permissions do not override a subscription entitlement. On downgrade, preserve encrypted clinical archives and lawful export/delete without granting Free medical-history UI.
 
 ## 2. Direct wearables — progressive, not an exhaustive first-day claim
 
@@ -58,11 +58,11 @@ Provider checklist:
 | Reliability | Retry budget, monitoring, reconciliation and duplicates when wearable also syncs to HealthKit/Health Connect |
 | Medical devices | Separate health/medical compliance validation; do not claim clinical grade based solely on sensor output |
 
-Initial engineering delivers the connector framework **plus** platform integrations and reachable direct vendors, even though the catalog expands progressively. Platform-owned imports and baseline permitted vendor imports remain free. Enhanced/commercially restricted connector features may be Pro, with exact mapping **OPEN**.
+Initial engineering delivers the connector framework **plus** platform integrations and reachable direct vendors, even though the catalog expands progressively. **Nonclinical fitness/activity** imports and baseline accessible fitness connectors remain Free. Medical/clinical record categories (even when exposed by a wearable) require Pro/Premium and proper consent; never use a generic sensor import to circumvent the medical-history gate. Enhanced/commercially restricted connector features may be Pro, with exact mapping **OPEN**.
 
 ## 3. Medical document import, insurance and FHIR
 
-### Personal medical record ingestion
+### Personal medical record ingestion — Pro/Premium only
 
 1. Upload private PDF/image or manually enter observations, medications and document metadata.
 2. Malware scan, verify actual content type and size, encrypt, then store in **private** non-public object storage with least-privilege temporary access.
@@ -71,15 +71,15 @@ Initial engineering delivers the connector framework **plus** platform integrati
 5. Support FHIR-compatible import/export only after validation and stable coding/mapping; start with resources such as Observation, DiagnosticReport, DocumentReference, MedicationStatement and CarePlan as appropriate.
 6. Track user correction history and audit. Export/delete per law and provider contracts; encrypted backups need specified retention/deletion processes.
 
-### Insurance details (additional owner scope)
+### Limited Free medical-information vault: insurance, blood type and biological instructions
 
-- Allow user-controlled records: provider name, policy/member identifier, beneficiaries (subject to dependent/guardian authority), cover period, plan type, support contacts, uploaded card/schedule/policy PDFs, renewal reminder, optional coverage notes and claims documents (after separate approval).
+- Free may store limited user-controlled **insurance information**: provider, policy/member identifier, permitted policy documents/cards (not lab reports), cover period, plan type, support contacts, renewal reminders and coverage notes; insurer verification and claims are separate. Also allow **self-declared blood type**, clearly labeled unverified, and **user-entered biological instructions**, whose meaning/validation must be resolved before final schema design. Do not treat these as clinician orders.\n- **No clinical medical history is stored for Free users:** no diagnoses, medication history, lab test reports, observations timelines or clinical PDFs. Such records are Pro/Premium features in supported jurisdictions.
 - Encrypt and mask identifiers; no policy lookup via ABHA by assumption. No use of imported health/Health Connect data to determine eligibility, premiums, underwriting, financing, ad targeting or insurer risk scoring.
 - Claims, eligibility status, payer integration and insurer-side payouts are **separate future connectors** with agreements, consent and specific user authorization. NHCX is a distinct claims-exchange pathway, not a default ABHA health-record feed.
 
 ## 4. India ABHA / ABDM path
 
-**Approved scope:** user can voluntarily link ABHA identity and, when permitted by ABDM onboarding and patient consent, synchronize relevant health records.
+**Approved scope:** eligible users can voluntarily link ABHA identity and, when permitted by ABDM onboarding and patient consent, synchronize relevant clinical histories **only with Pro/Premium medical-history entitlement**. An ABHA number alone is not permission or insurance verification. No clinical history sync in Personal Free.
 
 ### Phased approach
 
@@ -116,4 +116,4 @@ Initial engineering delivers the connector framework **plus** platform integrati
 
 ## 7. Outstanding work not authorized by this plan
 
-Direct vendor order/contract terms, paid connector list, dependent proxy rights, insurance carrier sync, ABDM live credentials, clinician identity and messaging design (#22/#24 conflict), clinical clearance, AI request accounting, data-retention durations, and per-country release list are **OPEN**.
+Direct vendor order/contract terms, paid connector list, dependent proxy rights, insurer sync, ABDM credentials, **biological-instructions field semantics**, paid-history downgrade viewing, any secure **external clinician recipient** messaging scheme (no clinician accounts), clinical clearance, AI accounting, retention and country release lists remain OPEN.

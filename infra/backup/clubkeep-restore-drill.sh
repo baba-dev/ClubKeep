@@ -93,16 +93,17 @@ runuser -u postgres -- pg_restore -p "$port" --dbname="$scratch" \
 
 # Verify the immutable baseline + identity tables, migration history and
 # absence of unresolved failed migration entries, without printing user data.
-structure="$(runuser -u postgres -- psql -p "$port" -d "$scratch" -Atqc '
-  SELECT CASE WHEN
-    to_regclass('"'public.user'"') IS NOT NULL AND
-    to_regclass('"'public."Club"'"') IS NOT NULL AND
-    to_regclass('"'public."ClubMembership"'"') IS NOT NULL AND
-    to_regclass('"'public."ClubInvite"'"') IS NOT NULL AND
-    to_regclass('"'public."PersonalProfile"'"') IS NOT NULL AND
-    to_regclass('"'public._prisma_migrations'"') IS NOT NULL
-  THEN 1 ELSE 0 END
-')"
+structure="$(runuser -u postgres -- psql -p "$port" -d "$scratch" -Atq <<'SQL'
+SELECT CASE WHEN
+  to_regclass('public.user') IS NOT NULL AND
+  to_regclass('public."Club"') IS NOT NULL AND
+  to_regclass('public."ClubMembership"') IS NOT NULL AND
+  to_regclass('public."ClubInvite"') IS NOT NULL AND
+  to_regclass('public."PersonalProfile"') IS NOT NULL AND
+  to_regclass('public._prisma_migrations') IS NOT NULL
+THEN 1 ELSE 0 END;
+SQL
+)"
 [[ "$structure" == 1 ]] || die "Required ClubKeep identity/tenant tables missing"
 bad_migrations="$(runuser -u postgres -- psql -p "$port" -d "$scratch" -Atqc '
   SELECT count(*) FROM public._prisma_migrations

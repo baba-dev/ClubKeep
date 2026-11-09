@@ -1,5 +1,4 @@
 import type {
-  ClubMembershipStatus,
   ClubRole,
   PrismaClient,
 } from "@/generated/prisma/client";

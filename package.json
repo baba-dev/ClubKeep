@@ -16,10 +16,11 @@
     "prepare": "husky",
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/unit/*.test.mjs",
-    "test:integration": "node --test tests/integration/*.test.mjs",
+    "test:integration": "node --test tests/integration/native-services.test.mjs",
     "db:validate": "prisma validate",
     "db:deploy": "prisma migrate deploy",
-    "security:audit": "npm audit --omit=dev --audit-level=critical"
+    "security:audit": "npm audit --omit=dev --audit-level=critical",
+    "test:identity": "node --test tests/integration/identity-schema.test.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

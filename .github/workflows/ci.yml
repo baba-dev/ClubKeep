@@ -111,3 +111,87 @@ jobs:
 
       - name: Build standalone output on ARM64
         run: npm run build
+
+  migrations:
+    name: PostgreSQL 17 baseline and identity migrations (native)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    env:
+      HUSKY: "0"
+      BETTER_AUTH_SECRET: ci-synthetic-only-not-for-any-production-123456789
+      BETTER_AUTH_URL: https://ci.clubkeep.invalid
+      NEXT_PUBLIC_APP_URL: https://ci.clubkeep.invalid
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Set up Node 24
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Install native PostgreSQL 17 (only on disposable hosted runner)
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq ca-certificates curl postgresql-common
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc
+          printf 'Types: deb\nURIs: https://apt.postgresql.org/pub/repos/apt\nSuites: noble-pgdg\nComponents: main\nSigned-By: /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc\n' | sudo tee /etc/apt/sources.list.d/pgdg.sources >/dev/null
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq postgresql-17
+          PG17_PORT="$(pg_lsclusters -h | awk '$1 == "17" && $2 == "main" { print $3 }')"
+          test -n "$PG17_PORT"
+          if ! pg_isready -p "$PG17_PORT"; then sudo pg_ctlcluster 17 main start; fi
+          PG17_PORT="$(pg_lsclusters -h | awk '$1 == "17" && $2 == "main" { print $3 }')"
+          sudo -u postgres psql -p "$PG17_PORT" -v ON_ERROR_STOP=1 -c "CREATE ROLE clubkeep_ci WITH LOGIN PASSWORD 'ci-only-synthetic'"
+          sudo -u postgres createdb -p "$PG17_PORT" -O clubkeep_ci clubkeep_ci
+          echo "PG17_PORT=$PG17_PORT" >> "$GITHUB_ENV"
+          echo "DATABASE_URL=postgresql://clubkeep_ci:ci-only-synthetic@127.0.0.1:$PG17_PORT/clubkeep_ci?schema=public" >> "$GITHUB_ENV"
+          sudo -u postgres psql -p "$PG17_PORT" -Atqc "SHOW server_version"
+      - name: Validate Prisma 7 schema and generate types
+        run: |
+          npm run db:validate
+          npm run db:generate
+          npm run typecheck
+      - name: Fresh migration and no-op redeploy
+        run: |
+          set -euo pipefail
+          npm run db:deploy
+          npm run db:deploy
+          npx prisma migrate status
+          npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code
+      - name: Validate constraints with real PostgreSQL 17
+        run: npm run test:identity
+      - name: Legacy unversioned Better Auth baseline and populated upgrade
+        run: |
+          set -euo pipefail
+          sudo -u postgres createdb -p "$PG17_PORT" -O clubkeep_ci clubkeep_legacy_ci
+          export DATABASE_URL="postgresql://clubkeep_ci:ci-only-synthetic@127.0.0.1:$PG17_PORT/clubkeep_legacy_ci?schema=public"
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f prisma/migrations/0_init_auth_core/migration.sql
+          npx prisma migrate diff --from-config-datasource --to-schema prisma/baseline/auth-core.prisma --exit-code
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/fixtures/legacy-auth.sql
+          npx prisma migrate resolve --applied 0_init_auth_core
+          npm run db:deploy
+          npm run db:deploy
+          npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code
+          node --test tests/integration/legacy-preservation.test.mjs
+      - name: Duplicate provider identity must fail atomically
+        run: |
+          set -euo pipefail
+          sudo -u postgres createdb -p "$PG17_PORT" -O clubkeep_ci clubkeep_collision_ci
+          export DATABASE_URL="postgresql://clubkeep_ci:ci-only-synthetic@127.0.0.1:$PG17_PORT/clubkeep_collision_ci?schema=public"
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f prisma/migrations/0_init_auth_core/migration.sql
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "INSERT INTO \"user\" (\"id\",\"name\",\"email\",\"updatedAt\") VALUES ('u1','One','u1@example.invalid',NOW()),('u2','Two','u2@example.invalid',NOW())"
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "INSERT INTO \"account\" (\"id\",\"accountId\",\"providerId\",\"userId\",\"updatedAt\") VALUES ('a1','external-subject','google','u1',NOW()),('a2','external-subject','google','u2',NOW())"
+          npx prisma migrate resolve --applied 0_init_auth_core
+          if npm run db:deploy >/dev/null 2>&1; then
+            echo "ERROR: duplicate provider identities were accepted"
+            exit 1
+          fi
+          test "$(psql "$DATABASE_URL" -Atqc 'SELECT count(*) FROM "account"')" = "2"
+          test "$(psql "$DATABASE_URL" -Atqc 'SELECT count(*) FROM pg_tables WHERE schemaname = '\''public'\'' AND tablename = '\''ClubMembership'\''')" = "0"
+          echo "Expected uniqueness failure preserved all legacy account records"

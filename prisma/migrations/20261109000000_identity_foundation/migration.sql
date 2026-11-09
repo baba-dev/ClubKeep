@@ -119,6 +119,7 @@ CREATE UNIQUE INDEX "passkey_credentialID_key" ON "passkey"("credentialID");
 CREATE INDEX "passkey_userId_idx" ON "passkey"("userId");
 CREATE UNIQUE INDEX "Club_slug_key" ON "Club"("slug");
 CREATE UNIQUE INDEX "ClubMembership_clubId_userId_key" ON "ClubMembership"("clubId", "userId");
+CREATE UNIQUE INDEX "ClubMembership_clubId_id_key" ON "ClubMembership"("clubId", "id");
 CREATE INDEX "ClubMembership_userId_status_idx" ON "ClubMembership"("userId", "status");
 CREATE INDEX "ClubMembership_clubId_status_role_idx" ON "ClubMembership"("clubId", "status", "role");
 CREATE UNIQUE INDEX "ClubInvite_tokenHash_key" ON "ClubInvite"("tokenHash");
@@ -146,8 +147,8 @@ ALTER TABLE "ClubInvite" ADD CONSTRAINT "ClubInvite_claimedByUserId_fkey"
   FOREIGN KEY ("claimedByUserId") REFERENCES "user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 ALTER TABLE "ClubContact" ADD CONSTRAINT "ClubContact_clubId_fkey"
   FOREIGN KEY ("clubId") REFERENCES "Club"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-ALTER TABLE "ClubContact" ADD CONSTRAINT "ClubContact_membershipId_fkey"
-  FOREIGN KEY ("membershipId") REFERENCES "ClubMembership"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "ClubContact" ADD CONSTRAINT "ClubContact_clubId_membershipId_fkey"
+  FOREIGN KEY ("clubId", "membershipId") REFERENCES "ClubMembership"("clubId", "id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "SecurityEvent" ADD CONSTRAINT "SecurityEvent_actorUserId_fkey"
   FOREIGN KEY ("actorUserId") REFERENCES "user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 ALTER TABLE "SecurityEvent" ADD CONSTRAINT "SecurityEvent_clubId_fkey"

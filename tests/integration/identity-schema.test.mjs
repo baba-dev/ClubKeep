@@ -60,6 +60,21 @@ test("two clubs allow one global user with different roles and reject duplicate 
       ["member-duplicate", "id-club-a", "id-user-1"]
     );
 
+    // A contact cannot attach a membership belonging to a different club.
+    await db.query(
+      'INSERT INTO "ClubContact" ("id","clubId","membershipId","updatedAt") VALUES ($1,$2,$3,NOW())',
+      ["attached-valid", "id-club-a", "member-a"]
+    );
+    await db.query("SAVEPOINT reject_cross_club_contact");
+    await assert.rejects(
+      () => db.query(
+        'INSERT INTO "ClubContact" ("id","clubId","membershipId","updatedAt") VALUES ($1,$2,$3,NOW())',
+        ["attached-invalid", "id-club-b", "member-a"]
+      ),
+      (err) => err.code === "23503"
+    );
+    await db.query("ROLLBACK TO SAVEPOINT reject_cross_club_contact");
+
     // A club role cannot supply global PersonalProfile ownership.
     await db.query('INSERT INTO "PersonalProfile" ("userId", "updatedAt") VALUES ($1,NOW())', [
       "id-user-1",

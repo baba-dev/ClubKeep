@@ -176,9 +176,9 @@ jobs:
           set -euo pipefail
           sudo -u postgres createdb -p "$PG17_PORT" -O clubkeep_ci clubkeep_legacy_ci
           export DATABASE_URL="postgresql://clubkeep_ci:ci-only-synthetic@127.0.0.1:$PG17_PORT/clubkeep_legacy_ci?schema=public"
-          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f prisma/migrations/0_init_auth_core/migration.sql
+          psql "${DATABASE_URL%%\?*}" -v ON_ERROR_STOP=1 -f prisma/migrations/0_init_auth_core/migration.sql
           npx prisma migrate diff --from-config-datasource --to-schema prisma/baseline/auth-core.prisma --exit-code
-          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/fixtures/legacy-auth.sql
+          psql "${DATABASE_URL%%\?*}" -v ON_ERROR_STOP=1 -f tests/fixtures/legacy-auth.sql
           npx prisma migrate resolve --applied 0_init_auth_core
           npm run db:deploy
           npm run db:deploy
@@ -189,14 +189,14 @@ jobs:
           set -euo pipefail
           sudo -u postgres createdb -p "$PG17_PORT" -O clubkeep_ci clubkeep_collision_ci
           export DATABASE_URL="postgresql://clubkeep_ci:ci-only-synthetic@127.0.0.1:$PG17_PORT/clubkeep_collision_ci?schema=public"
-          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f prisma/migrations/0_init_auth_core/migration.sql
-          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "INSERT INTO \"user\" (\"id\",\"name\",\"email\",\"updatedAt\") VALUES ('u1','One','u1@example.invalid',NOW()),('u2','Two','u2@example.invalid',NOW())"
-          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "INSERT INTO \"account\" (\"id\",\"accountId\",\"providerId\",\"userId\",\"updatedAt\") VALUES ('a1','external-subject','google','u1',NOW()),('a2','external-subject','google','u2',NOW())"
+          psql "${DATABASE_URL%%\?*}" -v ON_ERROR_STOP=1 -f prisma/migrations/0_init_auth_core/migration.sql
+          psql "${DATABASE_URL%%\?*}" -v ON_ERROR_STOP=1 -c "INSERT INTO \"user\" (\"id\",\"name\",\"email\",\"updatedAt\") VALUES ('u1','One','u1@example.invalid',NOW()),('u2','Two','u2@example.invalid',NOW())"
+          psql "${DATABASE_URL%%\?*}" -v ON_ERROR_STOP=1 -c "INSERT INTO \"account\" (\"id\",\"accountId\",\"providerId\",\"userId\",\"updatedAt\") VALUES ('a1','external-subject','google','u1',NOW()),('a2','external-subject','google','u2',NOW())"
           npx prisma migrate resolve --applied 0_init_auth_core
           if npm run db:deploy >/dev/null 2>&1; then
             echo "ERROR: duplicate provider identities were accepted"
             exit 1
           fi
-          test "$(psql "$DATABASE_URL" -Atqc 'SELECT count(*) FROM "account"')" = "2"
-          test "$(psql "$DATABASE_URL" -Atqc 'SELECT count(*) FROM pg_tables WHERE schemaname = '\''public'\'' AND tablename = '\''ClubMembership'\''')" = "0"
+          test "$(psql "${DATABASE_URL%%\?*}" -Atqc 'SELECT count(*) FROM "account"')" = "2"
+          test "$(psql "${DATABASE_URL%%\?*}" -Atqc 'SELECT count(*) FROM pg_tables WHERE schemaname = '\''public'\'' AND tablename = '\''ClubMembership'\''')" = "0"
           echo "Expected uniqueness failure preserved all legacy account records"

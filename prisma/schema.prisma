@@ -180,6 +180,7 @@ model ClubMembership {
   contacts  ClubContact[]
 
   @@unique([clubId, userId])
+  @@unique([clubId, id]) // Allows same-tenant composite FK from ClubContact.
   @@index([userId, status])
   @@index([clubId, status, role])
 }
@@ -220,7 +221,7 @@ model ClubContact {
   updatedAt    DateTime @updatedAt
 
   club         Club @relation(fields: [clubId], references: [id], onDelete: Restrict)
-  membership   ClubMembership? @relation(fields: [membershipId], references: [id], onDelete: SetNull)
+  membership   ClubMembership? @relation(fields: [clubId, membershipId], references: [clubId, id], onDelete: Restrict)
 
   @@index([clubId, phoneE164])
   @@index([membershipId])

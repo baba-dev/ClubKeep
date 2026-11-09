@@ -112,6 +112,7 @@ Never overwrite or resolve a successful migration by filename without proof.
 
 ## D. Security and functional handoff
 
+- The optional ClubContact membership link has a composite PostgreSQL FK on `(clubId,membershipId)` to prevent cross-club contact-to-membership references, including when future service code is buggy.
 - Any request that selects a club must verify Better Auth session identity,
   query `ClubMembership` scoped by **both** `clubId` and `userId` and
   require status ACTIVE. Database reads/writes on other club tables must be

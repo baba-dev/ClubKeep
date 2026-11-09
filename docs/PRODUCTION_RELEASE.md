@@ -145,3 +145,71 @@ made public; CI/CD does **not** open enrollment by itself.
 
 `/api/auth/capabilities` is deliberately dynamic to avoid freezing feature
 flags from synthetic GitHub build settings.
+
+## Daily housekeeping — separately installed, default-off until first successful deployment
+
+ClubKeep retention is isolated from MenuMinute and **never** deletes unrelated
+VPS data. `infra/deploy/clubkeep-cleanup.sh` is a privileged script installed
+manually by the owner. The daily systemd timer is not installed automatically
+by pushing GitHub source code. Confirm a passing manual GitHub deployment,
+verify the running SHA and perform a rollback drill before enabling the timer.
+
+Recommended first install from a verified **merged commit** checkout:
+
+```bash
+# From a trusted checkout at the reviewed main SHA:
+sudo install -o root -g root -m 0750 infra/deploy/clubkeep-cleanup.sh \
+  /usr/local/sbin/clubkeep-cleanup
+sudo install -o root -g root -m 0644 infra/deploy/clubkeep-cleanup.service \
+  /etc/systemd/system/clubkeep-cleanup.service
+sudo install -o root -g root -m 0644 infra/deploy/clubkeep-cleanup.timer \
+  /etc/systemd/system/clubkeep-cleanup.timer
+sudo systemctl daemon-reload
+sudo /usr/local/sbin/clubkeep-cleanup --dry-run
+# Review the output carefully before enabling.
+sudo systemctl enable --now clubkeep-cleanup.timer
+sudo systemctl list-timers clubkeep-cleanup.timer
+```
+
+### Safeguards and retention
+
+| Area | Deletion gate | Protected |
+| --- | --- | --- |
+| Incoming `/var/lib/clubkeep/incoming` | ClubKeep-named SHA archive; older than 7 full days (GNU find `-mtime +7`) | In-progress uploads, nonmatching names, symlinks |
+| Releases `/var/www/clubkeep/releases` | Exact 40-character SHA directory; older than 14 days; only beyond newest three | Current symlink target; newest three; unknown dirs |
+| PostgreSQL dump `/var/lib/clubkeep/backups` | **OFF by default**; optional exact root-owned marker after offsite restore drill, then older than 30 days beyond newest 14 dumps | All backups without marker; newest 14 with marker |
+| Redis, /etc, Nginx, MenuMinute and journald | **Never** | Entire resources |
+
+The root-only marker is `/etc/clubkeep/enable-backup-pruning-after-restore-drill`.
+Do **not** create it until an independent offsite backup and restore are
+verified. If retention is explicitly approved, write this exact content with
+root-only `0600` permissions:
+
+```text
+VERIFIED_OFFSITE_RESTORE_AND_APPROVED_30_DAY_RETENTION
+```
+
+Even with the marker, the cleanup script protects the newest 14 local DB
+dumps. A cleanup timer does **not** replace a monitored offsite backup or a
+restore rehearsal. Monitor root disk space; the job emits a warning below
+8 GiB free. Nothing touches MenuMinute's release archives or databases.
+
+The cleanup job and release helper use the **same** `flock` lock, so pruning
+skips when deployment is active. The script defaults to `--dry-run` and
+requires root for `--apply`. Systemd runs the locked job daily at 04:30 UTC
+with a 30-minute random delay, low I/O priority, private temp directory and
+write access restricted to the ClubKeep retention paths. Review results with
+`journalctl -u clubkeep-cleanup.service`.
+
+### SSH credential failure diagnostics
+
+An OpenSSH error such as `Load key ...: error in libcrypto` means the stored
+`CLUBKEEP_DEPLOY_SSH_KEY` is not a parseable unencrypted OpenSSH private key.
+The public key goes in the VPS `authorized_keys`; the **complete multiline
+private key** (including BEGIN/END lines) goes into the GitHub environment
+secret. On Windows validate the private file locally using
+`ssh-keygen -y -P "" -f "$env:USERPROFILE\.ssh\clubkeep-deploy-ed25519"`
+before re-copying it to GitHub, never into a chat or CI log.
+
+The deployment workflow now explicitly checks private key parsing and returns
+an actionable error before it attempts SCP.

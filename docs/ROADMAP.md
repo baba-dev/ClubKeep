@@ -5,7 +5,7 @@ Last updated: 9 Nov 2026 (final medical Free and no-clinician clarifications). T
 ## Phase 0 foundation first
 
 - [x] **Phase 0A complete in GitHub:** PR #7 merged; Node 24/Prisma 7 config, native-service x64/ARM64 CI and removal of fake SMS OTP demo. No production deployment.
-- [ ] **Phase 0B next:** [identity schema and reproducible migrations plan](PHASE_0B_IDENTITY_MIGRATIONS.md): preserve Better Auth core, add passkey/PersonalProfile/Club/ClubMembership/ClubInvite/contact schema, test clean vs populated PostgreSQL 17 with no production changes.
+- [ ] **Phase 0B implementation in PR #9 (under CI/review):** [identity schema and reproducible migrations plan](PHASE_0B_IDENTITY_MIGRATIONS.md); [migration and recovery runbook](PHASE_0B_RUNBOOK.md). Migrations, tenant permissions and native PostgreSQL 17 tests live on feature branch only; **no production DB migration**.
 
 - [ ] [SMS-free production foundation](PHASE_0_FOUNDATION.md): Google OAuth, passkeys, single-use 7-day invites/QR, email-link recovery, optional nonunique unverified phone contacts, shared global identity, Prisma 7 migrations, club-scoped roles, isolated Redis security, native co-host deployment, GitHub CI and restore tests.
 - [ ] **No Phase 0 medical tables**; Free medical vault (insurance information, blood type, user-authored biological instructions) and paid clinical history are later Personal features.

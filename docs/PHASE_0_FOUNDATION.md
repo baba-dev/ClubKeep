@@ -1,6 +1,6 @@
 # Phase 0 — SMS-free identity, migrations, CI, security and bare-metal deployment
 
-**Status: planning specification, not implemented.** Revised 9 Nov 2026 based on the owner's new explicit authentication and hosting decisions. The current repository still includes a **fake phone OTP demo**, a phone OTP Better Auth plugin, a Docker Compose development file, and no committed migrations or CI. These legacy files are **to be changed in implementation**, not claims of completed functionality.
+**Status: staged implementation.** Phase 0A merged as #7; Phase 0B identity schema and migrations are in implementation PR #9, **not deployed**. Original repository-audit statements in section 1 describe the pre-0A scaffold and should not be used as today's current code inventory. See [Phase 0B runbook](PHASE_0B_RUNBOOK.md). Revised 9 Nov 2026 based on the owner's new explicit authentication and hosting decisions. The current repository still includes a **fake phone OTP demo**, a phone OTP Better Auth plugin, a Docker Compose development file, and no committed migrations or CI. These legacy files are **to be changed in implementation**, not claims of completed functionality.
 
 Read alongside [BUSINESS_SPEC.md](BUSINESS_SPEC.md), [PRODUCT.md](PRODUCT.md), [ENTITLEMENTS.md](ENTITLEMENTS.md), [ARCHITECTURE.md](ARCHITECTURE.md), and [BAREMETAL_DEPLOYMENT.md](BAREMETAL_DEPLOYMENT.md). If an older document still says "phone OTP", "phone-only sign-up", "Docker" or "new dedicated server", **this revision supersedes it**.
 

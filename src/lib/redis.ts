@@ -1,25 +1,25 @@
 import Redis from "ioredis";
+import { requireRedisUrl } from "@/lib/server-env";
 
 const globalForRedis = globalThis as unknown as {
   redis: Redis | undefined;
 };
 
 function createRedisClient(): Redis {
-  const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
-
-  const client = new Redis(redisUrl, {
+  // This must reference a dedicated ClubKeep Redis security domain, never
+  // MenuMinute's queue/cache; see docs/BAREMETAL_DEPLOYMENT.md.
+  const client = new Redis(requireRedisUrl(), {
     maxRetriesPerRequest: 3,
     retryStrategy(times) {
-      // Exponential backoff with a cap of 2 seconds
       return Math.min(times * 100, 2000);
     },
     lazyConnect: true,
   });
 
-  client.on("error", (err) => {
-    // Prevent unhandled errors from crashing the dev server if Redis is offline
+  client.on("error", () => {
     if (process.env.NODE_ENV === "development") {
-      console.warn("[Redis] Connection error:", err.message);
+      // Don't log Redis connection strings, usernames or credentials.
+      console.warn("[Redis] Unable to connect; check local Redis configuration.");
     }
   });
 

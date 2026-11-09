@@ -21,9 +21,9 @@ Read alongside [BUSINESS_SPEC.md](BUSINESS_SPEC.md), [PRODUCT.md](PRODUCT.md), [
 
 | Current file/asset | Current fact | Required Phase 0 change |
 | --- | --- | --- |
-| `src/app/page.tsx` | The phone OTP demo uses a `setTimeout` and shows success without authenticating | Remove fake auth flow from product; add real Google/passkey/magic-link UI and backend-verified states |
-| `src/lib/auth.ts` | Better Auth phone plugin logs phone and OTP | Remove phone OTP plugin, OTP logging and phone signup assumptions; configure Google OAuth, passkey and magic-link plugins |
-| `src/lib/auth-client.ts` | Has phone OTP client plugin | Use Google social login, passkey client and magic-link client, with one shared session model |
+| `src/app/page.tsx` | Legacy fake phone OTP screen replaced by an honest non-authentication holding page in Phase 0A | Phase 0C implements real Google/passkey/magic-link UI and server-verified states |
+| `src/lib/auth.ts` | Phase 0A removes the old phone plugin and OTP logging | Phase 0C configures Google OAuth, passkeys and magic-link plugins; no SMS |
+| `src/lib/auth-client.ts` | Phase 0A removes the old phone client plugin | Phase 0C adds Google social login, passkey and magic-link client with one session model |
 | `prisma/schema.prisma` | `User.phoneNumber` is globally unique although optional; `User.email` is required; global `User.role` string exists | Move optional *unverified* phone to nonunique contact table; reserve global uniqueness only for independently verified numbers; avoid global role authorization; check Better Auth/passkey schema against installed package version |
 | `prisma7.config.ts` | Nonstandard Prisma 7 config file name | Use `prisma.config.ts` and committed Prisma migrations |
 | `src/lib/prisma.ts` | Development DB URL fallback | Use strict production config; separate ClubKeep database and role on shared PostgreSQL server |

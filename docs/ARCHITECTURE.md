@@ -12,7 +12,7 @@ Last updated: 9 Nov 2026. Existing club stack remains early-stage; the revised [
 | Database   | Prisma 7/adapter-pg; reuse existing host PostgreSQL service (**verify live version and create separate ClubKeep DB/role**) |
 | Cache      | ioredis; isolate ClubKeep authentication/security counters from MenuMinute cache/queue |
 | Validation | Zod 4                                                                     |
-| Local dev  | Current Compose scaffold is legacy; Phase 0 replaces it with **native PostgreSQL and Redis services** |
+| Local dev  | Native PostgreSQL and Redis, no Compose; Prisma 7 configured in `prisma.config.ts` |
 | Quality    | ESLint 9, Prettier with the Tailwind plugin, Husky and lint-staged        |
 
 ## Folder map
@@ -20,7 +20,7 @@ Last updated: 9 Nov 2026. Existing club stack remains early-stage; the revised [
 ```
 src/app/                 routes, layouts, route handlers (auth lives at app/api/auth/[...all])
 src/components/ui/       shadcn/ui components
-src/lib/auth.ts          Current phone OTP plugin/logging is legacy; Phase 0 will replace with Google/passkey/magic-link auth
+src/lib/auth.ts          Better Auth core; Phase 0A disables legacy phone OTP, Phase 0C adds Google/passkey/magic links
 src/lib/auth-client.ts   Better Auth client
 src/lib/prisma.ts        Prisma client singleton
 src/lib/redis.ts         Redis client singleton

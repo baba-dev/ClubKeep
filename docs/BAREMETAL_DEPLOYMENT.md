@@ -104,7 +104,7 @@ No performance SLA, server capacity or port availability can be claimed from the
 
 ## 9. Current repo-to-future transition
 
-As of this planning commit, **`docker-compose.yml` remains in git and production is not configured**. The first implementation PR must explicitly remove Docker from required docs and CI, then make native service development reproducible. Do not delete data from existing services or install a duplicate PostgreSQL instance simply because the repo currently references PostgreSQL 16 in Docker.
+In Phase 0A, Docker Compose has been removed from the active repository and the native-service instructions and GitHub-hosted CI are established. **The production server is not configured**; no database, Redis, Nginx, systemd, or port has been created/changed for ClubKeep. Do not delete data from existing services or install a duplicate PostgreSQL instance simply because the repo currently references PostgreSQL 16 in Docker.
 
 ## 10. Source and access boundary
 

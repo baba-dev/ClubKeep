@@ -9,12 +9,17 @@
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format:check": "prettier --check src tests prisma.config.ts next.config.ts",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "db:push": "prisma db push",
     "db:studio": "prisma studio",
-    "prepare": "husky"
+    "prepare": "husky",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test tests/unit/*.test.mjs",
+    "test:integration": "node --test tests/integration/*.test.mjs",
+    "db:validate": "prisma validate",
+    "db:deploy": "prisma migrate deploy",
+    "security:audit": "npm audit --omit=dev --audit-level=critical"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -51,7 +56,8 @@
     "prettier-plugin-tailwindcss": "^0.8.1",
     "prisma": "^7.10.1",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "dotenv": "^17.4.2"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx}": [
@@ -61,5 +67,9 @@
     "src/**/*.{json,md,css}": [
       "prettier --write"
     ]
+  },
+  "engines": {
+    "node": ">=24.0.0 <25",
+    "npm": ">=10.0.0"
   }
 }

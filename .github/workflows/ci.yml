@@ -29,6 +29,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
+      - name: Validate shell deploy and retention scripts
+        run: |
+          set -Eeuo pipefail
+          bash -n infra/deploy/clubkeep-release.sh
+          bash -n infra/deploy/package-release.sh
+          bash -n infra/deploy/clubkeep-cleanup.sh
+          # Non-root runners must not be permitted to prune production paths.
+          if bash infra/deploy/clubkeep-cleanup.sh --apply > /dev/null 2>&1; then
+            echo "Unsafe retention: non-root apply was accepted" >&2
+            exit 1
+          fi
+
       - name: Set up Node 24
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:

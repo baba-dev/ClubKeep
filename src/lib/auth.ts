@@ -92,10 +92,7 @@ export const auth = betterAuth({
         if (
           !session?.user ||
           !session.session ||
-          !isRecentProviderLinkSession(
-            new Date(session.session.createdAt).getTime(),
-            Date.now()
-          )
+          !isRecentProviderLinkSession(new Date(session.session.createdAt).getTime(), Date.now())
         ) {
           throw new APIError("FORBIDDEN", {
             message: "Sign in again before linking an account",

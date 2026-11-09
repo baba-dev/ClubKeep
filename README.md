@@ -43,7 +43,7 @@ Small clubs still run on registers, spreadsheets and WhatsApp groups. The tools 
 
 ## Approved Personal expansion (not implemented yet)
 
-Personal Free / Pro / Premium-AI will support native Apple Health and Android Health Connect, progressively available direct wearables, user-owned medical and insurance documents, AI via Groq/NVIDIA NIM, verified OCR/FHIR, optional India ABHA consent-based integration, and opt-in community. Clinical decision support is a separately validated phase. Business adds a limited Free tier (25 members, 1 staff) without changing existing paid club plan prices.
+Personal Free / Pro / Premium-AI will support native Apple Health and Android Health Connect, progressively available direct wearables, AI via Groq/NVIDIA NIM, verified paid medical OCR/FHIR, optional India ABHA consent-based integration, and opt-in community. **Free's medical-information vault contains insurance details, blood type and user-written biological instructions only; medical history/documents require Pro/Premium.** Clinical decision support is a separately validated phase. Business adds a limited Free tier (25 members, 1 staff) without changing existing paid club plan prices.
 
 ## Tech stack
 
@@ -120,7 +120,7 @@ In development, phone OTP codes are printed in the server console instead of bei
 - [Locked business decisions](docs/BUSINESS_SPEC.md): all 40 Round 1–2 owner choices and unresolved conflicts
 - [Pricing and feature matrix](docs/ENTITLEMENTS.md): Personal and Business tiers and sponsorship
 - [Wearable, medical, AI and ABHA integrations](docs/HEALTH_INTEGRATIONS.md): technical/privacy gates
-- [Delivery phases](docs/DELIVERY_PLAN.md): staged cross-product roadmap
+- [Delivery phases](docs/DELIVERY_PLAN.md): staged cross-product roadmap\n- [Phase 0 foundation plan](docs/PHASE_0_FOUNDATION.md): secure auth, migrations, identity, CI, tests and staging gates
 - [Architecture](docs/ARCHITECTURE.md): stack, data model and rules
 - [Roadmap](docs/ROADMAP.md): the first-release build plan
 - [AGENTS.md](AGENTS.md): conventions for AI coding agents

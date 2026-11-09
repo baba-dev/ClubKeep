@@ -1,6 +1,6 @@
 # ClubKeep architecture
 
-Last updated: 9 Nov 2026. Existing club stack remains early-stage; the [Phase 0 foundation plan](PHASE_0_FOUNDATION.md) details authentication, migrations, shared identity, CI and security. Sections marked **Proposed** are not built yet; confirm them before running a migration.
+Last updated: 9 Nov 2026. Existing club stack remains early-stage; the revised [SMS-free Phase 0 foundation plan](PHASE_0_FOUNDATION.md) and [bare-metal co-hosting plan](BAREMETAL_DEPLOYMENT.md) define the approved direction. The table below distinguishes existing scaffold components from required replacements. Sections marked **Proposed** are not built yet; confirm them before running a migration.
 
 ## Stack (already set up in the repo)
 
@@ -8,11 +8,11 @@ Last updated: 9 Nov 2026. Existing club stack remains early-stage; the [Phase 0 
 | ---------- | ------------------------------------------------------------------------- |
 | Framework  | Next.js 16, App Router, React 19, TypeScript (`cacheComponents` enabled)  |
 | UI         | Tailwind CSS v4, shadcn/ui, `@base-ui/react`, `lucide-react`, `sonner`    |
-| Auth       | Better Auth with the phone-number (OTP) plugin; email/password also on    |
-| Database   | PostgreSQL 16 through Prisma 7 and `@prisma/adapter-pg`                   |
-| Cache      | Redis 7 through `ioredis`                                                 |
+| Auth       | Better Auth (currently phone OTP demo); **replace with Google, passkeys and email magic links** |
+| Database   | Prisma 7/adapter-pg; reuse existing host PostgreSQL service (**verify live version and create separate ClubKeep DB/role**) |
+| Cache      | ioredis; isolate ClubKeep authentication/security counters from MenuMinute cache/queue |
 | Validation | Zod 4                                                                     |
-| Local dev  | Docker Compose (PostgreSQL and Redis)                                     |
+| Local dev  | Current Compose scaffold is legacy; Phase 0 replaces it with **native PostgreSQL and Redis services** |
 | Quality    | ESLint 9, Prettier with the Tailwind plugin, Husky and lint-staged        |
 
 ## Folder map
@@ -20,7 +20,7 @@ Last updated: 9 Nov 2026. Existing club stack remains early-stage; the [Phase 0 
 ```
 src/app/                 routes, layouts, route handlers (auth lives at app/api/auth/[...all])
 src/components/ui/       shadcn/ui components
-src/lib/auth.ts          Better Auth server config (phone OTP sendOTP logs to console in dev)
+src/lib/auth.ts          Current phone OTP plugin/logging is legacy; Phase 0 will replace with Google/passkey/magic-link auth
 src/lib/auth-client.ts   Better Auth client
 src/lib/prisma.ts        Prisma client singleton
 src/lib/redis.ts         Redis client singleton
@@ -59,7 +59,7 @@ Names are suggestions; keep them consistent once chosen. All club-owned models i
 | ------------------ | --------------------------------------------------------------------------------------------- |
 | `Club`             | Name, slug, vertical (gym, sports, yoga, dance), address, location and radius, branding, timezone, country, ID card layout |
 | `ClubMember`       | Links `User` to `Club` with role, member number, status, joined date                          |
-| `Invite`           | Pending membership keyed by E.164 phone number, claimed on first OTP login                    |
+| `Invite`           | Single-use, 7-day, club-scoped invitation token (keyed hash), claimed by authenticated identity; optional unverified phone hint |
 | `Plan`             | A club's membership plan: name, price (minor units), currency, duration                       |
 | `Membership`       | A member's plan instance: start, expiry, status                                               |
 | `PaymentRecord`    | Recorded club fee: member, plan, amount (minor units), currency, method (cash, UPI, card), date, recordedBy |
@@ -72,11 +72,11 @@ Names are suggestions; keep them consistent once chosen. All club-owned models i
 | `OwnerSubscription`| The owner's ClubKeep plan: tier, provider (razorpay or stripe), provider ids, status, period end |
 | `MessageLog`       | Outbound WhatsApp messages for caps, audit and opt-outs (later)                               |
 
-Money: integer minor units plus a currency code. Phone numbers: E.164. Timestamps: UTC.
+Money: integer minor units plus currency. Optional phone contacts: E.164 where supplied; globally nonunique until independently verified. Timestamps: UTC.
 
 ## Key flows
 
-- **Phone onboarding:** owner enters a phone number, an `Invite` is created, the member signs in with an OTP, and the invite is claimed into a `ClubMember`. OTP delivery needs an SMS provider (open decision); in dev the code is logged to the server console.
+- **SMS-free onboarding:** owners issue single-use, club-scoped 7-day invitation link/QR; claimant authenticates using verified Google, magic link or securely invitation-bound passkey registration, then atomically claims membership. **Link possession does not verify a phone**. Free phone contacts are unverified/nonunique. Google People API phone values are optional and not verified by ClubKeep. Provide recovery through Google, verified email or backup passkeys; staff cannot recover Personal accounts.
 - **Check-in:** QR carries a signed, short-lived token for the club; GPS compares coordinates to the club's radius on the server; manual is staff-only. All write a `Checkin`.
 - **Payment records:** staff record a payment against a member's `Membership`; the dues status is derived from it. No money moves through ClubKeep.
 - **Leaderboards:** scores are entered, then approved by club staff. Only approved scores count. Ranks are computed per club, season and activity and cached in Redis sorted sets; PostgreSQL is the record and the cache can always be rebuilt from it.
@@ -87,11 +87,11 @@ Money: integer minor units plus a currency code. Phone numbers: E.164. Timestamp
 
 - Check club membership and role on every server entry point.
 - Validate every input with Zod; verify webhook signatures for Razorpay and Stripe.
-- Do not log phone numbers, OTP codes, bio stats or tokens.
-- Rate-limit OTP requests and check-in attempts using Redis.
+- Do not log phone numbers, invite or email-link tokens, passkey challenge secrets, bio stats or session tokens.
+- Rate-limit invite creation/claim, passkey operations, email magic-link issuance, Google callback abuse and check-in attempts using isolated Redis security state and server-side checks.
 - Keep secrets in environment variables; production values never go in git.
 - Provide member data export and deletion paths.
 
 ## Deployment
 
-See `docs/DEPLOYMENT.md` once written. The target is a self-hosted arm64 Linux server, so every Docker image and native dependency must support `linux/arm64`.
+See [BAREMETAL_DEPLOYMENT.md](BAREMETAL_DEPLOYMENT.md). Target is the **existing MenuMinute server** with isolated ClubKeep systemd, Nginx host, DB/role, Redis authentication state, secrets and release/backup paths. **No Docker or Compose.** Verify actual ARM64/Node/PostgreSQL resources before provisioning.

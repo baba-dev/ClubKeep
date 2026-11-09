@@ -7,6 +7,8 @@ generator client {
   output   = "../src/generated/prisma"
 }
 
+// Global Better Auth identity. Neither role nor legacy phone verifies club
+// permissions; new club contacts belong in ClubContact, not on User.
 model User {
   id                  String    @id @default(cuid())
   name                String
@@ -16,15 +18,20 @@ model User {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
-  // Phone OTP support (Better Auth phoneNumber plugin)
-  phoneNumber         String?   @unique
+  // Retained without mutation for existing accounts. Deprecated for new
+  // onboarding; not a verified phone, recovery key, or account-linking key.
+  phoneNumber         String?
   phoneNumberVerified Boolean?  @default(false)
-
-  // Roles & permissions
   role                String?   @default("user")
 
   sessions            Session[]
   accounts            Account[]
+  passkeys            Passkey[]
+  personalProfile     PersonalProfile?
+  clubMemberships     ClubMembership[]
+  issuedInvites       ClubInvite[] @relation("InviteIssuer")
+  claimedInvites      ClubInvite[] @relation("InviteClaimant")
+  securityEvents      SecurityEvent[] @relation("SecurityEventActor")
 
   @@map("user")
 }
@@ -41,6 +48,7 @@ model Session {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([expiresAt])
   @@map("session")
 }
 
@@ -61,6 +69,7 @@ model Account {
   updatedAt             DateTime  @updatedAt
 
   @@index([userId])
+  @@unique([providerId, accountId])
   @@map("account")
 }
 
@@ -73,5 +82,162 @@ model Verification {
   updatedAt  DateTime @updatedAt
 
   @@index([identifier])
+  @@index([expiresAt])
   @@map("verification")
+}
+
+// Storage contract for @better-auth/passkey 1.7.18; activate its plugin in 0C.
+model Passkey {
+  id           String   @id @default(cuid())
+  name         String?
+  publicKey    String
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  credentialID String   @unique
+  counter      Int
+  deviceType   String
+  backedUp     Boolean
+  transports   String?
+  createdAt    DateTime? @default(now())
+  aaguid       String?
+
+  @@index([userId])
+  @@map("passkey")
+}
+
+// Never joins to a Club: private Personal ownership remains independent.
+model PersonalProfile {
+  userId      String   @id
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  locale      String   @default("en")
+  timezone    String   @default("UTC")
+  displayName String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum ClubStatus {
+  ACTIVE
+  SUSPENDED
+  CLOSED
+}
+
+enum ClubRole {
+  OWNER
+  MANAGER
+  STAFF
+  MEMBER
+}
+
+enum ClubMembershipStatus {
+  ACTIVE
+  SUSPENDED
+  LEFT
+}
+
+enum ClubContactSource {
+  OWNER_ENTERED
+  USER_ENTERED
+  GOOGLE_IMPORTED
+}
+
+enum SecurityEventType {
+  CLUB_CREATED
+  INVITE_CREATED
+  INVITE_REVOKED
+  INVITE_CLAIMED
+  MEMBERSHIP_CHANGED
+  SECURITY_REVIEW
+}
+
+model Club {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  status      ClubStatus @default(ACTIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  memberships ClubMembership[]
+  invites     ClubInvite[]
+  contacts    ClubContact[]
+  events      SecurityEvent[]
+}
+
+model ClubMembership {
+  id        String   @id @default(cuid())
+  clubId    String
+  userId    String
+  role      ClubRole @default(MEMBER)
+  status    ClubMembershipStatus @default(ACTIVE)
+  joinedAt  DateTime @default(now())
+  leftAt    DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  club      Club     @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contacts  ClubContact[]
+
+  @@unique([clubId, userId])
+  @@unique([clubId, id]) // Allows same-tenant composite FK from ClubContact.
+  @@index([userId, status])
+  @@index([clubId, status, role])
+}
+
+// Single-use link: generated 256-bit token is never persisted or logged.
+// Only its keyed hash is stored. Atomic redemption is Phase 0D, not 0B.
+model ClubInvite {
+  id              String   @id @default(cuid())
+  clubId          String
+  issuedByUserId  String
+  claimedByUserId String?
+  tokenHash       String   @unique
+  tokenKeyVersion Int      @default(1)
+  role            ClubRole @default(MEMBER)
+  createdAt       DateTime @default(now())
+  expiresAt       DateTime
+  claimedAt       DateTime?
+  revokedAt       DateTime?
+  approvedAt      DateTime?
+
+  club            Club     @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  issuedBy        User     @relation("InviteIssuer", fields: [issuedByUserId], references: [id], onDelete: Restrict)
+  claimedBy       User?    @relation("InviteClaimant", fields: [claimedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([clubId, expiresAt])
+  @@index([claimedByUserId])
+  @@index([issuedByUserId])
+}
+
+// Nonunique phone/contact hints. Not a global user identity or recovery key.
+model ClubContact {
+  id           String   @id @default(cuid())
+  clubId       String
+  membershipId String?
+  phoneE164    String?
+  source       ClubContactSource @default(OWNER_ENTERED)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  club         Club @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  membership   ClubMembership? @relation(fields: [clubId, membershipId], references: [clubId, id], onDelete: Restrict)
+
+  @@index([clubId, phoneE164])
+  @@index([membershipId])
+}
+
+model SecurityEvent {
+  id          String   @id @default(cuid())
+  actorUserId String?
+  clubId      String?
+  eventType   SecurityEventType
+  referenceId String?
+  createdAt   DateTime @default(now())
+
+  actor       User? @relation("SecurityEventActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  club        Club? @relation(fields: [clubId], references: [id], onDelete: SetNull)
+
+  @@index([actorUserId, createdAt])
+  @@index([clubId, createdAt])
 }

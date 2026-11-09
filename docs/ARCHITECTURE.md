@@ -1,6 +1,6 @@
 # ClubKeep architecture
 
-Last updated: 9 Nov 2026. Existing club stack remains early-stage; the revised [SMS-free Phase 0 foundation plan](PHASE_0_FOUNDATION.md) and [bare-metal co-hosting plan](BAREMETAL_DEPLOYMENT.md) define the approved direction. The table below distinguishes existing scaffold components from required replacements. Sections marked **Proposed** are not built yet; confirm them before running a migration.
+Last updated: 9 Nov 2026. Phase 0B now defines a **versioned schema** in `prisma/schema.prisma` with baseline and additive migrations. See [Phase 0B database runbook](PHASE_0B_RUNBOOK.md) and [schema compatibility](PHASE_0B_SCHEMA_COMPATIBILITY.md). The application remains prelaunch: creating a passkey/invite record is not a live registration or redemption flow. Existing club stack remains early-stage; the revised [SMS-free Phase 0 foundation plan](PHASE_0_FOUNDATION.md) and [bare-metal co-hosting plan](BAREMETAL_DEPLOYMENT.md) define the approved direction. The table below distinguishes existing scaffold components from required replacements. Sections marked **Proposed** are not built yet; confirm them before running a migration.
 
 ## Stack (already set up in the repo)
 
@@ -8,7 +8,7 @@ Last updated: 9 Nov 2026. Existing club stack remains early-stage; the revised [
 | ---------- | ------------------------------------------------------------------------- |
 | Framework  | Next.js 16, App Router, React 19, TypeScript (`cacheComponents` enabled)  |
 | UI         | Tailwind CSS v4, shadcn/ui, `@base-ui/react`, `lucide-react`, `sonner`    |
-| Auth       | Better Auth (currently phone OTP demo); **replace with Google, passkeys and email magic links** |
+| Auth       | Better Auth email/password core; SMS OTP removed in 0A. Passkey storage prepared in 0B; Google, passkey and magic-link login in 0C |
 | Database   | Prisma 7/adapter-pg; reuse existing host PostgreSQL service (**verify live version and create separate ClubKeep DB/role**) |
 | Cache      | ioredis; isolate ClubKeep authentication/security counters from MenuMinute cache/queue |
 | Validation | Zod 4                                                                     |
@@ -26,7 +26,7 @@ src/lib/prisma.ts        Prisma client singleton
 src/lib/redis.ts         Redis client singleton
 src/lib/validations/     Zod schemas
 src/generated/prisma/    generated Prisma client (never edit)
-prisma/schema.prisma     schema (currently User, Session, Account, Verification)
+prisma/schema.prisma     Better Auth core plus Passkey, PersonalProfile, Club, ClubMembership, ClubInvite, ClubContact and SecurityEvent (0B)
 ```
 
 Design tokens, theme and the `/design` mockup routes are documented in `docs/DESIGN.md`. Binding scope lives in [BUSINESS_SPEC.md](BUSINESS_SPEC.md); [ENTITLEMENTS.md](ENTITLEMENTS.md), [HEALTH_INTEGRATIONS.md](HEALTH_INTEGRATIONS.md) and [DELIVERY_PLAN.md](DELIVERY_PLAN.md) are cross-product specifications.
@@ -51,7 +51,29 @@ Current environment variables (`.env.example`): `DATABASE_URL`, `REDIS_URL`, `BE
 - Every club-owned table has `clubId`. Every server query filters by it, and every mutation checks the caller's role in that club.
 - Role checks happen on the server (route handlers, server actions), never only in the UI.
 
-## Proposed data model
+## Implemented Phase 0B identity schema (DB only)
+
+The Prisma 7 migration history is split into immutable `0_init_auth_core`
+(the original mapped `user/session/account/verification` tables) and the
+transactional `20261109000000_identity_foundation` additive migration.
+
+| Model | Key database rules |
+| --- | --- |
+| `User` | One global identity; email remains required/unique. Deprecated `role` is **not** club authorization and legacy `phoneNumber` is nonunique/unverified |
+| `Account` | Unique `(providerId, accountId)` for a provider's stable Google/credential subject |
+| `Passkey` | Unique `credentialID`, linked to User; no private key |
+| `PersonalProfile` | `userId` primary key, independent of club, nonmedical |
+| `Club` | Unique slug; standalone business tenant |
+| `ClubMembership` | Unique `(clubId, userId)`, role OWNER/MANAGER/STAFF/MEMBER, status ACTIVE/SUSPENDED/LEFT |
+| `ClubInvite` | Club-scoped, unique keyed token hash, issuer/claimant and expiry/revocation timestamps; **redemption is not wired until 0D** |
+| `ClubContact` | Optional `phoneE164` deliberately nonunique; never identify or merge users by this contact |
+| `SecurityEvent` | Typed event marker with safe minimal references; no tokens or medical information |
+
+Default-deny authorization helpers are in `src/lib/club-access.ts`. They
+are not substitutes for verified Better Auth session checks and scoped
+server-side database operations when routes are built in 0C/0D.
+
+## Proposed business domain model (not yet implemented)
 
 Names are suggestions; keep them consistent once chosen. All club-owned models include `clubId`, `createdAt`, `updatedAt`.
 

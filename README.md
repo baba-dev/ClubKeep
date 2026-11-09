@@ -73,7 +73,9 @@ For local source inspection/build, install native PostgreSQL and Redis separatel
 npm ci
 cp .env.example .env
 # Set DATABASE_URL/REDIS_URL to your own native local services.
-# Prisma configuration is prepared; checked-in baseline migrations arrive in Phase 0B.
+# Phase 0B now contains immutable auth baseline + additive identity migrations.
+# Only execute migrations on a disposable ClubKeep-only local DB after review.
+npm run db:deploy
 npm run db:validate
 npm run db:generate
 npm run typecheck
@@ -101,6 +103,7 @@ The eventual production deployment is an isolated ClubKeep systemd service on th
 | `npm run typecheck`    | Run TypeScript checks |
 | `npm run test`         | Run native Node 24 unit tests |
 | `npm run test:integration` | Read-only native PostgreSQL/Redis connection smoke |
+| `npm run test:identity` | Real PG17 identity/club/phone uniqueness tests on disposable migrated database |
 | `npm run security:audit` | Check production dependencies for critical advisories |
 | `npm run db:studio`    | Open Prisma Studio                     |
 
@@ -129,6 +132,8 @@ The eventual production deployment is an isolated ClubKeep systemd service on th
 - [Phase 0 foundation plan](docs/PHASE_0_FOUNDATION.md): **SMS-free** Google/passkeys/magic links, secure 7-day invite claim, migrations, identity, CI and tests
 - [Phase 0A implementation notes](docs/PHASE_0A_IMPLEMENTATION.md): **merged** in PR #7; audited host baseline, native development setup, green x64/ARM64 CI
 - [Phase 0B identity and migrations plan](docs/PHASE_0B_IDENTITY_MIGRATIONS.md): global users, passkeys, tenant roles, seven-day invites, additive and legacy database migrations
+- [Phase 0B database runbook](docs/PHASE_0B_RUNBOOK.md): disposable migration validation, populated baseline handling, recovery and production isolation
+- [Phase 0B Better Auth compatibility](docs/PHASE_0B_SCHEMA_COMPATIBILITY.md): pinned core/passkey fields, legacy phone and required-email decisions
 - [Bare-metal co-hosting plan](docs/BAREMETAL_DEPLOYMENT.md): ClubKeep on MenuMinute host, isolated systemd, Nginx, DB, Redis security and backup
 - [Architecture](docs/ARCHITECTURE.md): stack, data model and rules
 - [Roadmap](docs/ROADMAP.md): the first-release build plan

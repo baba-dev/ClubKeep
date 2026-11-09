@@ -28,7 +28,9 @@ Read before coding:
 - `docs/DELIVERY_PLAN.md`: separate Club and Personal stages, with regulated-feature release gates
 - `docs/PHASE_0_FOUNDATION.md`: **authoritative Phase 0 plan** for Google/passkey/magic-link auth, 7-day invite/QR, migrations, identity, security and CI
 - `docs/PHASE_0A_IMPLEMENTATION.md`: completed runtime/CI foundation and audited host facts; Phase 0A merged as PR #7
-- `docs/PHASE_0B_IDENTITY_MIGRATIONS.md`: **review before touching the identity schema**; no-SMS User/Passkey/Club/Invite model, immutable baseline migrations, legacy-data preservation, PG 17 CI gates
+- `docs/PHASE_0B_IDENTITY_MIGRATIONS.md`: authoritative design for global identity/tenancy, baseline and migrations
+- `docs/PHASE_0B_SCHEMA_COMPATIBILITY.md`: Better Auth 1.7.18 original-model snapshot and passkey field contract
+- `docs/PHASE_0B_RUNBOOK.md`: **required** steps for disposable native PostgreSQL 17 migration testing and legacy baselining; never run against MenuMinute
 - `docs/BAREMETAL_DEPLOYMENT.md`: isolated ClubKeep systemd/Nginx and DB/Redis setup on existing MenuMinute server; no Docker
 
 If code and docs disagree, stop and ask; do not guess. When a decision changes, update the doc in the same change.
@@ -89,7 +91,7 @@ A Husky pre-commit hook runs `eslint --fix` and `prettier --write` on staged fil
 
 - Work in small steps from `docs/ROADMAP.md`; one feature per branch or commit.
 - Do not add a dependency without saying why in your summary.
-- Do not change the Prisma schema without a migration and an update to `docs/ARCHITECTURE.md`.
+- Do not change the Prisma schema without a new immutable Prisma migration and an update to `docs/ARCHITECTURE.md`. Phase 0B baseline is immutable: `prisma/baseline/auth-core.prisma`, `0_init_auth_core`, then additive migrations. Never run `prisma migrate resolve --applied` without verifying a **ClubKeep** legacy database exactly matches the original baseline.
 - Run `npm run lint` and `npm run build` before declaring work done; say plainly if you could not run them.
 - Never run destructive database commands (`migrate reset`, `db push --force-reset`) without explicit approval.
 - Prisma skills are in `.agents/skills/` and `.claude/skills/`; use them for Prisma 7 specifics.

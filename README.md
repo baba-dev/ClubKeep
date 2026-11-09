@@ -120,7 +120,8 @@ In development, phone OTP codes are printed in the server console instead of bei
 - [Locked business decisions](docs/BUSINESS_SPEC.md): all 40 Round 1–2 owner choices and unresolved conflicts
 - [Pricing and feature matrix](docs/ENTITLEMENTS.md): Personal and Business tiers and sponsorship
 - [Wearable, medical, AI and ABHA integrations](docs/HEALTH_INTEGRATIONS.md): technical/privacy gates
-- [Delivery phases](docs/DELIVERY_PLAN.md): staged cross-product roadmap\n- [Phase 0 foundation plan](docs/PHASE_0_FOUNDATION.md): secure auth, migrations, identity, CI, tests and staging gates
+- [Delivery phases](docs/DELIVERY_PLAN.md): staged cross-product roadmap
+- [Phase 0 foundation plan](docs/PHASE_0_FOUNDATION.md): secure auth, migrations, identity, CI, tests and staging gates
 - [Architecture](docs/ARCHITECTURE.md): stack, data model and rules
 - [Roadmap](docs/ROADMAP.md): the first-release build plan
 - [AGENTS.md](AGENTS.md): conventions for AI coding agents

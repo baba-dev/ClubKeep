@@ -7,7 +7,7 @@ Read alongside [BUSINESS_SPEC.md](BUSINESS_SPEC.md), [PRODUCT.md](PRODUCT.md), [
 ## 0. Owner decisions and constraints now locked
 
 1. **No SMS provider and no SMS OTP login/signup/recovery.** Do not spend on an SMS provider or use a console-logged OTP as a production fallback.
-2. **Google Sign-In** for primary identity, using the Google subject (\`sub\`) plus verified email from an OIDC response where actually provided. Google does **not** reliably provide a phone number in normal OAuth profile claims. Optional Google People API \`user.phonenumbers.read\` could retrieve a number if available and permissioned, but it is **not proof of phone ownership** and must not be required for registration.
+2. **Google Sign-In** for primary identity, using the Google subject (`sub`) plus verified email from an OIDC response where actually provided. Google does **not** reliably provide a phone number in normal OAuth profile claims. Optional Google People API `user.phonenumbers.read` could retrieve a number if available and permissioned, but it is **not proof of phone ownership** and must not be required for registration.
 3. **Single-use owner-issued club invite links/QR**, default expiry **7 days**, with club invitation as the proof the club has authorized a prospective member—not proof of the member's phone ownership. Invite-token redemption cannot take over an existing global Personal account.
 4. **Phone numbers are optional, unverified contacts** (E.164 where present). Never enforce global uniqueness on unverified contacts or use them to authenticate or merge accounts. Independently verified phone numbers may later use a separate unique registry with reclaim/recycling rules.
 5. **Passkeys/WebAuthn** are the main repeat sign-in method; let a new invite claimant enroll a passkey after a secure claim ceremony. Google sign-in and optional verified email magic-link recovery remain available. No staff-controlled reset of a person's Personal account.
@@ -21,18 +21,18 @@ Read alongside [BUSINESS_SPEC.md](BUSINESS_SPEC.md), [PRODUCT.md](PRODUCT.md), [
 
 | Current file/asset | Current fact | Required Phase 0 change |
 | --- | --- | --- |
-| \`src/app/page.tsx\` | The phone OTP demo uses a \`setTimeout\` and shows success without authenticating | Remove fake auth flow from product; add real Google/passkey/magic-link UI and backend-verified states |
-| \`src/lib/auth.ts\` | Better Auth phone plugin logs phone and OTP | Remove phone OTP plugin, OTP logging and phone signup assumptions; configure Google OAuth, passkey and magic-link plugins |
-| \`src/lib/auth-client.ts\` | Has phone OTP client plugin | Use Google social login, passkey client and magic-link client, with one shared session model |
-| \`prisma/schema.prisma\` | \`User.phoneNumber\` is globally unique although optional; \`User.email\` is required; global \`User.role\` string exists | Move optional *unverified* phone to nonunique contact table; reserve global uniqueness only for independently verified numbers; avoid global role authorization; check Better Auth/passkey schema against installed package version |
-| \`prisma7.config.ts\` | Nonstandard Prisma 7 config file name | Use \`prisma.config.ts\` and committed Prisma migrations |
-| \`src/lib/prisma.ts\` | Development DB URL fallback | Use strict production config; separate ClubKeep database and role on shared PostgreSQL server |
-| \`src/lib/redis.ts\` | Generic URL and singleton only | Isolate ClubKeep security counters and rate limits, avoid shared evictable MenuMinute cache |
-| \`docker-compose.yml\` | Starts standalone PostgreSQL 16 and Redis 7 containers | Remove/archive from active workflow, replace instructions and tests with **native** PostgreSQL/Redis services |
-| \`.env.example\` | Example points at local Docker defaults and phone OTP setup | Document Google OAuth, passkey origin/RP ID, SMTP provider, PostgreSQL, Redis, app URLs and secrets; never publish actual values |
-| \`.github/workflows\` / test tree | No CI workflow or full tests present | Introduce hosted GitHub Actions CI, tests, migration smoke, SAST/secret/dependency checks |
-| \`docs/ARCHITECTURE.md\`, \`README.md\`, \`AGENTS.md\` | Describe phone OTP and Docker | Replace assumptions with this locked plan |
-| \`src/app/design/luxe\` | Approved Luxe design remains mockup | Reuse tokens for responsive login/onboarding and club selector; no simulated security success |
+| `src/app/page.tsx` | The phone OTP demo uses a `setTimeout` and shows success without authenticating | Remove fake auth flow from product; add real Google/passkey/magic-link UI and backend-verified states |
+| `src/lib/auth.ts` | Better Auth phone plugin logs phone and OTP | Remove phone OTP plugin, OTP logging and phone signup assumptions; configure Google OAuth, passkey and magic-link plugins |
+| `src/lib/auth-client.ts` | Has phone OTP client plugin | Use Google social login, passkey client and magic-link client, with one shared session model |
+| `prisma/schema.prisma` | `User.phoneNumber` is globally unique although optional; `User.email` is required; global `User.role` string exists | Move optional *unverified* phone to nonunique contact table; reserve global uniqueness only for independently verified numbers; avoid global role authorization; check Better Auth/passkey schema against installed package version |
+| `prisma7.config.ts` | Nonstandard Prisma 7 config file name | Use `prisma.config.ts` and committed Prisma migrations |
+| `src/lib/prisma.ts` | Development DB URL fallback | Use strict production config; separate ClubKeep database and role on shared PostgreSQL server |
+| `src/lib/redis.ts` | Generic URL and singleton only | Isolate ClubKeep security counters and rate limits, avoid shared evictable MenuMinute cache |
+| `docker-compose.yml` | Starts standalone PostgreSQL 16 and Redis 7 containers | Remove/archive from active workflow, replace instructions and tests with **native** PostgreSQL/Redis services |
+| `.env.example` | Example points at local Docker defaults and phone OTP setup | Document Google OAuth, passkey origin/RP ID, SMTP provider, PostgreSQL, Redis, app URLs and secrets; never publish actual values |
+| `.github/workflows` / test tree | No CI workflow or full tests present | Introduce hosted GitHub Actions CI, tests, migration smoke, SAST/secret/dependency checks |
+| `docs/ARCHITECTURE.md`, `README.md`, `AGENTS.md` | Describe phone OTP and Docker | Replace assumptions with this locked plan |
+| `src/app/design/luxe` | Approved Luxe design remains mockup | Reuse tokens for responsive login/onboarding and club selector; no simulated security success |
 
 The existing Next.js/React/Tailwind/shadcn and Better Auth/Prisma libraries remain the baseline. Inspect exact installed APIs and security advisories before adding plugins or migrations.
 
@@ -41,8 +41,8 @@ The existing Next.js/React/Tailwind/shadcn and Better Auth/Prisma libraries rema
 ### A. Standalone Personal sign-up (no club)
 
 1. User chooses **Continue with Google** or **Continue with email**. Google uses verified OpenID Connect claims; email magic link proves control of the mailbox.
-2. Better Auth creates or loads one canonical global \`User\` (Google provider subject and/or verified email, not matching phone text).
-3. Create idempotent \`PersonalProfile\` without any \`clubId\`. Check age/region restrictions separately; do not activate teen clinical/social features by default.
+2. Better Auth creates or loads one canonical global `User` (Google provider subject and/or verified email, not matching phone text).
+3. Create idempotent `PersonalProfile` without any `clubId`. Check age/region restrictions separately; do not activate teen clinical/social features by default.
 4. Offer **Create a passkey** (WebAuthn). On capable devices, the OS/password manager may offer biometric or device-PIN unlock. A passkey is cryptographic account proof, not a verified mobile number.
 5. Encourage a **second passkey or verified recovery email**. Show recovery methods before the user stores sensitive information in later phases. Sign-in uses Google, passkey or a short-lived email link.
 
@@ -50,21 +50,21 @@ Do not force a phone field or Google People API permission into this path.
 
 ### B. Owner invites a club member (7-day single-use link or QR)
 
-1. An authenticated Owner or authorized Manager creates an invitation scoped to **one club**, intended role \`MEMBER\` by default, expiration at creation + 7 days, creator, status, optional display/contact hint, and a randomly generated **high-entropy bearer token**.
+1. An authenticated Owner or authorized Manager creates an invitation scoped to **one club**, intended role `MEMBER` by default, expiration at creation + 7 days, creator, status, optional display/contact hint, and a randomly generated **high-entropy bearer token**.
 2. Store a **keyed hash** of the invite token, not the raw token. Enforce token type, expiry, revocation and single-use redemption **atomically** in PostgreSQL. Rate limit creation and redemption. The token contains no phone/medical information.
 3. Owner shares URL privately via a messenger, email or in-person QR. The URL grants **only the ability to request/join the named club role**. It does not establish identity or verify contact data.
 4. After opening the link, claimant authenticates with Google/email, **or** uses a carefully designed invitation-bound passkey-first registration ceremony that creates a canonical user only after successful WebAuthn verification. Do not create a reusable logged-in account merely by visiting the invitation URL.
-5. Bind invite redemption transactionally to authenticated \`userId\` and the club membership; reject replay, expired, revoked and role-escalated invitations. A secure design may require **owner approval** before newly claimed accounts receive full member functions, especially for forwarded links and remote claims.
+5. Bind invite redemption transactionally to authenticated `userId` and the club membership; reject replay, expired, revoked and role-escalated invitations. A secure design may require **owner approval** before newly claimed accounts receive full member functions, especially for forwarded links and remote claims.
 6. Prompt claimant to create a passkey immediately when feasible and add an email/Google recovery method. Show owner the claimant's selected profile and claim timestamp; permit revocation of **membership**, not deletion/transfer of the person's global account.
-7. A lost/shared/forwarded link risks first-claimer abuse. Expose claim/audit/revoke/reissue, use account confirmation when risky, and require explicit authenticated owner approval for \`STAFF\`, \`MANAGER\` or \`OWNER\` role invitations. Never automatically grant a privileged role based on an anonymous token alone.
-8. On claim, remove bearer token from browser location via a safe token-exchange POST and replace/history-scrub; set \`Referrer-Policy: no-referrer\`; never leak invite tokens to pixels, analytics, logs or link previews. Do not embed personal data in QR.
+7. A lost/shared/forwarded link risks first-claimer abuse. Expose claim/audit/revoke/reissue, use account confirmation when risky, and require explicit authenticated owner approval for `STAFF`, `MANAGER` or `OWNER` role invitations. Never automatically grant a privileged role based on an anonymous token alone.
+8. On claim, remove bearer token from browser location via a safe token-exchange POST and replace/history-scrub; set `Referrer-Policy: no-referrer`; never leak invite tokens to pixels, analytics, logs or link previews. Do not embed personal data in QR.
 
 **Guarantees:** Token possession is **invitation authorization**, not proof of SIM or WhatsApp control, not proof of legal identity, and not a credential to recover a linked Personal account.
 
 ### C. Return login and device loss
 
 - With passkey: WebAuthn assertion verifies challenge, relying party/origin and registered public key. Allow multiple passkeys, list/revoke individual credentials and terminate sessions on suspected compromise.
-- With Google: standard OIDC authentication; do not automatically link on matching *unverified* email or phone. Provider \`sub\` is stable provider identity.
+- With Google: standard OIDC authentication; do not automatically link on matching *unverified* email or phone. Provider `sub` is stable provider identity.
 - With magic link: server sends short-lived, single-use link to a **previously verified and linked** email address; hash token in storage, block replay, suppress account enumeration and rate-limit issuance. The email service is optional only where another recovery method is present.
 - Staff may reissue a club invitation **for membership**, but cannot recover an existing Personal account. If the member has no passkey backup and no independently verified recovery credential, old account recovery requires a separately designed support/identity-proof process. The new club invite must not auto-merge or transfer old medical data.
 - Encourage a second passkey or verified email before exiting onboarding; when neither exists, clearly disclose possible permanent loss of access. Do not use a previously unverified phone as recovery proof.
@@ -72,14 +72,14 @@ Do not force a phone field or Google People API permission into this path.
 
 ### D. Phone fields and optional verification
 
-- \`ClubMemberContact\`: \`clubId\`, \`memberId\`, optional E.164 phone, source (owner-entered/user-entered/Google-imported), \`verifiedAt=null\` by default. The same unverified number can appear on multiple records.
-- A separate future \`VerifiedPhone\` may enforce \`UNIQUE(e164)\` **after real proof of control**, with revocation, recycling and disputes. Never let owner-entered phones seize/merge identities.
-- **Google People API**: optional additional OAuth consent via \`user.phonenumbers.read\`, only when users deliberately request import. Numbers can be absent, stale or incomplete. They remain **unverified contacts**, never signup or dedup keys. Avoid this permission in initial login to reduce consent friction.
-- **WhatsApp later (not Phase 0)**: issue short-lived challenge in ClubKeep UI, open WhatsApp message draft to a legitimate connected business number, **receive inbound message via an authenticated webhook**, verify sender phone or WhatsApp ID + code + expiry + replay protections, then mark a narrower \`verifiedVia=whatsapp\` status. Prefilled draft/opening alone is insufficient; WhatsApp ownership isn't strong legal identity proof. Check official platform availability/costs and avoid unofficial personal-number automation as security infrastructure.
+- `ClubMemberContact`: `clubId`, `memberId`, optional E.164 phone, source (owner-entered/user-entered/Google-imported), `verifiedAt=null` by default. The same unverified number can appear on multiple records.
+- A separate future `VerifiedPhone` may enforce `UNIQUE(e164)` **after real proof of control**, with revocation, recycling and disputes. Never let owner-entered phones seize/merge identities.
+- **Google People API**: optional additional OAuth consent via `user.phonenumbers.read`, only when users deliberately request import. Numbers can be absent, stale or incomplete. They remain **unverified contacts**, never signup or dedup keys. Avoid this permission in initial login to reduce consent friction.
+- **WhatsApp later (not Phase 0)**: issue short-lived challenge in ClubKeep UI, open WhatsApp message draft to a legitimate connected business number, **receive inbound message via an authenticated webhook**, verify sender phone or WhatsApp ID + code + expiry + replay protections, then mark a narrower `verifiedVia=whatsapp` status. Prefilled draft/opening alone is insufficient; WhatsApp ownership isn't strong legal identity proof. Check official platform availability/costs and avoid unofficial personal-number automation as security infrastructure.
 
 ## 3. Minimum Phase 0 data model and permissions
 
-\`\`\`text
+```text
 User (canonical Better Auth user)
  ├─ Account(s): Google OIDC and optional email/password
  ├─ Session(s): revocable, secure and age/region aware
@@ -91,13 +91,13 @@ User (canonical Better Auth user)
  ├─ ClubInvite (club-scoped, keyed token hash, role, 7-day TTL, redeemedBy)
  ├─ Optional unverified contact(s) (no global uniqueness)
  └─ SecurityEvent, AuditEvent / age-policy flags where necessary
-\`\`\`
+```
 
-- Real schema details must follow installed Better Auth + \`@better-auth/passkey\` plugin requirements. Generate and review the proposed auth schema before writing Prisma SQL; do **not** run plugin migrations directly against production outside Prisma.
-- Existing \`User.email String @unique\` may require a safe **opaque synthetic placeholder** for passkey-first accounts if the installed auth version cannot support absent email. Such a value is **not a verified email**, must never receive outbound mail, cannot match an account for linking, and should be replaced only after explicit verification. Prefer a native nullable supported design if possible after compatibility review.
-- \`User.phoneNumber @unique\` from old phone OTP schema **must not mean verified phone ownership** and must not block another owner's unverified contact. Migrate carefully if any data exists.
-- Club roles: \`OWNER\`, \`MANAGER\`, \`STAFF\`, \`MEMBER\`; enforce \`UNIQUE(clubId,userId)\`. Invitation to privileged roles requires an extra owner approval/step-up. Do not use the global \`User.role\` for club authorization.
-- \`PersonalProfile\` stores only nonmedical basic preferences; future medical, insurance and wearables receive independent user-owned tables and stronger permissions in later phases.
+- Real schema details must follow installed Better Auth + `@better-auth/passkey` plugin requirements. Generate and review the proposed auth schema before writing Prisma SQL; do **not** run plugin migrations directly against production outside Prisma.
+- Existing `User.email String @unique` may require a safe **opaque synthetic placeholder** for passkey-first accounts if the installed auth version cannot support absent email. Such a value is **not a verified email**, must never receive outbound mail, cannot match an account for linking, and should be replaced only after explicit verification. Prefer a native nullable supported design if possible after compatibility review.
+- `User.phoneNumber @unique` from old phone OTP schema **must not mean verified phone ownership** and must not block another owner's unverified contact. Migrate carefully if any data exists.
+- Club roles: `OWNER`, `MANAGER`, `STAFF`, `MEMBER`; enforce `UNIQUE(clubId,userId)`. Invitation to privileged roles requires an extra owner approval/step-up. Do not use the global `User.role` for club authorization.
+- `PersonalProfile` stores only nonmedical basic preferences; future medical, insurance and wearables receive independent user-owned tables and stronger permissions in later phases.
 - Any future subscription entitlement is **not** authorization to view another person's health data, and a club sponsor never acquires personal record access.
 - Age restrictions are evaluated from explicitly declared age/region state, with guardian flows deferred until policy and implementation meet local law; do not unlock restricted teen features by default.
 
@@ -106,11 +106,11 @@ User (canonical Better Auth user)
 See [BAREMETAL_DEPLOYMENT.md](BAREMETAL_DEPLOYMENT.md) for the detailed isolation and operations runbook. **No Docker images, Compose, containerized database or production self-hosted CI runner.**
 
 - **Host:** the existing MenuMinute server, Linux/ARM64 as appropriate to actual host. Before implementation, inspect actual RAM, CPU, swap, disk, inode, CPU load, open ports, PostgreSQL version, Redis processes, restic backups, Nginx sites and systemd units. Do not assume unused port numbers, sufficient capacity or available DB roles.
-- **PostgreSQL:** reuse an existing compatible PostgreSQL daemon (reportedly PostgreSQL 17 on the MenuMinute server, **verify live**) but create separate \`clubkeep\` database, \`clubkeep_app\` role with least privileges, and dedicated migration permissions. **Never use MenuMinute database, tables or owner role**.
+- **PostgreSQL:** reuse an existing compatible PostgreSQL daemon (reportedly PostgreSQL 17 on the MenuMinute server, **verify live**) but create separate `clubkeep` database, `clubkeep_app` role with least privileges, and dedicated migration permissions. **Never use MenuMinute database, tables or owner role**.
 - **Redis:** do **not** use MenuMinute's durable-job queue as ClubKeep auth state; keep ClubKeep throttles and verification challenges in its own **non-evicting Redis security domain** (prefer independent small Redis instance on the same host or a strongly isolated dedicated ACL/DB with proven eviction/availability controls). ClubKeep cache can have a separate namespace; don't allow cache eviction to bypass auth rate limits. If rate-limit backing fails, sensitive invite/auth issuance **fails closed**.
-- **Node:** use a compatible Node LTS (the host may already have Node 24), an independent release with pinned dependencies and no shared \`node_modules\` with MenuMinute. Adopt Next.js standalone output after verifying its server startup and module behavior.
-- **Processes:** a non-root \`clubkeep\` Linux service account, separate systemd \`clubkeep-web.service\` and an optional separate worker **only if durable email/background jobs need it**. Choose a free loopback port after confirming availability. Nginx terminates HTTPS and proxies only that port. Never expose PG/Redis listeners publicly.
-- **Filesystem and secrets:** independent \`/var/www/clubkeep/releases/<sha>\`, \`current\` symlink, \`/etc/clubkeep/web.env\` (root-owned mode 0600), \`/var/lib/clubkeep\` for durable state and separate log policies. Use a separate auth secret, cookie name/domain, OAuth callback and encryption keys from MenuMinute.
+- **Node:** use a compatible Node LTS (the host may already have Node 24), an independent release with pinned dependencies and no shared `node_modules` with MenuMinute. Adopt Next.js standalone output after verifying its server startup and module behavior.
+- **Processes:** a non-root `clubkeep` Linux service account, separate systemd `clubkeep-web.service` and an optional separate worker **only if durable email/background jobs need it**. Choose a free loopback port after confirming availability. Nginx terminates HTTPS and proxies only that port. Never expose PG/Redis listeners publicly.
+- **Filesystem and secrets:** independent `/var/www/clubkeep/releases/<sha>`, `current` symlink, `/etc/clubkeep/web.env` (root-owned mode 0600), `/var/lib/clubkeep` for durable state and separate log policies. Use a separate auth secret, cookie name/domain, OAuth callback and encryption keys from MenuMinute.
 - **Operations:** atomic symlink release, gated migration step, health verification, previous-release rollback for compatible schemas; snapshots/restic and separately restorable ClubKeep DB. Apply cgroup service CPU/memory/I/O protections after measuring headroom; protect MenuMinute from ClubKeep spikes.
 - **CI:** GitHub-hosted CI builds/tests the project; production server only receives reviewed release artifacts, not arbitrary PR scripts. Native PostgreSQL/Redis may be provisioned for CI runner tests. Deployment credentials are isolated, minimal and available to protected environments only.
 
@@ -119,24 +119,24 @@ See [BAREMETAL_DEPLOYMENT.md](BAREMETAL_DEPLOYMENT.md) for the detailed isolatio
 ### P0-A — Runtime, native services, Prisma config and CI baseline
 
 - Confirm target Node version and existing bare-metal PostgreSQL/Redis, runtime packages, open ports and available capacity; write non-destructive audit command checklist. No database mutation until roles/schema reviewed.
-- Standardize root \`prisma.config.ts\`, remove production fallback DB/Redis URLs, add environment schema for Google, SMTP, passkey public RP ID/origin and secrets.
+- Standardize root `prisma.config.ts`, remove production fallback DB/Redis URLs, add environment schema for Google, SMTP, passkey public RP ID/origin and secrets.
 - Remove Docker Compose from required setup/deployment paths; document native PostgreSQL/Redis for developer machines and CI. Keep an optional legacy file only if clearly excluded from deployment and scheduled for deletion.
-- \`npm ci\`, typecheck, lint, format, Prisma validation/generate, initial unit/smoke tests and GitHub-hosted CI. No secret interpolation into PR logs.
+- `npm ci`, typecheck, lint, format, Prisma validation/generate, initial unit/smoke tests and GitHub-hosted CI. No secret interpolation into PR logs.
 
 **Gate:** clean clone works against native dev services; no Docker requirement; Prisma 7 config recognized; CI green and missing production secrets fail closed.
 
 ### P0-B — Better Auth + passkey + invite schema migrations
 
-- Generate Better Auth core/Google/magic link/passkey schema for pinned versions, inspect requirements, create initial immutable SQL migration. Add \`Club\`, \`ClubMembership\`, \`PersonalProfile\`, \`ClubInvite\`, minimal audit and unverified contact structure.
-- Avoid unverified phone \`@unique\`; ensure only verified ownership is globally unique if feature exists. Add DB uniqueness for passkeys, members, provider identities and invite token hash.
-- Test fresh native PostgreSQL and non-empty migration upgrade fixture. Production uses \`prisma migrate deploy\`, with DB backups and one deploy lock.
+- Generate Better Auth core/Google/magic link/passkey schema for pinned versions, inspect requirements, create initial immutable SQL migration. Add `Club`, `ClubMembership`, `PersonalProfile`, `ClubInvite`, minimal audit and unverified contact structure.
+- Avoid unverified phone `@unique`; ensure only verified ownership is globally unique if feature exists. Add DB uniqueness for passkeys, members, provider identities and invite token hash.
+- Test fresh native PostgreSQL and non-empty migration upgrade fixture. Production uses `prisma migrate deploy`, with DB backups and one deploy lock.
 
 **Gate:** repeated migration deploy is idempotent; uniqueness/collision checks and old account migration are safe.
 
 ### P0-C — Real Google, magic-link and passkey authentication
 
-- Configure Google Better Auth provider (\`openid email profile\` only initially), official OAuth state/nonce/callback handling and verified Google identity.
-- Integrate \`@better-auth/passkey\` plugin for enroll, sign-in, list/revoke; support passkey enrollment after invitation-bound account initiation, requiring a valid ceremony/session. Verify WebAuthn RP ID/origin and HTTPS.
+- Configure Google Better Auth provider (`openid email profile` only initially), official OAuth state/nonce/callback handling and verified Google identity.
+- Integrate `@better-auth/passkey` plugin for enroll, sign-in, list/revoke; support passkey enrollment after invitation-bound account initiation, requiring a valid ceremony/session. Verify WebAuthn RP ID/origin and HTTPS.
 - Configure Better Auth magic-link plugin and pluggable email sender (SMTP or API). Hash tokens, short expiry, atomic consume, delivery errors and rate limits. Preserve optional existing password users.
 - Replace homepage fake OTP with Luxe login, magic-link confirmation, Google return, passkey registration/sign-in, clear failure/offline/unsupported-device states.
 

@@ -117,9 +117,7 @@ export function requireAuthConfig(source: EnvironmentSource = process.env): {
  * Only validate a future integration when it is explicitly configured.
  * Phase 0A prepares configuration; it does not activate OAuth, SMTP or passkeys.
  */
-export function validateOptionalIntegrations(
-  source: EnvironmentSource = process.env
-): void {
+export function validateOptionalIntegrations(source: EnvironmentSource = process.env): void {
   const env = read(source);
   if (env.GOOGLE_CLIENT_ID || env.GOOGLE_CLIENT_SECRET) {
     required(env.GOOGLE_CLIENT_ID, "GOOGLE_CLIENT_ID");
@@ -133,8 +131,7 @@ export function validateOptionalIntegrations(
     if (env.SMTP_HOST !== "mx.bababuilds.com") {
       throw new Error("SMTP_HOST must use the approved Mail-in-a-Box host");
     }
-    if (env.SMTP_PORT !== "587" || env.SMTP_SECURE !== "false" ||
-      env.SMTP_REQUIRE_TLS !== "true") {
+    if (env.SMTP_PORT !== "587" || env.SMTP_SECURE !== "false" || env.SMTP_REQUIRE_TLS !== "true") {
       throw new Error("SMTP must use port 587 with required STARTTLS");
     }
     required(env.SMTP_USER, "SMTP_USER");

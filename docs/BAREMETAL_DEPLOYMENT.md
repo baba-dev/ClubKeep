@@ -65,6 +65,14 @@ Recommended systemd controls after measuring behavior: `User=clubkeep`, `Group=c
 
 Do not share app secrets, cookie signing keys, temp directories or session stores with MenuMinute.
 
+## 5A. Outbound transactional email — selected owner SMTP
+
+- **Mail server:** `mx.bababuilds.com` (existing separate Mail-in-a-Box server). Do not install or configure a new mail server on the MenuMinute/ClubKeep VPS.
+- **Submission:** TCP **587**, mandatory STARTTLS, authenticated with a **dedicated full mailbox address** and password (both owner-supplied). For Nodemailer use `secure: false`, `requireTLS: true`, `tls.servername: "mx.bababuilds.com"`, and normal CA validation. **Never use `rejectUnauthorized: false`**, port 25 as submission, plaintext credentials, or a provider failover that silently sends identity links elsewhere.
+- **Environment contract (placeholders only):** `EMAIL_PROVIDER=smtp`, `SMTP_HOST=mx.bababuilds.com`, `SMTP_PORT=587`, `SMTP_SECURE=false`, `SMTP_REQUIRE_TLS=true`, `SMTP_USER=<owner mailbox>`, `SMTP_PASSWORD=<secret>`, `EMAIL_FROM=<authorized sender>`. Use non-secret placeholders in `.env.example`; put real secrets only in independently protected `/etc/clubkeep/web.env` at deployment.
+- **PR 0A:** validate TLS and network reachability without authentication or sending email. Verify `mx.bababuilds.com`'s certificate hostname and expiry; do not log raw SMTP transcripts that could contain credentials. Define client timeouts and safe error categories.
+- **PR 0C:** implement actual magic-link sending through selected SMTP; rate limits, anti-enumeration, single-use/short expiry, delivery failures, messages with no health data, sender/domain SPF/DKIM/DMARC check and test on authorized mailbox. No production email sends or secrets during PR 0A.
+
 ## 6. Nginx and auth origins
 
 - Separate hostname/cert, `server_name`, upstream listener, access/error logs and security headers. Use HTTPS for WebAuthn outside localhost.

@@ -194,7 +194,7 @@ See [BAREMETAL_DEPLOYMENT.md](BAREMETAL_DEPLOYMENT.md) for the detailed isolatio
 
 ## 7. Explicit unresolved decisions (do not silently invent)
 
-- Production email provider (SMTP already controlled by owner vs a Free transactional tier), sender/domain, exact deliverability budget and service fallback if free quota exhausts.
+- **SMTP provider LOCKED:** owner's Mail-in-a-Box at `mx.bababuilds.com`, authenticated port 587 with required STARTTLS and normal certificate verification. Sender mailbox address, password, volume/quotas, credential rotation and bounce handling remain OPEN; never fabricate credentials. PR 0A prepares safe env parsing and connectivity check **without sending messages**; PR 0C wires authenticated magic-link sending.
 - Whether to enable an optional People API phone import at all (recommended: **skip during first-release login**); presence does not establish verification.
 - Passkey-first anonymous invite enrollment vs requiring initial Google/verified email (recommended: allow invite-bound WebAuthn only after threat-tested flow); whether owner must approve all remote claims or only high-risk claims.
 - How to handle genuine account recovery for passkey-only users who lose all factors: must never be club-staff account takeover.

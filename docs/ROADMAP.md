@@ -1,6 +1,12 @@
 # ClubKeep roadmap
 
-Last updated: 9 Nov 2026. This remains the **Business gym-first** roadmap. ClubKeep Personal has a separate staged plan in [DELIVERY_PLAN.md](DELIVERY_PLAN.md). Round 1–2 decisions are locked in [BUSINESS_SPEC.md](BUSINESS_SPEC.md), with pricing and unresolved caps in [ENTITLEMENTS.md](ENTITLEMENTS.md). Agents pick work from the top unchecked item; do not infer unapproved limits or claim planned health features shipped.
+Last updated: 9 Nov 2026 (final medical Free and no-clinician clarifications). This remains the **Business gym-first** roadmap. ClubKeep Personal has a separate staged plan in [DELIVERY_PLAN.md](DELIVERY_PLAN.md). Round 1–2 decisions are locked in [BUSINESS_SPEC.md](BUSINESS_SPEC.md), with pricing and unresolved caps in [ENTITLEMENTS.md](ENTITLEMENTS.md). Agents pick work from the top unchecked item; do not infer unapproved limits or claim planned health features shipped.
+
+## Phase 0 foundation first
+
+- [ ] [Production foundation](PHASE_0_FOUNDATION.md): real verified phone/email auth, shared global identity, Prisma 7 baseline and additive migrations, per-club permissions, Redis abuse controls, required GitHub CI, tests, staging and backup/restore gates.
+- [ ] **No Phase 0 medical tables**; Free medical vault (insurance information, blood type, user-authored biological instructions) and paid clinical history are later Personal features.
+- [ ] No dedicated clinician accounts. Verified two-way external messaging is deferred pending a separately approved non-account model.
 
 ## Phases
 
@@ -32,13 +38,13 @@ Cut from the bottom of this list first if time runs short (order of cuts: ID car
 
 - [ ] Shared identity; user-owned Personal domain separate from club tenancy; consent and sponsored entitlement isolation.
 - [ ] Personal Free/Pro/Premium-AI with 5/50/250 AI requests and subscription integrations.
-- [ ] Personal first usable core: activity, sleep, nutrition, BP, glucose, medications and documents; cloud encryption/offline queue; native Apple Health and Health Connect plus progressive direct vendors.
+- [ ] Personal first usable core: Free activity/sleep/nutrition plus limited insurance/blood-type/biological-instructions vault; Pro/Premium BP/glucose clinical histories, medications and medical documents; cloud encryption/offline queue; native Apple Health and Health Connect plus progressive direct vendors.
 - [ ] Medical OCR verification/FHIR, insurance vault, India ABHA opt-in consent-based record sync after official approval.
 - [ ] Groq/NVIDIA NIM routing with one-time explicit provider consent before identifiable medical payloads.
 - [ ] Opt-in challenges/communities; adult-eligible non-sensitive web educational AdSense only; teen age/guardian gates.
 - [ ] Growth/Pro sponsored Personal Pro seats after counts decided; Free Club cap 25 members/1 staff with quotas still OPEN.
 - [ ] Separate 15% booking-commission coaching marketplace after payment/payout design.
-- [ ] Clinician messaging BLOCKED until decision #22/#24 conflict resolved; clinical AI separately validated.
+- [ ] No dedicated clinician accounts. External-recipient messaging deferred pending separate design; clinical AI separately validated.
 
 **Gate:** preserve original club roadmap; implement consent, permission, provider, medical and regional safeguards before announcing features live. See [HEALTH_INTEGRATIONS.md](HEALTH_INTEGRATIONS.md).
 

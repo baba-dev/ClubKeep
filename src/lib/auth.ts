@@ -14,7 +14,8 @@ import { getGoogleProvider, GOOGLE_ACCOUNT_LINK_POLICY } from "@/lib/oauth-polic
 
 const { secret, baseURL } = requireAuthConfig();
 const config = resolveAuthConfig();
-const limiter = createConfiguredLimiter(config, secret);
+export const authLimiter = createConfiguredLimiter(config, secret);
+const limiter = authLimiter;
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: "postgresql" }),

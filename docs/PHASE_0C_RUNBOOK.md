@@ -93,6 +93,12 @@ advertise disabled methods. Real secrets belong only in separately protected
 - Test sender mailbox authenticated SMTP STARTTLS/certificate and actual
   inbox delivery to a user-controlled test mailbox; inspect SPF/DKIM/DMARC.
   A mail TLS handshake test **does not** prove authentication or delivery.
+- Browser confirmation keeps the token in the fragment until the user clicks,
+  then POSTs it in the JSON request body to `/api/clubkeep/confirm-email`.
+  This avoids placing one-time tokens in Nginx request URLs. The server
+  validates exact `Origin` and Fetch Metadata because direct `auth.api`
+  calls bypass Better Auth's handler-level CSRF checks. The standard
+  `/api/auth/magic-link/verify` browser GET is blocked.
 - Test 5-minute hashed magic link: GET page does not consume it; click confirms
   once; replay/expired/tampered fail, without exposing SMTP credentials,
   recipient emails or tokens in logs. Tokens live in URL fragments until the

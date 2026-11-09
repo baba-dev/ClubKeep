@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, ShieldCheck } from "lucide-react";
-import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 export default function ConfirmEmailPage() {
+  const router = useRouter();
   const [token, setToken] = useState<string | null>(null);
   const [state, setState] = useState<"loading" | "ready" | "verifying" | "invalid">("loading");
 
@@ -30,13 +31,27 @@ export default function ConfirmEmailPage() {
   async function confirm() {
     if (!token || state !== "ready") return;
     setState("verifying");
-    const result = await authClient.magicLink.verify({ query: { token } });
-    setToken(null);
-    if (result.error) {
+    try {
+      // POST body, never Better Auth's browser GET with ?token=... in access logs.
+      const response = await fetch("/api/clubkeep/confirm-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+        credentials: "same-origin",
+        cache: "no-store",
+        redirect: "error",
+      });
+      setToken(null);
+      if (!response.ok) {
+        setState("invalid");
+        return;
+      }
+      router.replace("/home");
+      router.refresh();
+    } catch {
+      setToken(null);
       setState("invalid");
-      return;
     }
-    window.location.replace("/home");
   }
 
   return (

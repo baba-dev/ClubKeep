@@ -20,14 +20,14 @@ export default function Home() {
           One account. Your club and your personal progress.
         </h2>
         <p className="text-base leading-7 text-neutral-300">
-          Secure Google, passkey, and email-link sign-in is being prepared.
-          Registration is not available yet. Phone OTP has been intentionally disabled.
+          Secure Google, passkey, and email-link sign-in is being prepared. Registration is not
+          available yet. Phone OTP has been intentionally disabled.
         </p>
         <div className="flex items-start gap-3 rounded-xl border border-neutral-700/70 bg-neutral-800/60 p-4">
           <LockKeyhole aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-amber-400" />
           <p className="text-sm leading-6 text-neutral-300">
-            This is a development holding page, not a sign-in form. No verification
-            or account creation happens here.
+            This is a development holding page, not a sign-in form. No verification or account
+            creation happens here.
           </p>
         </div>
         <Link

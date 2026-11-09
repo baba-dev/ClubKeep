@@ -1,4 +1,7 @@
 import { betterAuth } from "better-auth";
+import { magicLink } from "better-auth/plugins";
+import { sendMagicLinkEmail } from "@/lib/mail-transport";
+import { maySendLoginLink } from "@/lib/magic-link-policy";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "@/lib/prisma";
 import { requireAuthConfig } from "@/lib/server-env";
@@ -24,6 +27,24 @@ export const auth = betterAuth({
   },
 
   socialProviders: getGoogleProvider(config),
+  plugins: [
+    ...(config.features.emailLink
+      ? [
+          magicLink({
+            expiresIn: 300,
+            storeToken: "hashed",
+            disableSignUp: false,
+            rateLimit: { window: 60, max: 3 },
+            sendMagicLink: async ({ email, token }) => {
+              // An old, never-verified password account must not lose its
+              // password or sessions due to magic-link verification.
+              if (!(await maySendLoginLink(prisma, email))) return;
+              await sendMagicLinkEmail(email, token, config);
+            },
+          }),
+        ]
+      : []),
+  ],
   advanced: {
     // Only trust an operator-confirmed, Nginx-overwritten header. Never accept
     // arbitrary X-Forwarded-For from the public Internet.

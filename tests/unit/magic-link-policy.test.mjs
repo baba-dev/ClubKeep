@@ -7,8 +7,18 @@ function fake(emailUser, passwordAccount) {
   return {
     calls,
     db: {
-      user: { findUnique: async (q) => { calls.push(q); return emailUser; } },
-      account: { findFirst: async (q) => { calls.push(q); return passwordAccount; } },
+      user: {
+        findUnique: async (q) => {
+          calls.push(q);
+          return emailUser;
+        },
+      },
+      account: {
+        findFirst: async (q) => {
+          calls.push(q);
+          return passwordAccount;
+        },
+      },
     },
   };
 }

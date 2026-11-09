@@ -39,15 +39,25 @@ function exactOrigin(value: string, key: string, production: boolean): URL {
   } catch {
     throw new Error("Invalid URL in auth configuration: " + key);
   }
-  if (!["http:", "https:"].includes(url.protocol) || !url.hostname ||
-    url.username || url.password || url.pathname !== "/" || url.search || url.hash) {
+  if (
+    !["http:", "https:"].includes(url.protocol) ||
+    !url.hostname ||
+    url.username ||
+    url.password ||
+    url.pathname !== "/" ||
+    url.search ||
+    url.hash
+  ) {
     throw new Error("Invalid origin in auth configuration: " + key);
   }
   if (production && url.protocol !== "https:") {
     throw new Error("Production origin must use HTTPS: " + key);
   }
-  if (!production && url.protocol !== "https:" &&
-    !["localhost", "127.0.0.1"].includes(url.hostname)) {
+  if (
+    !production &&
+    url.protocol !== "https:" &&
+    !["localhost", "127.0.0.1"].includes(url.hostname)
+  ) {
     throw new Error("Plain HTTP is allowed only on localhost: " + key);
   }
   return url;
@@ -91,11 +101,13 @@ export function resolveAuthConfig(env: Env = process.env): AuthFeatureConfig {
   }
 
   if (features.emailLink) {
-    if (requireValue(env, "EMAIL_PROVIDER") !== "smtp" ||
-        requireValue(env, "SMTP_HOST") !== "mx.bababuilds.com" ||
-        requireValue(env, "SMTP_PORT") !== "587" ||
-        requireValue(env, "SMTP_SECURE") !== "false" ||
-        requireValue(env, "SMTP_REQUIRE_TLS") !== "true") {
+    if (
+      requireValue(env, "EMAIL_PROVIDER") !== "smtp" ||
+      requireValue(env, "SMTP_HOST") !== "mx.bababuilds.com" ||
+      requireValue(env, "SMTP_PORT") !== "587" ||
+      requireValue(env, "SMTP_SECURE") !== "false" ||
+      requireValue(env, "SMTP_REQUIRE_TLS") !== "true"
+    ) {
       throw new Error("Mail-in-a-Box requires port 587 with mandatory STARTTLS");
     }
     const from = requireValue(env, "EMAIL_FROM");
@@ -119,8 +131,10 @@ export function resolveAuthConfig(env: Env = process.env): AuthFeatureConfig {
       "PASSKEY_EXPECTED_ORIGIN",
       production
     );
-    if (rpOrigin.origin !== origin.origin ||
-        (rpOrigin.hostname !== rpID && !rpOrigin.hostname.endsWith("." + rpID))) {
+    if (
+      rpOrigin.origin !== origin.origin ||
+      (rpOrigin.hostname !== rpID && !rpOrigin.hostname.endsWith("." + rpID))
+    ) {
       throw new Error("Passkey relying party and application origin mismatch");
     }
     result.webauthn = { rpID, origin: rpOrigin.origin };
@@ -130,17 +144,24 @@ export function resolveAuthConfig(env: Env = process.env): AuthFeatureConfig {
     // Sensitive authentication must use isolated, non-evicting security state.
     const redis = requireValue(env, "AUTH_RATE_LIMIT_REDIS_URL");
     let url: URL;
-    try { url = new URL(redis); }
-    catch { throw new Error("Invalid AUTH_RATE_LIMIT_REDIS_URL"); }
+    try {
+      url = new URL(redis);
+    } catch {
+      throw new Error("Invalid AUTH_RATE_LIMIT_REDIS_URL");
+    }
     if (!["redis:", "rediss:"].includes(url.protocol) || !url.hostname) {
       throw new Error("Invalid AUTH_RATE_LIMIT_REDIS_URL");
     }
     result.rateLimitRedisUrl = redis;
-    if (production && ["127.0.0.1:6381", "127.0.0.1:6382", "localhost:6381", "localhost:6382"].includes(url.host)) {
+    if (
+      production &&
+      ["127.0.0.1:6381", "127.0.0.1:6382", "localhost:6381", "localhost:6382"].includes(url.host)
+    ) {
       throw new Error("ClubKeep auth must not use MenuMinute Redis instances");
     }
     const ipHeader = env.AUTH_TRUSTED_IP_HEADER?.toLowerCase();
-    if (production && !ipHeader) throw new Error("Missing AUTH_TRUSTED_IP_HEADER for trusted Nginx proxy");
+    if (production && !ipHeader)
+      throw new Error("Missing AUTH_TRUSTED_IP_HEADER for trusted Nginx proxy");
     if (ipHeader && !["x-clubkeep-client-ip", "cf-connecting-ip"].includes(ipHeader)) {
       throw new Error("Unsupported trusted IP header");
     }

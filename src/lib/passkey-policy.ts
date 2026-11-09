@@ -10,9 +10,11 @@ export function mayRemovePasskey(input: {
   sessionCreatedAt: number;
   now: number;
 }): boolean {
-  if (!Number.isFinite(input.sessionCreatedAt) ||
-      input.sessionCreatedAt > input.now ||
-      input.now - input.sessionCreatedAt > 10 * 60 * 1000) {
+  if (
+    !Number.isFinite(input.sessionCreatedAt) ||
+    input.sessionCreatedAt > input.now ||
+    input.now - input.sessionCreatedAt > 10 * 60 * 1000
+  ) {
     return false;
   }
   if (input.passkeys > 1) return true;

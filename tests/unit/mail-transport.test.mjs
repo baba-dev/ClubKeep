@@ -10,8 +10,11 @@ const config = {
   origin: "https://clubkeep.example.test",
   features: { google: false, emailLink: true, passkey: false, legacyPassword: true },
   smtp: {
-    host: "mx.bababuilds.com", port: 587, user: "sender@example.test",
-    password: "test-fixture-not-real", from: "sender@example.test",
+    host: "mx.bababuilds.com",
+    port: 587,
+    user: "sender@example.test",
+    password: "test-fixture-not-real",
+    from: "sender@example.test",
   },
 };
 
@@ -37,9 +40,12 @@ test("scanner GET never receives the magic token because it is in the fragment",
 
 test("email is created from verified internal origin, without third-party SMTP", async () => {
   const sent = [];
-  const sender = { sendMail: async (mail) => { sent.push(mail); } };
-  await sendMagicLinkEmail("recipient@example.test", "abcdef0123456789abcdefgh",
-    config, sender);
+  const sender = {
+    sendMail: async (mail) => {
+      sent.push(mail);
+    },
+  };
+  await sendMagicLinkEmail("recipient@example.test", "abcdef0123456789abcdefgh", config, sender);
   assert.equal(sent.length, 1);
   assert.equal(sent[0].from, "sender@example.test");
   assert.ok(sent[0].text.includes("https://clubkeep.example.test/auth/confirm#token="));
@@ -48,16 +54,23 @@ test("email is created from verified internal origin, without third-party SMTP",
 
 test("SMTP delivery errors are redacted", async () => {
   await assert.rejects(
-    () => sendMagicLinkEmail("recipient@example.test", "abcdef0123456789abcdefgh", config, {
-      async sendMail() { throw new Error("535 Bad auth: secret=do-not-expose"); },
-    }),
+    () =>
+      sendMagicLinkEmail("recipient@example.test", "abcdef0123456789abcdefgh", config, {
+        async sendMail() {
+          throw new Error("535 Bad auth: secret=do-not-expose");
+        },
+      }),
     (e) => e.message === "AUTH_EMAIL_DELIVERY_UNAVAILABLE"
   );
 });
 
 test("incomplete SMTP configuration never sends", async () => {
-  await assert.rejects(() => sendMagicLinkEmail(
-    "recipient@example.test", "abcdef0123456789abcdefgh",
-    { origin: config.origin, features: { ...config.features, emailLink: false } }
-  ), /not configured/);
+  await assert.rejects(
+    () =>
+      sendMagicLinkEmail("recipient@example.test", "abcdef0123456789abcdefgh", {
+        origin: config.origin,
+        features: { ...config.features, emailLink: false },
+      }),
+    /not configured/
+  );
 });

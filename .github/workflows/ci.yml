@@ -71,6 +71,9 @@ jobs:
       - name: Native service integration smoke
         run: npm run test:integration
 
+      - name: Atomic authentication abuse-limit smoke on native Redis
+        run: node --test tests/integration/auth-rate-limit.test.mjs
+
       - name: Build Next.js
         run: npm run build
 

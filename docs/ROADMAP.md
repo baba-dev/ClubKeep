@@ -6,7 +6,7 @@ Last updated: 9 Nov 2026 (final medical Free and no-clinician clarifications). T
 
 - [x] **Phase 0A complete in GitHub:** PR #7 merged; Node 24/Prisma 7 config, native-service x64/ARM64 CI and removal of fake SMS OTP demo. No production deployment.
 - [x] **Phase 0B merged:** PR #9 (commit `d8b6395b`) added shared identity schema, two Prisma migrations and native PG17/x64/ARM64 tests. **Schema code merged, not deployed to production.**
-- [ ] **Phase 0C implementation next:** [real authentication plan](PHASE_0C_AUTHENTICATION_PLAN.md): Google OAuth with explicit linking, passkeys after verified login, hashed five-minute magic links via self-hosted `mx.bababuilds.com:587` STARTTLS, recovery and abuse controls. No SMS or production provisioning in the code PR.
+- [ ] **Phase 0C implementation in review:** [real authentication plan](PHASE_0C_AUTHENTICATION_PLAN.md): Google OAuth with explicit linking, passkeys after verified login, hashed five-minute magic links via self-hosted `mx.bababuilds.com:587` STARTTLS, recovery and abuse controls. No SMS or production provisioning in the code PR.
 
 - [ ] [SMS-free production foundation](PHASE_0_FOUNDATION.md): Google OAuth, passkeys, single-use 7-day invites/QR, email-link recovery, optional nonunique unverified phone contacts, shared global identity, Prisma 7 migrations, club-scoped roles, isolated Redis security, native co-host deployment, GitHub CI and restore tests.
 - [ ] **No Phase 0 medical tables**; Free medical vault (insurance information, blood type, user-authored biological instructions) and paid clinical history are later Personal features.

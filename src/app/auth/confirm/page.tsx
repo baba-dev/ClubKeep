@@ -15,12 +15,16 @@ export default function ConfirmEmailPage() {
     const candidate = parsed.get("token");
     // The bearer token must not survive in history or referrer logs.
     window.history.replaceState(null, "", window.location.pathname);
-    if (candidate && /^[A-Za-z0-9._~-]{16,1024}$/.test(candidate)) {
-      setToken(candidate);
-      setState("ready");
-    } else {
-      setState("invalid");
-    }
+    // Read from browser location after mount, then schedule a state update.
+    // Avoid a synchronous React effect render cascade.
+    queueMicrotask(() => {
+      if (candidate && /^[A-Za-z0-9._~-]{16,1024}$/.test(candidate)) {
+        setToken(candidate);
+        setState("ready");
+      } else {
+        setState("invalid");
+      }
+    });
   }, []);
 
   async function confirm() {
@@ -41,12 +45,14 @@ export default function ConfirmEmailPage() {
         <ShieldCheck aria-hidden="true" className="mb-5 size-9 text-amber-400" />
         <h1 className="text-3xl font-bold tracking-tight">Confirm your sign-in</h1>
         <p className="mt-3 text-sm leading-6 text-neutral-300">
-          This private email link is single-use and expires after five minutes.
-          Continue only if you requested access to ClubKeep.
+          This private email link is single-use and expires after five minutes. Continue only if you
+          requested access to ClubKeep.
         </p>
         {state === "ready" && (
-          <button onClick={confirm}
-            className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 px-5 py-3 font-semibold text-neutral-950 hover:bg-amber-400">
+          <button
+            onClick={confirm}
+            className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 px-5 py-3 font-semibold text-neutral-950 hover:bg-amber-400"
+          >
             Continue securely <ArrowRight className="size-4" aria-hidden="true" />
           </button>
         )}

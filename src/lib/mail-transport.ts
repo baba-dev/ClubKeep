@@ -65,7 +65,9 @@ export async function sendMagicLinkEmail(
       '<div style="font:16px/1.6 system-ui,sans-serif;max-width:520px;margin:auto">' +
       "<h2>Sign in to ClubKeep</h2>" +
       "<p>This private link expires in 5 minutes and works only once.</p>" +
-      '<p><a href="' + link + '">Continue to ClubKeep</a></p>' +
+      '<p><a href="' +
+      link +
+      '">Continue to ClubKeep</a></p>' +
       "<p>If you did not request this link, you can ignore this message.</p>" +
       "</div>",
   };

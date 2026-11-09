@@ -3,8 +3,14 @@ import test from "node:test";
 import { mayRemovePasskey } from "../../src/lib/passkey-policy.ts";
 const now = 1_800_000_000_000;
 function opts(overrides = {}) {
-  return { passkeys: 1, providerIds: [], verifiedEmailRecovery: false,
-    sessionCreatedAt: now - 20_000, now, ...overrides };
+  return {
+    passkeys: 1,
+    providerIds: [],
+    verifiedEmailRecovery: false,
+    sessionCreatedAt: now - 20_000,
+    now,
+    ...overrides,
+  };
 }
 test("a sole passkey cannot be deleted without independent recovery", () => {
   assert.equal(mayRemovePasskey(opts()), false);

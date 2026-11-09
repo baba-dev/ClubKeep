@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { publicAuthFeatures } from "@/lib/auth-config";
 
-export const dynamic = "force-dynamic";
-
 export function GET() {
   return NextResponse.json(publicAuthFeatures(), {
     headers: {

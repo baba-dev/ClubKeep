@@ -12,9 +12,9 @@
 
 ## Phase 0 — Correct current scaffold (critical prerequisite; detailed plan in [PHASE_0_FOUNDATION.md](PHASE_0_FOUNDATION.md))
 
-**Deliver:** production-safe phone OTP instead of simulated homepage `setTimeout`, actual phone/email account flow (including phone-first signup and account collision handling), verified sessions, a real configurable SMS provider with non-production test-only delivery, standard Prisma 7 config/migrations, one global user identity, independent PersonalProfile, basic Club and ClubMembership permissions, session/security/role tests, GitHub CI (lint, typecheck, build, test and migration smoke), Luxe app shell and accessible mobile/desktop auth. Phase 0 does **not** store medical records or implement clinical/insurance UIs.
+**Deliver:** remove simulated phone OTP and console-logged OTPs; implement **Google OAuth, passkeys, short-lived email magic links**, single-use **7-day club invitations/QR** bound to authenticated users, nonunique optional **unverified phone contacts**, verified sessions, Prisma 7 migrations, one shared User + PersonalProfile + ClubMembership model, club role guards, isolated Redis abuse controls, **bare-metal ClubKeep on MenuMinute's existing host**, GitHub-hosted CI and Luxe responsive auth shell. **No SMS provider, Docker or medical modules** in Phase 0. Read [PHASE_0_FOUNDATION.md](PHASE_0_FOUNDATION.md) and [BAREMETAL_DEPLOYMENT.md](BAREMETAL_DEPLOYMENT.md).
 
-**Gate:** automated tests validate authentication, schema migration on empty DB, no exposed OTPs/secrets, logged-out denial and an accessible real sign-in journey. Avoid deploying Personal health data into current scaffold.
+**Gate:** tests validate Google OAuth, passkey enrollment/sign-in/revocation, email link replay/recovery, atomic invitation claims, nonunique unverified phones, multi-club access denial and clean/upgrade migrations; staging restore and restart cannot interrupt MenuMinute. No Personal medical data in Phase 0.
 
 ## Phase B1 — Existing one-month Business MVP preserved
 

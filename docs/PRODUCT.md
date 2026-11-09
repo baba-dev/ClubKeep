@@ -40,8 +40,11 @@ ClubKeep is a polished, mobile-first operating system for small fitness and acti
 
 ### Onboarding
 
-- Join with a mobile number only. An owner adds or invites a member by phone; the member verifies with an OTP and is attached to the club.
-- Phone numbers are stored in E.164 format.
+- **SMS-free:** individuals join with Google Sign-In, passkeys or verified email magic links. No phone OTP or SMS provider is required.
+- Owners issue **single-use member invitation links or in-person QR codes**, expiring after **7 days** and revocable before claim. A valid invitation authorizes club membership, **not phone ownership**.
+- Members claim only after being bound to a canonical authenticated user/passkey. Immediately offer a passkey for return login, with Google or verified email recovery.
+- Phone numbers are **optional unverified contact information** stored in E.164 where present; not globally unique and never used to merge identities unless independently verified. Optional Google People API phone import remains unverified, never assumed available.
+- Revoking/reissuing a membership invitation cannot reset or transfer the person's Personal account. Any inbound WhatsApp verification is optional future work, not part of Phase 0.
 
 ### Membership and payments
 
@@ -90,7 +93,7 @@ Plan limits are stored per club and enforced on the server. Original paid featur
 
 ## Month-1 scope — Business track only
 
-Easy phone onboarding, members and plans, QR/GPS/manual check-in, payment records, digital and printable ID card, club leaderboard, member profile with bio stats, basic owner insights, and owner subscription billing. Everything else waits. Standalone Personal, native wearables, medical records and India ABHA belong to a separate gated development track in DELIVERY_PLAN.md, not this one-month club MVP.
+Invite-link/passkey onboarding, members and plans, QR/GPS/manual check-in, payment records, digital and printable ID card, club leaderboard, member profile with bio stats, basic owner insights, and owner subscription billing. Everything else waits. Standalone Personal, native wearables, medical records and India ABHA belong to a separate gated development track in DELIVERY_PLAN.md, not this one-month club MVP.
 
 ## Open decisions
 
@@ -98,5 +101,5 @@ Easy phone onboarding, members and plans, QR/GPS/manual check-in, payment record
 - Who enters a score (assumed: member or trainer enters, the club approves).
 - Exact season months.
 - The five ID card layouts.
-- SMS provider for OTP delivery.
+- Production email sender/SMTP choice and free-tier sending budget for magic links; **no SMS provider**.
 - Whether Stripe supports all launch countries.

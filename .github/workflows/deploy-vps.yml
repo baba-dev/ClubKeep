@@ -38,10 +38,6 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       TARGET_SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.release_sha || github.event.workflow_run.head_sha }}
       SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
-      VPS_HOST: ${{ secrets.CLUBKEEP_VPS_HOST }}
-      VPS_SSH_KEY: ${{ secrets.CLUBKEEP_DEPLOY_SSH_KEY }}
-      VPS_SSH_KNOWN_HOSTS: ${{ secrets.CLUBKEEP_VPS_KNOWN_HOSTS }}
-      VPS_PORT: ${{ vars.CLUBKEEP_VPS_SSH_PORT || '22' }}
       NODE_OPTIONS: --max-old-space-size=4096
     steps:
       - name: Verify exact eligible main revision
@@ -122,6 +118,11 @@ jobs:
 
       - name: Configure pinned SSH host
         shell: bash
+        env:
+          VPS_HOST: ${{ secrets.CLUBKEEP_VPS_HOST }}
+          VPS_SSH_KEY: ${{ secrets.CLUBKEEP_DEPLOY_SSH_KEY }}
+          VPS_SSH_KNOWN_HOSTS: ${{ secrets.CLUBKEEP_VPS_KNOWN_HOSTS }}
+          VPS_PORT: ${{ vars.CLUBKEEP_VPS_SSH_PORT || '22' }}
         run: |
           set -Eeuo pipefail
           [[ "$VPS_HOST" =~ ^[A-Za-z0-9.-]+$ && "$VPS_PORT" =~ ^[0-9]{1,5}$ ]] || exit 1
@@ -136,6 +137,9 @@ jobs:
 
       - name: Transfer verified release and activate
         shell: bash
+        env:
+          VPS_HOST: ${{ secrets.CLUBKEEP_VPS_HOST }}
+          VPS_PORT: ${{ vars.CLUBKEEP_VPS_SSH_PORT || '22' }}
         run: |
           set -Eeuo pipefail
           sha="$TARGET_SHA"

@@ -13,7 +13,7 @@ ClubKeep is a two-sided platform: **ClubKeep Business** for gyms, sports clubs, 
 Small clubs still run on registers, spreadsheets and WhatsApp groups. The tools built for them are often expensive, dated, or made only for owners. ClubKeep aims to be:
 
 - **Beautiful.** A calm, polished interface that owners and members enjoy opening.
-- **Quick to start.** Add a member with just a mobile number; no forms or passwords.
+- **Quick to start.** Send a one-time club invitation link/QR; member verifies their account through Google, passkey or email link, with no SMS.
 - **Affordable.** Low flat monthly plans, with no lock-in and data export at any time.
 - **Competitive and social.** Season-based leaderboards that clubs verify themselves.
 
@@ -21,7 +21,7 @@ Small clubs still run on registers, spreadsheets and WhatsApp groups. The tools 
 
 ### For club owners
 
-- Add and invite members by mobile number
+- Invite members with revocable single-use seven-day links and in-person QR codes; phone contact is optional and unverified
 - Membership plans, renewals and member list
 - Check-in by QR code, GPS or manual entry
 - Payment records for cash, UPI and card fees (ClubKeep records payments; it does not process them)
@@ -29,7 +29,7 @@ Small clubs still run on registers, spreadsheets and WhatsApp groups. The tools 
 
 ### For members
 
-- Sign up and join a club with a mobile number
+- Sign up independently or claim a club invitation with Google, passkey or email magic link
 - Personal profile with bio stats such as weight, height and measurements
 - Digital and printable club ID card with a QR code linking to your profile
 - Club leaderboards across four calendar seasons a year, ranked on each activity's own measures
@@ -49,11 +49,11 @@ Personal Free / Pro / Premium-AI will support native Apple Health and Android He
 
 - [Next.js](https://nextjs.org) 16 (App Router) with React 19 and TypeScript
 - [Tailwind CSS](https://tailwindcss.com) v4 and [shadcn/ui](https://ui.shadcn.com)
-- [Better Auth](https://better-auth.com) with phone OTP sign-in
+- [Better Auth](https://better-auth.com): **currently has legacy phone OTP demo; Phase 0 replaces with Google OAuth, WebAuthn passkeys and magic links**
 - [Prisma ORM](https://www.prisma.io) 7 on PostgreSQL
 - Redis (via `ioredis`) for caching and counters
 - [Zod](https://zod.dev) for validation
-- Docker Compose for local PostgreSQL and Redis
+- **Approved deployment: bare metal alongside MenuMinute**, with distinct PostgreSQL database/role, Redis auth state, Nginx host and systemd service; no Docker
 - ESLint, Prettier and Husky for code quality
 
 ## Getting started
@@ -61,30 +61,25 @@ Personal Free / Pro / Premium-AI will support native Apple Health and Android He
 ### Prerequisites
 
 - Node.js 20 or newer
-- Docker (for local PostgreSQL and Redis)
+- Locally installed PostgreSQL and Redis services (Docker is **not** part of the approved setup)
 
-### Setup
+### Setup (current scaffold; Phase 0 not implemented yet)
+
+The repository still contains an **outdated phone OTP demo**, `docker-compose.yml` and the nonstandard `prisma7.config.ts`. **Do not use the existing demo as authentication and do not deploy using Docker.** PR 0A will replace the legacy database configuration and provide validated native-service bootstrap steps.
+
+For local source inspection/build, install native PostgreSQL and Redis separately and configure local nonproduction credentials:
 
 ```bash
-# 1. Install dependencies
-npm install
-
-# 2. Create your environment file and adjust values if needed
+npm ci
 cp .env.example .env
-
-# 3. Start PostgreSQL and Redis
-docker compose up -d
-
-# 4. Create the database tables
-npm run db:push
-
-# 5. Start the dev server
+# Set DATABASE_URL/REDIS_URL to your own native local services.
+# The current Prisma migrations/config need Phase 0A–0B changes before clean DB bootstrapping.
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+The eventual production deployment is an isolated ClubKeep systemd service on the **existing MenuMinute bare-metal server**, sharing the host but not app/database ownership or session secrets. See [the bare-metal plan](docs/BAREMETAL_DEPLOYMENT.md).
 
-In development, phone OTP codes are printed in the server console instead of being sent as SMS.
+**Target authentication (not shipped):** Google OAuth; passkey enrollment and repeat sign-in; short-lived verified email magic links for fallback; single-use seven-day club invitations shared privately or via QR. Phone numbers are optional, nonunique unverified contact details and **never the login factor**. Do not add SMS OTP. The existing demo may falsely display verification success; do not interpret it as a live flow.
 
 ### Useful scripts
 
@@ -97,7 +92,7 @@ In development, phone OTP codes are printed in the server console instead of bei
 | `npm run format`       | Format the project with Prettier       |
 | `npm run db:generate`  | Generate the Prisma client             |
 | `npm run db:migrate`   | Create and apply a Prisma migration    |
-| `npm run db:push`      | Push the schema straight to the DB     |
+| `npm run db:push`      | **Legacy dev-only** schema push; do not use on staging/production |
 | `npm run db:studio`    | Open Prisma Studio                     |
 
 ## Project structure
@@ -110,7 +105,7 @@ In development, phone OTP codes are printed in the server console instead of bei
 │   ├── lib/                 # Auth, Prisma, Redis, utilities, Zod schemas
 │   └── generated/prisma/    # Generated Prisma client (do not edit)
 ├── docs/                    # Product, architecture and roadmap notes
-├── docker-compose.yml       # Local PostgreSQL and Redis
+├── docker-compose.yml       # Legacy scaffold; planned removal from active workflow
 └── AGENTS.md                # Guide for AI coding agents
 ```
 
@@ -121,7 +116,8 @@ In development, phone OTP codes are printed in the server console instead of bei
 - [Pricing and feature matrix](docs/ENTITLEMENTS.md): Personal and Business tiers and sponsorship
 - [Wearable, medical, AI and ABHA integrations](docs/HEALTH_INTEGRATIONS.md): technical/privacy gates
 - [Delivery phases](docs/DELIVERY_PLAN.md): staged cross-product roadmap
-- [Phase 0 foundation plan](docs/PHASE_0_FOUNDATION.md): secure auth, migrations, identity, CI, tests and staging gates
+- [Phase 0 foundation plan](docs/PHASE_0_FOUNDATION.md): **SMS-free** Google/passkeys/magic links, secure 7-day invite claim, migrations, identity, CI and tests
+- [Bare-metal co-hosting plan](docs/BAREMETAL_DEPLOYMENT.md): ClubKeep on MenuMinute host, isolated systemd, Nginx, DB, Redis security and backup
 - [Architecture](docs/ARCHITECTURE.md): stack, data model and rules
 - [Roadmap](docs/ROADMAP.md): the first-release build plan
 - [AGENTS.md](AGENTS.md): conventions for AI coding agents

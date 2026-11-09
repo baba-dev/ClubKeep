@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Clubkeep - Modern Next.js Boilerplate",
-  description: "Next.js App Router, Tailwind CSS, shadcn/ui, Better Auth, Prisma, and Docker",
+  title: "ClubKeep — Business & Personal",
+  description: "ClubKeep Business and Personal — your club and progress in one account.",
 };
 
 export default function RootLayout({

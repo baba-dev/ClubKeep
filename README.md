@@ -60,12 +60,12 @@ Personal Free / Pro / Premium-AI will support native Apple Health and Android He
 
 ### Prerequisites
 
-- Node.js 20 or newer
+- Node.js 24.x (Phase 0A uses Node 24.22.0; no global VPS Node upgrade)
 - Locally installed PostgreSQL and Redis services (Docker is **not** part of the approved setup)
 
-### Setup (current scaffold; Phase 0 not implemented yet)
+### Setup (Phase 0A native-service foundation)
 
-The repository still contains an **outdated phone OTP demo**, `docker-compose.yml` and the nonstandard `prisma7.config.ts`. **Do not use the existing demo as authentication and do not deploy using Docker.** PR 0A will replace the legacy database configuration and provide validated native-service bootstrap steps.
+Phase 0A establishes Node 24, standard Prisma 7 configuration, CI and native PostgreSQL/Redis instructions. **The app is not ready for public signup**: Google, passkey and magic-link authentication plus invitation redemption are in later PRs. Never deploy the scaffold as a production authentication service.
 
 For local source inspection/build, install native PostgreSQL and Redis separately and configure local nonproduction credentials:
 
@@ -73,13 +73,17 @@ For local source inspection/build, install native PostgreSQL and Redis separatel
 npm ci
 cp .env.example .env
 # Set DATABASE_URL/REDIS_URL to your own native local services.
-# The current Prisma migrations/config need Phase 0A–0B changes before clean DB bootstrapping.
+# Prisma configuration is prepared; checked-in baseline migrations arrive in Phase 0B.
+npm run db:validate
+npm run db:generate
+npm run typecheck
+npm run test
 npm run dev
 ```
 
 The eventual production deployment is an isolated ClubKeep systemd service on the **existing MenuMinute bare-metal server**, sharing the host but not app/database ownership or session secrets. See [the bare-metal plan](docs/BAREMETAL_DEPLOYMENT.md).
 
-**Target authentication (not shipped):** Google OAuth; passkey enrollment and repeat sign-in; short-lived verified email magic links for fallback; single-use seven-day club invitations shared privately or via QR. Phone numbers are optional, nonunique unverified contact details and **never the login factor**. Do not add SMS OTP. The existing demo may falsely display verification success; do not interpret it as a live flow.
+**Target authentication (not shipped):** Google OAuth, passkey enrollment and repeat sign-in, short-lived verified-email magic links, and seven-day single-use club invitations. Phone numbers are optional, nonunique unverified contacts, not login factors. No SMS OTP. Phase 0A removes the misleading developer OTP success UI; signup remains gated until later PRs.
 
 ### Useful scripts
 
@@ -92,7 +96,12 @@ The eventual production deployment is an isolated ClubKeep systemd service on th
 | `npm run format`       | Format the project with Prettier       |
 | `npm run db:generate`  | Generate the Prisma client             |
 | `npm run db:migrate`   | Create and apply a Prisma migration    |
-| `npm run db:push`      | **Legacy dev-only** schema push; do not use on staging/production |
+| `npm run db:validate`  | Validate Prisma schema without a live connection |
+| `npm run db:deploy`    | Apply **reviewed migrations only** (Phase 0B onwards) |
+| `npm run typecheck`    | Run TypeScript checks |
+| `npm run test`         | Run native Node 24 unit tests |
+| `npm run test:integration` | Read-only native PostgreSQL/Redis connection smoke |
+| `npm run security:audit` | Check production dependencies for critical advisories |
 | `npm run db:studio`    | Open Prisma Studio                     |
 
 ## Project structure
@@ -105,7 +114,8 @@ The eventual production deployment is an isolated ClubKeep systemd service on th
 │   ├── lib/                 # Auth, Prisma, Redis, utilities, Zod schemas
 │   └── generated/prisma/    # Generated Prisma client (do not edit)
 ├── docs/                    # Product, architecture and roadmap notes
-├── docker-compose.yml       # Legacy scaffold; planned removal from active workflow
+├── prisma.config.ts         # Prisma 7 CLI configuration
+├── .github/workflows/ci.yml # GitHub-hosted x64 and ARM64 CI
 └── AGENTS.md                # Guide for AI coding agents
 ```
 
@@ -117,6 +127,7 @@ The eventual production deployment is an isolated ClubKeep systemd service on th
 - [Wearable, medical, AI and ABHA integrations](docs/HEALTH_INTEGRATIONS.md): technical/privacy gates
 - [Delivery phases](docs/DELIVERY_PLAN.md): staged cross-product roadmap
 - [Phase 0 foundation plan](docs/PHASE_0_FOUNDATION.md): **SMS-free** Google/passkeys/magic links, secure 7-day invite claim, migrations, identity, CI and tests
+- [Phase 0A implementation notes](docs/PHASE_0A_IMPLEMENTATION.md): audited server baseline, native development setup, CI gates
 - [Bare-metal co-hosting plan](docs/BAREMETAL_DEPLOYMENT.md): ClubKeep on MenuMinute host, isolated systemd, Nginx, DB, Redis security and backup
 - [Architecture](docs/ARCHITECTURE.md): stack, data model and rules
 - [Roadmap](docs/ROADMAP.md): the first-release build plan

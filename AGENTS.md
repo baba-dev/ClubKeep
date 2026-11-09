@@ -27,6 +27,7 @@ Read before coding:
 - `docs/HEALTH_INTEGRATIONS.md`: medical, insurance, ABDM/ABHA, wearable, age and AI constraints
 - `docs/DELIVERY_PLAN.md`: separate Club and Personal stages, with regulated-feature release gates
 - `docs/PHASE_0_FOUNDATION.md`: **authoritative Phase 0 plan** for Google/passkey/magic-link auth, 7-day invite/QR, migrations, identity, security and CI
+- `docs/PHASE_0A_IMPLEMENTATION.md`: actual runtime/CI work and audited host facts (no live services changed)
 - `docs/BAREMETAL_DEPLOYMENT.md`: isolated ClubKeep systemd/Nginx and DB/Redis setup on existing MenuMinute server; no Docker
 
 If code and docs disagree, stop and ask; do not guess. When a decision changes, update the doc in the same change.
@@ -44,7 +45,10 @@ npm run format:check   # Prettier check; use `npm run format` to fix
 npm run build          # production build (run before finishing larger changes)
 npm run db:generate    # regenerate Prisma client after schema edits
 npm run db:migrate     # create/apply a migration (preferred over db:push for real changes)
-# Start native PostgreSQL and Redis services independently; no Docker/Compose in the approved setup
+# Start native PostgreSQL and Redis services independently; no Docker/Compose
+npm run db:validate    # Prisma 7 config and schema validation
+npm run typecheck      # TypeScript, Node 24
+npm run test           # Unit tests using Node 24 built-in test runner
 ```
 
 A Husky pre-commit hook runs `eslint --fix` and `prettier --write` on staged files.

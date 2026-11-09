@@ -8,6 +8,8 @@ ClubKeep is now a two-sided platform: **ClubKeep Personal** (a standalone B2C he
 
 **Precedence:** This 9 Nov 2026 addition supersedes earlier assumptions that individuals only use ClubKeep through clubs, that all club owners must start on a paid plan, or that the Personal experience is exclusively free. Existing Starter/Growth/Pro club prices and stated features remain unchanged. Business Free is **25 members / 1 staff account**, with core workflows and as-yet-unfixed monthly quotas; Growth/Pro get fixed but currently unspecified numbers of sponsored Personal Pro seats. Personal Free/Pro/Premium-AI are distinct subscription tiers. **Do not interpret planned features as implemented.**
 
+**Latest owner amendments (9 Nov 2026):** There are **no dedicated clinician accounts**. Personal **Free** retains essential fitness/wellness tracking and a limited medical-information vault for **insurance information, blood type and user-written biological instructions only**; **no medical history on Free**. Clinical histories, medical documents, medications and associated ABHA record imports require Personal **Pro/Premium** in eligible regions. The original Round 2 broad Free medical-document promise is superseded. See [PHASE_0_FOUNDATION.md](PHASE_0_FOUNDATION.md) for the detailed production foundation plan. Do not implement medical tables during Phase 0.
+
 ## Vision
 
 ClubKeep is a polished, mobile-first operating system for small fitness and activity clubs. Owners run the whole business from one app, and members keep their own progress in another.

@@ -27,7 +27,8 @@ Read before coding:
 - `docs/HEALTH_INTEGRATIONS.md`: medical, insurance, ABDM/ABHA, wearable, age and AI constraints
 - `docs/DELIVERY_PLAN.md`: separate Club and Personal stages, with regulated-feature release gates
 - `docs/PHASE_0_FOUNDATION.md`: **authoritative Phase 0 plan** for Google/passkey/magic-link auth, 7-day invite/QR, migrations, identity, security and CI
-- `docs/PHASE_0A_IMPLEMENTATION.md`: actual runtime/CI work and audited host facts (no live services changed)
+- `docs/PHASE_0A_IMPLEMENTATION.md`: completed runtime/CI foundation and audited host facts; Phase 0A merged as PR #7
+- `docs/PHASE_0B_IDENTITY_MIGRATIONS.md`: **review before touching the identity schema**; no-SMS User/Passkey/Club/Invite model, immutable baseline migrations, legacy-data preservation, PG 17 CI gates
 - `docs/BAREMETAL_DEPLOYMENT.md`: isolated ClubKeep systemd/Nginx and DB/Redis setup on existing MenuMinute server; no Docker
 
 If code and docs disagree, stop and ask; do not guess. When a decision changes, update the doc in the same change.

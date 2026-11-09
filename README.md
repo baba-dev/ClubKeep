@@ -49,7 +49,7 @@ Personal Free / Pro / Premium-AI will support native Apple Health and Android He
 
 - [Next.js](https://nextjs.org) 16 (App Router) with React 19 and TypeScript
 - [Tailwind CSS](https://tailwindcss.com) v4 and [shadcn/ui](https://ui.shadcn.com)
-- [Better Auth](https://better-auth.com): **currently has legacy phone OTP demo; Phase 0 replaces with Google OAuth, WebAuthn passkeys and magic links**
+- [Better Auth](https://better-auth.com): existing email/password core; **phone OTP demo removed in 0A**; Google OAuth, WebAuthn passkeys and magic links planned for 0C
 - [Prisma ORM](https://www.prisma.io) 7 on PostgreSQL
 - Redis (via `ioredis`) for caching and counters
 - [Zod](https://zod.dev) for validation
@@ -127,7 +127,8 @@ The eventual production deployment is an isolated ClubKeep systemd service on th
 - [Wearable, medical, AI and ABHA integrations](docs/HEALTH_INTEGRATIONS.md): technical/privacy gates
 - [Delivery phases](docs/DELIVERY_PLAN.md): staged cross-product roadmap
 - [Phase 0 foundation plan](docs/PHASE_0_FOUNDATION.md): **SMS-free** Google/passkeys/magic links, secure 7-day invite claim, migrations, identity, CI and tests
-- [Phase 0A implementation notes](docs/PHASE_0A_IMPLEMENTATION.md): audited server baseline, native development setup, CI gates
+- [Phase 0A implementation notes](docs/PHASE_0A_IMPLEMENTATION.md): **merged** in PR #7; audited host baseline, native development setup, green x64/ARM64 CI
+- [Phase 0B identity and migrations plan](docs/PHASE_0B_IDENTITY_MIGRATIONS.md): global users, passkeys, tenant roles, seven-day invites, additive and legacy database migrations
 - [Bare-metal co-hosting plan](docs/BAREMETAL_DEPLOYMENT.md): ClubKeep on MenuMinute host, isolated systemd, Nginx, DB, Redis security and backup
 - [Architecture](docs/ARCHITECTURE.md): stack, data model and rules
 - [Roadmap](docs/ROADMAP.md): the first-release build plan

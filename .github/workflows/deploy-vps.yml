@@ -134,6 +134,12 @@ jobs:
           printf '%s\n' "$VPS_SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
           chmod 600 "$HOME/.ssh/clubkeep_deploy" "$HOME/.ssh/known_hosts"
           ssh-keygen -lf "$HOME/.ssh/known_hosts" >/dev/null
+          # Fail early with a useful error if a public key, truncated key or
+          # flattened multiline secret was saved as the private SSH key.
+          if ! ssh-keygen -y -P '' -f "$HOME/.ssh/clubkeep_deploy" >/dev/null 2>&1; then
+            echo "::error::CLUBKEEP_DEPLOY_SSH_KEY must be an unencrypted multiline OpenSSH private key; re-copy the complete file directly into the production environment secret."
+            exit 1
+          fi
 
       - name: Transfer verified release and activate
         shell: bash

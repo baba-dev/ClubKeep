@@ -1,6 +1,7 @@
 import { randomBytes } from "node:crypto";
 import type { PrismaClient } from "@/generated/prisma/client";
 import { requireClubRole, AccessDeniedError } from "@/lib/club-access";
+import { assertMemberSeatAvailable } from "@/lib/business-entitlements";
 import {
   INVITE_KEY_VERSION,
   INVITE_LIFETIME_MS,
@@ -181,6 +182,8 @@ export async function claimClubInvite(
       data: { claimedAt: now, claimedByUserId: actorId },
     });
     if (changed.count !== 1) invalidInvite();
+    // Serialize onboarding against walk-in registration and other claims.
+    await tx.$queryRaw`SELECT "id" FROM "Club" WHERE "id" = ${invite.clubId} FOR UPDATE`;
     const existing = await tx.clubMembership.findUnique({
       where: { clubId_userId: { clubId: invite.clubId, userId: actorId } },
       select: { status: true },
@@ -188,6 +191,7 @@ export async function claimClubInvite(
     if (existing?.status !== undefined && existing.status !== "LEFT") {
       throw new OnboardingError(409, "You already have a membership in this club");
     }
+    await assertMemberSeatAvailable(tx, invite.clubId);
     if (existing) {
       await tx.clubMembership.update({
         where: { clubId_userId: { clubId: invite.clubId, userId: actorId } },

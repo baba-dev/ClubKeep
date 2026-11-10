@@ -22,6 +22,10 @@ Last updated: 10 Nov 2026 (final medical Free and no-clinician clarifications). 
 | 3     | Jan to Mar 2027     | Paid launch, pricing tiers live, WhatsApp AI beta       | 20 paying clubs, churn under 3% a month      |
 | 4     | Apr to Sep 2027     | Scale: yoga, dance and sports templates, city leaderboards | Growth toward 100 clubs                   |
 
+## B1 implementation status
+
+- [ ] **B1 Members & Membership Plans, PR pending:** additive roster and plan schema, club-specific walk-in registration and optional unverified contact, plan CRUD, idempotent term assignment/renewal, central active member limits, mobile-first Luxe UI, native PostgreSQL tests. Full production release requires green CI, verified staging provider and restore gates. See [B1 runbook](B1_MEMBERS_PLANS_RUNBOOK.md).
+
 ## Month-1 build order
 
 Cut from the bottom of this list first if time runs short (order of cuts: ID card print layout, GPS check-in, leaderboard visuals). Protect onboarding, QR check-in and payment records.

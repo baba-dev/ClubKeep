@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ShieldCheck, Users } from "lucide-react";
+import { ShieldCheck, Users, CalendarDays, Layers3, ArrowRight } from "lucide-react";
 import { requireSession } from "@/lib/required-session";
 import { prisma } from "@/lib/prisma";
 import { requireActiveClubMembership } from "@/lib/club-access";
@@ -79,6 +79,40 @@ async function ClubContent({ params }: { params: Promise<{ clubId: string }> }) 
         <p className="mt-3 text-sm leading-6 text-[#b8a08c]">
           Your private club space. Access is isolated from your Personal account and other clubs.
         </p>
+        {canInvite && (
+          <nav aria-label="Club administration" className="mt-8 grid gap-3 sm:grid-cols-3">
+            <Link
+              href={`/clubs/${clubId}/members`}
+              className="flex items-center justify-between rounded-2xl border border-[#f6dc9b]/20 bg-[#26190f] p-5 font-semibold text-[#f7d8a3] hover:border-[#ffa451]"
+            >
+              <span className="flex items-center gap-2">
+                <Users className="size-5" />
+                Members
+              </span>
+              <ArrowRight className="size-4" />
+            </Link>
+            <Link
+              href={`/clubs/${clubId}/plans`}
+              className="flex items-center justify-between rounded-2xl border border-[#f6dc9b]/20 bg-[#26190f] p-5 font-semibold text-[#f7d8a3] hover:border-[#ffa451]"
+            >
+              <span className="flex items-center gap-2">
+                <Layers3 className="size-5" />
+                Plans
+              </span>
+              <ArrowRight className="size-4" />
+            </Link>
+            <Link
+              href={`/clubs/${clubId}/renewals`}
+              className="flex items-center justify-between rounded-2xl border border-[#f6dc9b]/20 bg-[#26190f] p-5 font-semibold text-[#f7d8a3] hover:border-[#ffa451]"
+            >
+              <span className="flex items-center gap-2">
+                <CalendarDays className="size-5" />
+                Renewals
+              </span>
+              <ArrowRight className="size-4" />
+            </Link>
+          </nav>
+        )}
         {canInvite ? (
           <ClubManager
             clubId={club.id}

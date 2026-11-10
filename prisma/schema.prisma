@@ -32,6 +32,7 @@ model User {
   issuedInvites       ClubInvite[] @relation("InviteIssuer")
   claimedInvites      ClubInvite[] @relation("InviteClaimant")
   securityEvents      SecurityEvent[] @relation("SecurityEventActor")
+  memberEvents        MemberEvent[]
 
   @@map("user")
 }
@@ -157,11 +158,18 @@ model Club {
   status      ClubStatus @default(ACTIVE)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  // Provisional tenant entitlements; no public tier-switching or checkout in B1.
+  businessTier BusinessTier @default(FREE)
+  memberSequence Int @default(0)
 
   memberships ClubMembership[]
   invites     ClubInvite[]
   contacts    ClubContact[]
   events      SecurityEvent[]
+  memberRecords ClubMemberRecord[]
+  plans         ClubPlan[]
+  subscriptions MemberSubscription[]
+  memberEvents  MemberEvent[]
 }
 
 model ClubMembership {
@@ -178,6 +186,7 @@ model ClubMembership {
   club      Club     @relation(fields: [clubId], references: [id], onDelete: Restrict)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   contacts  ClubContact[]
+  memberRecord ClubMemberRecord?
 
   @@unique([clubId, userId])
   @@unique([clubId, id]) // Allows same-tenant composite FK from ClubContact.
@@ -215,6 +224,7 @@ model ClubContact {
   id           String   @id @default(cuid())
   clubId       String
   membershipId String?
+  memberRecordId String?
   phoneE164    String?
   source       ClubContactSource @default(OWNER_ENTERED)
   createdAt    DateTime @default(now())
@@ -222,9 +232,11 @@ model ClubContact {
 
   club         Club @relation(fields: [clubId], references: [id], onDelete: Restrict)
   membership   ClubMembership? @relation(fields: [clubId, membershipId], references: [clubId, id], onDelete: Restrict)
+  memberRecord ClubMemberRecord? @relation(fields: [clubId, memberRecordId], references: [clubId, id], onDelete: Restrict)
 
   @@index([clubId, phoneE164])
   @@index([membershipId])
+  @@index([clubId, memberRecordId])
 }
 
 model SecurityEvent {
@@ -240,4 +252,115 @@ model SecurityEvent {
 
   @@index([actorUserId, createdAt])
   @@index([clubId, createdAt])
+}
+
+ // Business member records exist before a person creates a global login.
+ // Never link by matching optional email/phone text; owner confirmation only.
+enum BusinessTier {
+  FREE
+  STARTER
+  GROWTH
+  PRO
+}
+
+enum ClubMemberStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum PlanDurationUnit {
+  DAYS
+  WEEKS
+  MONTHS
+}
+
+enum MemberEventType {
+  REGISTERED
+  LINKED
+  PLAN_ASSIGNED
+  RENEWED
+  CANCELLED
+  ARCHIVED
+}
+
+model ClubMemberRecord {
+  id           String @id @default(cuid())
+  clubId       String
+  memberNumber Int
+  displayName  String
+  status       ClubMemberStatus @default(ACTIVE)
+  membershipId String?
+  joinedAt     DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  club         Club @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  membership   ClubMembership? @relation(fields: [clubId, membershipId], references: [clubId, id], onDelete: Restrict)
+  contacts     ClubContact[]
+  subscriptions MemberSubscription[]
+  events       MemberEvent[]
+
+  @@unique([clubId, id])
+  @@unique([clubId, memberNumber])
+  @@unique([clubId, membershipId])
+  @@index([clubId, status, displayName])
+}
+
+model ClubPlan {
+  id            String @id @default(cuid())
+  clubId        String
+  name          String
+  description   String?
+  durationUnit  PlanDurationUnit
+  durationCount Int
+  priceMinor    Int
+  currency      String
+  archivedAt    DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  club          Club @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  subscriptions MemberSubscription[]
+
+  @@unique([clubId, id])
+  @@index([clubId, archivedAt, name])
+}
+
+model MemberSubscription {
+  id            String @id @default(cuid())
+  clubId        String
+  memberRecordId String
+  planId        String
+  planName      String
+  priceMinor    Int
+  currency      String
+  startAt       DateTime
+  endAt         DateTime
+  cancelledAt   DateTime?
+  operationKey  String @unique
+  createdAt     DateTime @default(now())
+  createdByUserId String
+
+  club          Club @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  memberRecord  ClubMemberRecord @relation(fields: [clubId, memberRecordId], references: [clubId, id], onDelete: Restrict)
+  plan          ClubPlan @relation(fields: [clubId, planId], references: [clubId, id], onDelete: Restrict)
+
+  @@index([clubId, memberRecordId, startAt, endAt])
+  @@index([clubId, endAt])
+}
+
+model MemberEvent {
+  id             String @id @default(cuid())
+  clubId         String
+  memberRecordId String
+  actorUserId    String
+  eventType      MemberEventType
+  referenceId    String?
+  createdAt      DateTime @default(now())
+
+  club           Club @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  memberRecord   ClubMemberRecord @relation(fields: [clubId, memberRecordId], references: [clubId, id], onDelete: Restrict)
+  actor          User @relation(fields: [actorUserId], references: [id], onDelete: Restrict)
+
+  @@index([clubId, memberRecordId, createdAt])
 }

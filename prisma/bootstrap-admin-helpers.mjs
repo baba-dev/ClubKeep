@@ -35,7 +35,7 @@ export async function readPasswordFromStdin(input, isTTY) {
   for await (const part of input) {
     length += part.length;
     if (length > 8192) throw new Error("Password input too long");
-    parts.push(part);
+    parts.push(Buffer.isBuffer(part) ? part : Buffer.from(part));
   }
   const password = Buffer.concat(parts).toString("utf8").replace(/\r?\n$/, "");
   if (password.includes("\n") || password.includes("\r") || password.length < 8 || password.length > 128) {

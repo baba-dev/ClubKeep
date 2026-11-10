@@ -14,9 +14,9 @@ export async function requirePlatformAdmin(
   }
   const user = await db.user.findUnique({
     where: { id: authenticatedUserId },
-    select: { platformRole: true },
+    select: { platformRole: true, emailVerified: true },
   });
-  if (user?.platformRole !== "PLATFORM_ADMIN") {
+  if (user?.platformRole !== "PLATFORM_ADMIN" || !user.emailVerified) {
     throw new Error("Platform access denied");
   }
   return authenticatedUserId;

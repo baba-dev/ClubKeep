@@ -2,6 +2,8 @@
 // Offline, one-time production bootstrap. NOT an HTTP endpoint or public signup.
 // The operator pipes a password through stdin; never put it in argv, env or GitHub.
 import { randomUUID } from "node:crypto";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import pg from "pg";
 import { hashPassword } from "better-auth/crypto";
 import { parseBootstrapArgs, readPasswordFromStdin } from "./bootstrap-admin-helpers.mjs";
@@ -87,6 +89,6 @@ async function main() {
   }
 }
 
-if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   await main();
 }

@@ -16,6 +16,9 @@ export function SignInForm({
   oauthError: string | null;
 }) {
   const router = useRouter();
+  function postSignInDestination() {
+    return window.sessionStorage.getItem("clubkeep:pending-invite") ? "/join" : "/home";
+  }
   const [mode, setMode] = useState<Mode>("email");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -45,7 +48,7 @@ export function SignInForm({
     try {
       const { error } = await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/home",
+        callbackURL: postSignInDestination(),
         errorCallbackURL: "/auth/sign-in",
       });
       if (error) setNotice("Google sign-in could not be started.");
@@ -64,7 +67,7 @@ export function SignInForm({
       if (result.error) {
         setNotice("Passkey sign-in was cancelled or could not be verified.");
       } else {
-        router.replace("/home");
+        router.replace(postSignInDestination());
         router.refresh();
       }
     } catch {
@@ -81,8 +84,8 @@ export function SignInForm({
     try {
       await authClient.signIn.magicLink({
         email: email.trim(),
-        callbackURL: "/home",
-        newUserCallbackURL: "/home",
+        callbackURL: postSignInDestination(),
+        newUserCallbackURL: postSignInDestination(),
         errorCallbackURL: "/auth/sign-in",
       });
       // Generic success regardless of whether the mailbox exists.
@@ -107,12 +110,12 @@ export function SignInForm({
       const { error } = await authClient.signIn.email({
         email: email.trim(),
         password,
-        callbackURL: "/home",
+        callbackURL: postSignInDestination(),
       });
       if (error) {
         setNotice("Could not sign in. Check your credentials and try again.");
       } else {
-        router.replace("/home");
+        router.replace(postSignInDestination());
         router.refresh();
       }
     } catch {

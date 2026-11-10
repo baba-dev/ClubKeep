@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight, ShieldCheck, Users } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
-import { isInviteToken } from "@/lib/invite-token";
+const isInviteToken = (value: unknown): value is string =>
+  typeof value === "string" && /^[A-Za-z0-9_-]{43}$/.test(value);
 
 const STORAGE_KEY = "clubkeep:pending-invite";
 

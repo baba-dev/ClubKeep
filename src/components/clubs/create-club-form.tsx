@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Building2 } from "lucide-react";
 
@@ -9,7 +9,7 @@ export function CreateClubForm() {
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
-  async function create(event: React.FormEvent<HTMLFormElement>) {
+  async function create(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (busy) return;
     setBusy(true);

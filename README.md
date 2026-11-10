@@ -4,7 +4,7 @@
 
 ClubKeep is a two-sided platform: **ClubKeep Business** for gyms, sports clubs, yoga and dance studios, and independent **ClubKeep Personal** for health and fitness users with or without a club. They share one account while keeping personal health records independently private.
 
-**Status:** early development. Phase 0A–0C and initial VPS CI/CD have merged; Phase 0D club onboarding is under review in PR #15. The app includes working authentication/onboarding code, but live provider verification and public registration are separately gated. Personal, clinical, insurance, wearable and ABHA integrations remain planned; Personal, clinical, insurance, wearable and ABHA integrations are product commitments **not shipped features**. The first club-focused release is being built, with no stable API yet.
+**Status:** early development. Phase 0A–0C and initial VPS CI/CD have merged; Phase 0D club onboarding is under review in PR #15. The app includes working authentication/onboarding code, but live provider verification and public registration are separately gated. Personal, clinical, insurance, wearable and ABHA integrations are product commitments **not shipped features**. The first club-focused release is being built, with no stable API yet.
 
 ---
 

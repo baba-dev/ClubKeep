@@ -48,7 +48,10 @@ export function JoinClubClient() {
         setPreview(club);
         setState("ready");
       })
-      .catch(() => setState("invalid"));
+      .catch(() => {
+        window.sessionStorage.removeItem(STORAGE_KEY);
+        setState("invalid");
+      });
   }, []);
 
   async function claim() {
@@ -65,6 +68,7 @@ export function JoinClubClient() {
       });
       const data = await response.json();
       if (!response.ok) {
+        window.sessionStorage.removeItem(STORAGE_KEY);
         setState("invalid");
         setNotice(data.error || "This invitation is unavailable");
         return;

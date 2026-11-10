@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Copy, Link2, Plus, ShieldCheck, UserMinus, XCircle } from "lucide-react";
 import { InviteQr } from "@/components/clubs/invite-qr";
@@ -20,6 +20,10 @@ export function ClubManager({
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
+  const [renderedNow, setRenderedNow] = useState(0);
+  useEffect(() => {
+    queueMicrotask(() => setRenderedNow(Date.now()));
+  }, []);
 
   async function post(path: string) {
     const response = await fetch(path, {
@@ -74,7 +78,7 @@ export function ClubManager({
   }
 
   function pending(invite: Invite) {
-    return !invite.claimedAt && !invite.revokedAt && new Date(invite.expiresAt).getTime() > Date.now();
+    return !invite.claimedAt && !invite.revokedAt && new Date(invite.expiresAt).getTime() > renderedNow && renderedNow > 0;
   }
 
   return (

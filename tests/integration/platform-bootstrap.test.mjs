@@ -6,7 +6,15 @@ import { verifyPassword } from "better-auth/crypto";
 
 const password = "ci-only-example-password-not-production";
 const email = "bootstrap-admin-ci@example.invalid";
-const baseArgs = ["prisma/bootstrap-platform-admin.mjs", "--email", email, "--name", "CI Administrator", "--expect-db", "clubkeep_ci"];
+const baseArgs = [
+  "prisma/bootstrap-platform-admin.mjs",
+  "--email",
+  email,
+  "--name",
+  "CI Administrator",
+  "--expect-db",
+  "clubkeep_ci",
+];
 
 function runBootstrap(args = baseArgs) {
   return spawnSync(process.execPath, args, {
@@ -19,7 +27,10 @@ function runBootstrap(args = baseArgs) {
 }
 
 test("one-time admin bootstrap persists verifiable Better Auth credentials in ClubKeep only", async () => {
-  assert.ok(process.env.DATABASE_URL?.includes("clubkeep_ci"), "Disposable ClubKeep CI database required");
+  assert.ok(
+    process.env.DATABASE_URL?.includes("clubkeep_ci"),
+    "Disposable ClubKeep CI database required"
+  );
   const db = new pg.Client({ connectionString: process.env.DATABASE_URL });
   await db.connect();
   try {
@@ -31,7 +42,7 @@ test("one-time admin bootstrap persists verifiable Better Auth credentials in Cl
     assert.equal(first.status, 0, first.stderr);
     const users = await db.query(
       'SELECT "id", "name", "emailVerified", "platformRole", "role" FROM "user" WHERE "email" = $1',
-      [email],
+      [email]
     );
     assert.equal(users.rowCount, 1);
     assert.equal(users.rows[0].name, "CI Administrator");
@@ -41,7 +52,7 @@ test("one-time admin bootstrap persists verifiable Better Auth credentials in Cl
 
     const accounts = await db.query(
       'SELECT "accountId", "providerId", "password" FROM "account" WHERE "userId" = $1',
-      [users.rows[0].id],
+      [users.rows[0].id]
     );
     assert.equal(accounts.rowCount, 1);
     assert.equal(accounts.rows[0].providerId, "credential");
@@ -49,19 +60,29 @@ test("one-time admin bootstrap persists verifiable Better Auth credentials in Cl
     assert.notEqual(accounts.rows[0].password, password);
     assert.equal(await verifyPassword({ hash: accounts.rows[0].password, password }), true);
     assert.equal(
-      (await db.query('SELECT count(*)::int AS n FROM "PersonalProfile" WHERE "userId" = $1', [users.rows[0].id])).rows[0].n,
-      1,
+      (
+        await db.query('SELECT count(*)::int AS n FROM "PersonalProfile" WHERE "userId" = $1', [
+          users.rows[0].id,
+        ])
+      ).rows[0].n,
+      1
     );
 
     const rerun = runBootstrap();
     assert.notEqual(rerun.status, 0);
     assert.match(rerun.stderr, /Account already exists/);
-    const after = await db.query(
-      'SELECT "password" FROM "account" WHERE "userId" = $1',
-      [users.rows[0].id],
-    );
+    const after = await db.query('SELECT "password" FROM "account" WHERE "userId" = $1', [
+      users.rows[0].id,
+    ]);
     assert.equal(after.rows[0].password, accounts.rows[0].password);
-    assert.equal((await db.query('SELECT count(*)::int AS n FROM "user" WHERE "platformRole" = $1', ["PLATFORM_ADMIN"])).rows[0].n, 1);
+    assert.equal(
+      (
+        await db.query('SELECT count(*)::int AS n FROM "user" WHERE "platformRole" = $1', [
+          "PLATFORM_ADMIN",
+        ])
+      ).rows[0].n,
+      1
+    );
   } finally {
     await db.end();
   }

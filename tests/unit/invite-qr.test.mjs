@@ -9,8 +9,8 @@ test("offline invitation QR is a consistent Model 2 matrix with finder patterns"
   assert.ok(matrix.every((row) => row.length === 45));
   assert.equal(matrix[0].slice(0, 7).every(Boolean), true);
   assert.equal(matrix[3][3], true);
-  assert.equal(matrix[3][2], false);
-  assert.equal(matrix[41][41], true);
+  assert.equal(matrix[3][1], false);
+  assert.equal(matrix[41][3], true);
   assert.deepEqual(inviteQrMatrix(url), matrix);
   assert.notDeepEqual(inviteQrMatrix(url.replace("1111", "1112")), matrix);
 });

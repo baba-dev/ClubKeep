@@ -4,7 +4,7 @@
 
 ClubKeep is a two-sided platform: **ClubKeep Business** for gyms, sports clubs, yoga and dance studios, and independent **ClubKeep Personal** for health and fitness users with or without a club. They share one account while keeping personal health records independently private.
 
-**Status:** early development. The present code is a scaffold and Luxe design prototypes; Personal, clinical, insurance, wearable and ABHA integrations are product commitments **not shipped features**. The first club-focused release is being built, with no stable API yet.
+**Status:** early development. Phase 0A–0C and initial VPS CI/CD have merged; Phase 0D club onboarding is under review in PR #15. The app includes working authentication/onboarding code, but live provider verification and public registration are separately gated. Personal, clinical, insurance, wearable and ABHA integrations remain planned; Personal, clinical, insurance, wearable and ABHA integrations are product commitments **not shipped features**. The first club-focused release is being built, with no stable API yet.
 
 ---
 
@@ -85,7 +85,7 @@ npm run dev
 
 The eventual production deployment is an isolated ClubKeep systemd service on the **existing MenuMinute bare-metal server**, sharing the host but not app/database ownership or session secrets. See [the bare-metal plan](docs/BAREMETAL_DEPLOYMENT.md).
 
-**Target authentication (not shipped):** Google OAuth, passkey enrollment and repeat sign-in, short-lived verified-email magic links, and seven-day single-use club invitations. Phone numbers are optional, nonunique unverified contacts, not login factors. No SMS OTP. Phase 0A removes the misleading developer OTP success UI; signup remains gated until later PRs.
+**Authentication implementation:** Google OAuth, passkeys and short-lived verified-email magic links merged in Phase 0C, with live provider activation separately gated. Phase 0D is implementing seven-day single-use club invitations. Phone numbers are optional, nonunique unverified contacts, not login factors. No SMS OTP. Phase 0A removes the misleading developer OTP success UI; signup remains gated until later PRs.
 
 ### Useful scripts
 

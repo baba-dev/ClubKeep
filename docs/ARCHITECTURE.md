@@ -65,7 +65,7 @@ transactional `20261109000000_identity_foundation` additive migration.
 | `PersonalProfile` | `userId` primary key, independent of club, nonmedical |
 | `Club` | Unique slug; standalone business tenant |
 | `ClubMembership` | Unique `(clubId, userId)`, role OWNER/MANAGER/STAFF/MEMBER, status ACTIVE/SUSPENDED/LEFT |
-| `ClubInvite` | Club-scoped, unique keyed token hash, issuer/claimant and expiry/revocation timestamps; **redemption is not wired until 0D** |
+| `ClubInvite` | Club-scoped, unique keyed token hash, issuer/claimant and expiry/revocation timestamps; **0D redemption and revocation are implemented in PR #15 (unmerged)** |
 | `ClubContact` | Optional `phoneE164` deliberately nonunique; never identify or merge users by this contact |
 | `SecurityEvent` | Typed event marker with safe minimal references; no tokens or medical information |
 
@@ -117,3 +117,7 @@ Money: integer minor units plus currency. Optional phone contacts: E.164 where s
 ## Deployment
 
 See [BAREMETAL_DEPLOYMENT.md](BAREMETAL_DEPLOYMENT.md). Target is the **existing MenuMinute server** with isolated ClubKeep systemd, Nginx host, DB/role, Redis authentication state, secrets and release/backup paths. **No Docker or Compose.** Verify actual ARM64/Node/PostgreSQL resources before provisioning.
+
+## Phase 0D club onboarding implementation (PR #15)
+
+Club creation writes a Club + active OWNER ClubMembership + SecurityEvent in one transaction. Owners/managers issue MEMBER-only 256-bit/HMAC-hashed seven-day invitation tokens; no privileged role upgrade is permitted through the link. Claim uses a PostgreSQL conditional update under a transaction and creates/reactivates the authenticated member row with audit; token reuse and cross-club lookups fail closed. Issuing a QR never sends the token to external services; the token is a URL fragment and submitted via POST after local history scrubbing. Protected API operations require verified Better Auth sessions, exact-origin CSRF checks and isolated Redis throttles. Public preview returns only club name/role/expiry. No new Prisma schema changes are needed. See [Phase 0D runbook](PHASE_0D_RUNBOOK.md).

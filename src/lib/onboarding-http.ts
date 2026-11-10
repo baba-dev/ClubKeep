@@ -55,8 +55,7 @@ export async function readOnboardingBody(request: NextRequest): Promise<unknown>
 }
 
 type GuardResult =
-  | { ok: true; userId: string | null; origin: string }
-  | { ok: false; response: NextResponse };
+  { ok: true; userId: string | null; origin: string } | { ok: false; response: NextResponse };
 
 /**
  * Double-submit CSRF defenses: exact same-origin POST and Fetch Metadata,

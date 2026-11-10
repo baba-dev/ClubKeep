@@ -23,7 +23,17 @@ test("two independent PostgreSQL connections cannot consume one invitation twice
     await root.query("BEGIN");
     await root.query(
       'INSERT INTO "user" ("id","name","email","emailVerified","updatedAt") VALUES ($1,$2,$3,true,NOW()),($4,$5,$6,true,NOW()),($7,$8,$9,true,NOW())',
-      [owner, "Owner", owner + "@example.invalid", personA, "Member A", personA + "@example.invalid", personB, "Member B", personB + "@example.invalid"]
+      [
+        owner,
+        "Owner",
+        owner + "@example.invalid",
+        personA,
+        "Member A",
+        personA + "@example.invalid",
+        personB,
+        "Member B",
+        personB + "@example.invalid",
+      ]
     );
     await root.query(
       'INSERT INTO "Club" ("id","slug","name","updatedAt") VALUES ($1,$2,$3,NOW())',
@@ -68,16 +78,18 @@ test("two independent PostgreSQL connections cannot consume one invitation twice
     await b.query("COMMIT");
     secondStarted = false;
 
-    const invite = await root.query(
-      'SELECT "claimedByUserId" FROM "ClubInvite" WHERE id = $1',
-      [inviteId]
-    );
+    const invite = await root.query('SELECT "claimedByUserId" FROM "ClubInvite" WHERE id = $1', [
+      inviteId,
+    ]);
     assert.equal(invite.rows[0].claimedByUserId, personA);
     const membership = await root.query(
       'SELECT "userId" FROM "ClubMembership" WHERE "clubId"=$1 AND "role"=\'MEMBER\'',
       [clubId]
     );
-    assert.deepEqual(membership.rows.map((row) => row.userId), [personA]);
+    assert.deepEqual(
+      membership.rows.map((row) => row.userId),
+      [personA]
+    );
 
     const revoked = await root.query(
       'UPDATE "ClubInvite" SET "revokedAt"=NOW() WHERE id=$1 AND "claimedAt" IS NULL RETURNING id',
@@ -91,7 +103,9 @@ test("two independent PostgreSQL connections cannot consume one invitation twice
     await root.query('DELETE FROM "ClubMembership" WHERE "clubId"=$1', [clubId]).catch(() => {});
     await root.query('DELETE FROM "ClubInvite" WHERE "clubId"=$1', [clubId]).catch(() => {});
     await root.query('DELETE FROM "Club" WHERE id=$1', [clubId]).catch(() => {});
-    await root.query('DELETE FROM "user" WHERE id = ANY($1::text[])', [[owner, personA, personB]]).catch(() => {});
+    await root
+      .query('DELETE FROM "user" WHERE id = ANY($1::text[])', [[owner, personA, personB]])
+      .catch(() => {});
     await Promise.all([root.end(), a.end(), b.end()]);
   }
 });

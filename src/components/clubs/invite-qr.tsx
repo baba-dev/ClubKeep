@@ -7,9 +7,7 @@ export function InviteQr({ url }: { url: string }) {
   try {
     const modules = inviteQrMatrix(url);
     path = modules
-      .map((row, y) =>
-        row.map((dark, x) => (dark ? `M${x + 4} ${y + 4}h1v1h-1z` : "")).join("")
-      )
+      .map((row, y) => row.map((dark, x) => (dark ? `M${x + 4} ${y + 4}h1v1h-1z` : "")).join(""))
       .join("");
   } catch {
     return <p className="text-xs text-amber-200">QR unavailable; share the secure link instead.</p>;

@@ -17,8 +17,7 @@ export async function POST(
 ): Promise<Response> {
   try {
     const { clubId } = await context.params;
-    if (!idInput.safeParse(clubId).success)
-      return jsonPrivate({ error: "Club not found" }, 404);
+    if (!idInput.safeParse(clubId).success) return jsonPrivate({ error: "Club not found" }, 404);
     const guard = await guardOnboardingPost(request, "issue-invite", 20, true);
     if (!guard.ok) return guard.response;
     const body = await readOnboardingBody(request);
@@ -26,7 +25,11 @@ export async function POST(
       return jsonPrivate({ error: "Invalid invitation request" }, 400);
     const issued = await issueClubInvite(prisma, guard.userId!, clubId, requireAuthConfig().secret);
     return jsonPrivate(
-      { id: issued.id, url: invitationUrl(guard.origin, issued.token), expiresAt: issued.expiresAt },
+      {
+        id: issued.id,
+        url: invitationUrl(guard.origin, issued.token),
+        expiresAt: issued.expiresAt,
+      },
       201
     );
   } catch (error) {

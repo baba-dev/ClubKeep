@@ -86,37 +86,88 @@ export function JoinClubClient() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#0b0705] px-5 py-14 text-[#fbf1e6]">
       <section className="w-full max-w-lg rounded-[2rem] border border-[#f6dc9b]/20 bg-[#17100b] p-7 shadow-2xl sm:p-10">
-        <span className="inline-flex size-12 items-center justify-center rounded-2xl bg-[#f26b00]/15"><Users aria-hidden="true" className="size-6 text-[#ffa451]" /></span>
-        <p className="mt-7 text-xs font-semibold tracking-[.2em] text-[#f1d58b] uppercase">Your personal invitation</p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight">{preview ? `Join ${preview.name}` : "Join a club"}</h1>
-        <p className="mt-4 text-sm leading-7 text-[#b8a08c]">Your private ClubKeep account stays yours. Accepting an invite adds only a club membership and never shares your Personal records.</p>
-        {state === "loading" && <p role="status" className="mt-8 text-sm text-[#f1d58b]">Checking invitation…</p>}
+        <span className="inline-flex size-12 items-center justify-center rounded-2xl bg-[#f26b00]/15">
+          <Users aria-hidden="true" className="size-6 text-[#ffa451]" />
+        </span>
+        <p className="mt-7 text-xs font-semibold tracking-[.2em] text-[#f1d58b] uppercase">
+          Your personal invitation
+        </p>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight">
+          {preview ? `Join ${preview.name}` : "Join a club"}
+        </h1>
+        <p className="mt-4 text-sm leading-7 text-[#b8a08c]">
+          Your private ClubKeep account stays yours. Accepting an invite adds only a club membership
+          and never shares your Personal records.
+        </p>
+        {state === "loading" && (
+          <p role="status" className="mt-8 text-sm text-[#f1d58b]">
+            Checking invitation…
+          </p>
+        )}
         {state === "invalid" && (
-          <div role="alert" className="mt-8 rounded-2xl border border-[#f1d58b]/25 p-5 text-sm text-[#f1d58b]">
-            <p>{notice || "This invitation is expired, revoked, already claimed or unavailable. Ask the club for a new one."}</p>
+          <div
+            role="alert"
+            className="mt-8 rounded-2xl border border-[#f1d58b]/25 p-5 text-sm text-[#f1d58b]"
+          >
+            <p>
+              {notice ||
+                "This invitation is expired, revoked, already claimed or unavailable. Ask the club for a new one."}
+            </p>
           </div>
         )}
         {state === "ready" && preview && (
           <div className="mt-7 rounded-2xl border border-[#f6dc9b]/15 bg-[#24180f] p-5 text-sm">
             <p className="font-semibold">{preview.name}</p>
             <p className="mt-1 text-[#b8a08c]">Member access · One-time invitation</p>
-            <p className="mt-2 text-xs text-[#f1d58b]">Expires {new Date(preview.expiresAt).toLocaleDateString()}</p>
+            <p className="mt-2 text-xs text-[#f1d58b]">
+              Expires {new Date(preview.expiresAt).toLocaleDateString()}
+            </p>
           </div>
         )}
         {!isPending && state === "ready" && !session?.user && (
-          <Link href="/auth/sign-in" className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#f26b00] px-5 py-3 font-semibold text-[#251306]">Sign in to accept <ArrowRight className="size-4" /></Link>
+          <Link
+            href="/auth/sign-in"
+            className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#f26b00] px-5 py-3 font-semibold text-[#251306]"
+          >
+            Sign in to accept <ArrowRight className="size-4" />
+          </Link>
         )}
-        {!isPending && state === "ready" && session?.user && (
-          session.user.emailVerified ? (
-            <button disabled={!token} onClick={claim} className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#d4a84a] to-[#f26b00] px-5 py-3 font-semibold text-[#251306] disabled:opacity-50">Accept club invitation <ArrowRight className="size-4" /></button>
+        {!isPending &&
+          state === "ready" &&
+          session?.user &&
+          (session.user.emailVerified ? (
+            <button
+              disabled={!token}
+              onClick={claim}
+              className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#d4a84a] to-[#f26b00] px-5 py-3 font-semibold text-[#251306] disabled:opacity-50"
+            >
+              Accept club invitation <ArrowRight className="size-4" />
+            </button>
           ) : (
-            <p className="mt-7 text-sm text-[#f1d58b]">Verify your email before claiming this invitation.</p>
-          )
+            <p className="mt-7 text-sm text-[#f1d58b]">
+              Verify your email before claiming this invitation.
+            </p>
+          ))}
+        {state === "working" && (
+          <p role="status" className="mt-7 text-[#f1d58b]">
+            Joining club securely…
+          </p>
         )}
-        {state === "working" && <p role="status" className="mt-7 text-[#f1d58b]">Joining club securely…</p>}
-        {notice && state !== "invalid" && <p role="alert" className="mt-4 text-sm text-[#ffbd87]">{notice}</p>}
-        <p className="mt-7 flex items-center gap-2 text-xs leading-5 text-[#b8a08c]"><ShieldCheck className="size-4 shrink-0 text-[#ffa451]" /> A club invite is not phone verification or account recovery.</p>
-        <Link href="/home" className="mt-7 inline-block text-sm text-[#ffa451] underline underline-offset-4">Back to ClubKeep</Link>
+        {notice && state !== "invalid" && (
+          <p role="alert" className="mt-4 text-sm text-[#ffbd87]">
+            {notice}
+          </p>
+        )}
+        <p className="mt-7 flex items-center gap-2 text-xs leading-5 text-[#b8a08c]">
+          <ShieldCheck className="size-4 shrink-0 text-[#ffa451]" /> A club invite is not phone
+          verification or account recovery.
+        </p>
+        <Link
+          href="/home"
+          className="mt-7 inline-block text-sm text-[#ffa451] underline underline-offset-4"
+        >
+          Back to ClubKeep
+        </Link>
       </section>
     </main>
   );

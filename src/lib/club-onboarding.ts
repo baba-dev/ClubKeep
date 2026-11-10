@@ -147,7 +147,8 @@ export async function previewClubInvite(db: PrismaClient, token: string, secret:
     invite.claimedAt ||
     invite.revokedAt ||
     invite.expiresAt.getTime() <= Date.now()
-  ) invalidInvite();
+  )
+    invalidInvite();
   return { name: invite.club.name, expiresAt: invite.expiresAt, role: "MEMBER" as const };
 }
 
@@ -163,11 +164,8 @@ export async function claimClubInvite(
       where: { tokenHash },
       select: { id: true, clubId: true, tokenKeyVersion: true, role: true },
     });
-    if (
-      !invite ||
-      invite.role !== "MEMBER" ||
-      invite.tokenKeyVersion !== INVITE_KEY_VERSION
-    ) invalidInvite();
+    if (!invite || invite.role !== "MEMBER" || invite.tokenKeyVersion !== INVITE_KEY_VERSION)
+      invalidInvite();
     const now = new Date();
     // PostgreSQL conditional UPDATE holds the row lock. Exactly one claimant
     // can change a currently valid unclaimed token; all writes roll back together.

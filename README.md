@@ -49,7 +49,7 @@ Personal Free / Pro / Premium-AI will support native Apple Health and Android He
 
 - [Next.js](https://nextjs.org) 16 (App Router) with React 19 and TypeScript
 - [Tailwind CSS](https://tailwindcss.com) v4 and [shadcn/ui](https://ui.shadcn.com)
-- [Better Auth](https://better-auth.com): existing email/password core; **phone OTP demo removed in 0A**; Google OAuth, WebAuthn passkeys and magic links planned for 0C
+- [Better Auth](https://better-auth.com): existing email/password core; **phone OTP demo removed in 0A**; Google OAuth, WebAuthn passkeys and magic links implemented in merged 0C (live providers gated)
 - [Prisma ORM](https://www.prisma.io) 7 on PostgreSQL
 - Redis (via `ioredis`) for caching and counters
 - [Zod](https://zod.dev) for validation
@@ -63,9 +63,9 @@ Personal Free / Pro / Premium-AI will support native Apple Health and Android He
 - Node.js 24.x (Phase 0A uses Node 24.22.0; no global VPS Node upgrade)
 - Locally installed PostgreSQL and Redis services (Docker is **not** part of the approved setup)
 
-### Setup (Phase 0A native-service foundation)
+### Development setup (0A–0D)
 
-Phase 0A establishes Node 24, standard Prisma 7 configuration, CI and native PostgreSQL/Redis instructions. **The app is not ready for public signup**: Google, passkey and magic-link authentication plus invitation redemption are in later PRs. Never deploy the scaffold as a production authentication service.
+Node 24, Prisma 7 migrations, isolated PostgreSQL/Redis, x64/ARM64 CI and initial VPS deployment are established. Authentication code was merged in 0C and club invitations are in PR #15. **The app is not ready for public signup:** provider end-to-end verification, age/region policy and production onboarding smoke testing still gate activation. Do not equate a green deployment with permission to open registration.
 
 For local source inspection/build, install native PostgreSQL and Redis separately and configure local nonproduction credentials:
 
@@ -85,7 +85,7 @@ npm run dev
 
 The eventual production deployment is an isolated ClubKeep systemd service on the **existing MenuMinute bare-metal server**, sharing the host but not app/database ownership or session secrets. See [the bare-metal plan](docs/BAREMETAL_DEPLOYMENT.md).
 
-**Authentication implementation:** Google OAuth, passkeys and short-lived verified-email magic links merged in Phase 0C, with live provider activation separately gated. Phase 0D is implementing seven-day single-use club invitations. Phone numbers are optional, nonunique unverified contacts, not login factors. No SMS OTP. Phase 0A removes the misleading developer OTP success UI; signup remains gated until later PRs.
+**Authentication implementation:** Google OAuth, passkeys and short-lived verified-email magic links merged in Phase 0C, with live provider activation separately gated. Phase 0D is implementing seven-day single-use club invitations. Phone numbers are optional, nonunique unverified contacts, not login factors. No SMS OTP. Phase 0A removes the misleading developer OTP success UI; public signup remains gated pending live verification and policy approval.
 
 ### Useful scripts
 

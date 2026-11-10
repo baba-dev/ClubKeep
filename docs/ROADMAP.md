@@ -1,6 +1,6 @@
 # ClubKeep roadmap
 
-Last updated: 9 Nov 2026 (final medical Free and no-clinician clarifications). This remains the **Business gym-first** roadmap. ClubKeep Personal has a separate staged plan in [DELIVERY_PLAN.md](DELIVERY_PLAN.md). Round 1–2 decisions are locked in [BUSINESS_SPEC.md](BUSINESS_SPEC.md), with pricing and unresolved caps in [ENTITLEMENTS.md](ENTITLEMENTS.md). Agents pick work from the top unchecked item; do not infer unapproved limits or claim planned health features shipped.
+Last updated: 10 Nov 2026 (final medical Free and no-clinician clarifications). This remains the **Business gym-first** roadmap. ClubKeep Personal has a separate staged plan in [DELIVERY_PLAN.md](DELIVERY_PLAN.md). Round 1–2 decisions are locked in [BUSINESS_SPEC.md](BUSINESS_SPEC.md), with pricing and unresolved caps in [ENTITLEMENTS.md](ENTITLEMENTS.md). Agents pick work from the top unchecked item; do not infer unapproved limits or claim planned health features shipped.
 
 ## Phase 0 foundation first
 

@@ -100,7 +100,7 @@ async function ClubContent({ params }: { params: Promise<{ clubId: string }> }) 
         ) : (
           <section className="mt-8 rounded-3xl border border-[#f6dc9b]/20 bg-[#17100b] p-8">
             <Users className="size-8 text-[#ffa451]" aria-hidden="true" />
-            <h2 className="mt-4 text-2xl font-semibold">You're a member</h2>
+            <h2 className="mt-4 text-2xl font-semibold">You’re a member</h2>
             <p className="mt-3 leading-7 text-[#b8a08c]">
               Your membership is active. Attendance, renewals and digital ID cards are coming in the
               next business phase.

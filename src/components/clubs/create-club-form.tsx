@@ -52,7 +52,6 @@ export function CreateClubForm() {
         </p>
       </div>
       <input
-        autoFocus
         id="club-name"
         name="club-name"
         required

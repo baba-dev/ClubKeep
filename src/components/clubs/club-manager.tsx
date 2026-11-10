@@ -111,8 +111,10 @@ export function ClubManager({
 
   function pending(invite: Invite) {
     return (
-      !invite.claimedAt && !invite.revokedAt && new Date(invite.expiresAt).getTime() > renderedNow &&
-    renderedNow > 0
+      !invite.claimedAt &&
+      !invite.revokedAt &&
+      new Date(invite.expiresAt).getTime() > renderedNow &&
+      renderedNow > 0
     );
   }
 

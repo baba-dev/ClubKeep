@@ -46,7 +46,7 @@ export default function ConfirmEmailPage() {
         setState("invalid");
         return;
       }
-      router.replace("/home");
+      router.replace(window.sessionStorage.getItem("clubkeep:pending-invite") ? "/join" : "/home");
       router.refresh();
     } catch {
       setToken(null);

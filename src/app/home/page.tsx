@@ -50,7 +50,7 @@ async function ClubKeepHomeContent() {
             </span>
             ClubKeep
           </Link>
-          <div className="flex gap-3 text-sm">
+          <div className="flex flex-wrap gap-3 text-sm">
             <Link
               href="/account/security"
               className="rounded-full border border-[#f6dc9b]/25 px-4 py-2 hover:bg-[#211710]"
@@ -68,6 +68,12 @@ async function ClubKeepHomeContent() {
           One identity for your independent Personal space and every club you are authorized to
           join.
         </p>
+        <Link
+          href="/clubs/new"
+          className="mt-8 inline-flex min-h-11 items-center rounded-xl bg-gradient-to-r from-[#d4a84a] to-[#f26b00] px-5 py-3 text-sm font-semibold text-[#2a1608] hover:brightness-110"
+        >
+          Create a club
+        </Link>
         <div className="mt-8 grid gap-5 md:grid-cols-2">
           <section className="rounded-3xl border border-[#f6dc9b]/20 bg-[#17100b] p-7">
             <UserRound className="size-7 text-[#ffa451]" aria-hidden="true" />
@@ -87,15 +93,20 @@ async function ClubKeepHomeContent() {
               <ul className="mt-4 space-y-3">
                 {memberships.map((member) => (
                   <li key={member.id} className="rounded-xl bg-[#25180f] px-4 py-3">
-                    <strong>{member.club.name}</strong>
+                    <Link
+                      href={`/clubs/${member.club.id}`}
+                      className="font-semibold text-[#ffa451] underline underline-offset-4"
+                    >
+                      {member.club.name}
+                    </Link>
                     <span className="ml-2 text-xs text-[#b8a08c]">{member.role.toLowerCase()}</span>
                   </li>
                 ))}
               </ul>
             ) : (
               <p className="mt-3 text-sm leading-6 text-[#b8a08c]">
-                You have no active club memberships. A future club invitation will let you join
-                without changing your Personal account.
+                You have no active club memberships. Create your own club or open a private
+                invitation link to join an existing club.
               </p>
             )}
           </section>

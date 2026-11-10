@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, CalendarDays, LayoutDashboard, Layers3, UsersRound } from "lucide-react";
+import { ArrowLeft, CalendarDays, LayoutDashboard, Layers3, ScanLine, UsersRound } from "lucide-react";
 
 export function BusinessShell({
   clubId,
@@ -12,7 +12,7 @@ export function BusinessShell({
 }: {
   clubId: string;
   clubName: string;
-  active: "members" | "plans" | "renewals" | "overview";
+  active: "members" | "plans" | "renewals" | "overview" | "attendance";
   eyebrow: string;
   title: string;
   description: string;
@@ -20,6 +20,7 @@ export function BusinessShell({
 }) {
   const sections = [
     { key: "overview", label: "Overview", url: `/clubs/${clubId}`, icon: LayoutDashboard },
+    { key: "attendance", label: "Check-in", url: `/clubs/${clubId}/attendance`, icon: ScanLine },
     { key: "members", label: "Members", url: `/clubs/${clubId}/members`, icon: UsersRound },
     { key: "plans", label: "Membership Plans", url: `/clubs/${clubId}/plans`, icon: Layers3 },
     { key: "renewals", label: "Renewals", url: `/clubs/${clubId}/renewals`, icon: CalendarDays },

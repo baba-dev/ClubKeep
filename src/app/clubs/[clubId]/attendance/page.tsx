@@ -11,6 +11,7 @@ import { AttendanceLive } from "@/components/clubs/attendance-live";
 import { AttendanceScanner } from "@/components/clubs/attendance-scanner";
 import { ManualCheckIn } from "@/components/clubs/manual-checkin";
 import { AttendanceTodayFeed } from "@/components/clubs/attendance-today-feed";
+import { AttendanceTimeZoneSetting } from "@/components/clubs/attendance-timezone-setting";
 
 export const metadata: Metadata = { title: "Attendance · ClubKeep", robots: { index: false } };
 export default function AttendancePage({params}:{params:Promise<{clubId:string}>}) {
@@ -69,6 +70,7 @@ async function AttendanceContent({params}:{params:Promise<{clubId:string}>}) {
         }))}/>
       </div>
     </div>
+    {access.role==="OWNER"&&<AttendanceTimeZoneSetting clubId={clubId} timeZone={club.timeZone}/>}
     <div className="mt-7 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#f6dc9b]/15 bg-[#1b130d] p-5 sm:p-7">
       <p className="flex items-start gap-2 text-sm leading-6 text-[#bb9e83]"><ShieldCheck className="mt-1 size-4 shrink-0 text-[#f5c485]"/>No payment is collected during check-in. Medical and Personal records remain separate and private.</p>
       <Link href={`/clubs/${clubId}/attendance/history`} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#eab572]/25 px-4 text-sm font-semibold text-[#f6c284] hover:bg-[#382519]">View history <ArrowRight className="size-4"/></Link>

@@ -1,5 +1,7 @@
 -- B2: additive attendance ledger, preserving B1 member/plan histories and all auth data.
 -- "localDate" is a snapshot in the IANA zone configured for this club at entry time.
+ALTER TYPE "SecurityEventType" ADD VALUE 'CLUB_TIMEZONE_CHANGED';
+
 ALTER TABLE "Club" ADD COLUMN "timeZone" TEXT NOT NULL DEFAULT 'UTC';
 
 CREATE TYPE "CheckInMethod" AS ENUM ('QR', 'MANUAL');

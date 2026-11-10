@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ShieldCheck, Users, CalendarDays, Layers3, ArrowRight } from "lucide-react";
+import { ShieldCheck, Users, CalendarDays, Layers3, ArrowRight, ScanLine } from "lucide-react";
 import { requireSession } from "@/lib/required-session";
 import { prisma } from "@/lib/prisma";
 import { requireActiveClubMembership } from "@/lib/club-access";
@@ -36,6 +36,7 @@ async function ClubContent({ params }: { params: Promise<{ clubId: string }> }) 
   });
   if (!club) notFound();
   const canInvite = role === "OWNER" || role === "MANAGER";
+  const canOperate = role !== "MEMBER";
   const members = canInvite
     ? await prisma.clubMembership.findMany({
         where: { clubId, status: "ACTIVE" },
@@ -79,8 +80,9 @@ async function ClubContent({ params }: { params: Promise<{ clubId: string }> }) 
         <p className="mt-3 text-sm leading-6 text-[#b8a08c]">
           Your private club space. Access is isolated from your Personal account and other clubs.
         </p>
-        {canInvite && (
-          <nav aria-label="Club administration" className="mt-8 grid gap-3 sm:grid-cols-3">
+        {canOperate && (
+          <nav aria-label="Club administration" className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <Link href={`/clubs/${clubId}/attendance`} className="flex items-center justify-between rounded-2xl border border-[#f6dc9b]/20 bg-gradient-to-br from-[#382012] to-[#26190f] p-5 font-semibold text-[#f7d8a3] hover:border-[#ffa451]"><span className="flex items-center gap-2"><ScanLine className="size-5"/>Check-in</span><ArrowRight className="size-4"/></Link>
             <Link
               href={`/clubs/${clubId}/members`}
               className="flex items-center justify-between rounded-2xl border border-[#f6dc9b]/20 bg-[#26190f] p-5 font-semibold text-[#f7d8a3] hover:border-[#ffa451]"
@@ -131,17 +133,19 @@ async function ClubContent({ params }: { params: Promise<{ clubId: string }> }) 
               joinedAt: member.joinedAt.toISOString(),
             }))}
           />
+        ) : role === "STAFF" ? (
+          <section className="mt-8 rounded-3xl border border-[#f6dc9b]/20 bg-[#17100b] p-8">
+            <ScanLine className="size-8 text-[#ffa451]" aria-hidden="true" />
+            <h2 className="mt-4 text-2xl font-semibold">Your reception desk is ready</h2>
+            <p className="mt-3 leading-7 text-[#b8a08c]">Scan members into the club, welcome walk-ins, and look up members securely. Plan and owner settings remain protected.</p>
+            <Link href={`/clubs/${clubId}/attendance`} className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#f4bc75] px-5 font-bold text-[#281607]">Open check-in <ArrowRight className="size-4"/></Link>
+          </section>
         ) : (
           <section className="mt-8 rounded-3xl border border-[#f6dc9b]/20 bg-[#17100b] p-8">
-            <Users className="size-8 text-[#ffa451]" aria-hidden="true" />
-            <h2 className="mt-4 text-2xl font-semibold">You’re a member</h2>
-            <p className="mt-3 leading-7 text-[#b8a08c]">
-              Your membership is active. Attendance, renewals and digital ID cards are coming in the
-              next business phase.
-            </p>
-            <p className="mt-5 flex items-center gap-2 text-sm text-[#f1d58b]">
-              <ShieldCheck className="size-4" /> Your Personal records stay private.
-            </p>
+            <ShieldCheck className="size-8 text-[#ffa451]" aria-hidden="true" />
+            <h2 className="mt-4 text-2xl font-semibold">Welcome to your club</h2>
+            <p className="mt-3 leading-7 text-[#b8a08c]">Your private member pass refreshes automatically and works with the reception QR scanner when your plan is active. Your Personal records stay private.</p>
+            <Link href={`/clubs/${clubId}/my-attendance`} className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-xl bg-gradient-to-r from-[#f3bf73] to-[#ef711c] px-6 font-bold text-[#281607]">Show my check-in pass <ArrowRight className="size-4"/></Link>
           </section>
         )}
       </div>

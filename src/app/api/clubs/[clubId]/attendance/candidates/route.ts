@@ -7,7 +7,8 @@ import { idInput } from "@/lib/validations/onboarding";
 import { attendanceSearch } from "@/lib/validations/attendance";
 
 export async function GET(
-  request: NextRequest, context: { params: Promise<{ clubId: string }> }
+  request: NextRequest,
+  context: { params: Promise<{ clubId: string }> }
 ): Promise<Response> {
   try {
     const { clubId } = await context.params;
@@ -16,33 +17,42 @@ export async function GET(
     if (!query.success) return jsonPrivate({ error: "Enter at least two characters" }, 400);
     const session = await auth.api.getSession({ headers: request.headers });
     if (!session?.user) return jsonPrivate({ error: "Sign in first" }, 401);
-    if (!session.user.emailVerified) return jsonPrivate({ error: "Verify your account first" }, 403);
+    if (!session.user.emailVerified)
+      return jsonPrivate({ error: "Verify your account first" }, 403);
     await requireClubActive(prisma, session.user.id, clubId, ["OWNER", "MANAGER", "STAFF"]);
     const now = new Date();
     const q = query.data.q;
     const memberNumber = /^\d{1,8}$/.test(q) ? Number(q) : null;
     const members = await prisma.clubMemberRecord.findMany({
       where: {
-        clubId, status: "ACTIVE",
+        clubId,
+        status: "ACTIVE",
         OR: [
           { displayName: { contains: q, mode: "insensitive" } },
           ...(memberNumber !== null ? [{ memberNumber }] : []),
         ],
       },
       select: {
-        id: true, displayName: true, memberNumber: true,
+        id: true,
+        displayName: true,
+        memberNumber: true,
         subscriptions: {
           where: { cancelledAt: null, startAt: { lte: now }, endAt: { gt: now } },
-          select: { id: true }, take: 1,
+          select: { id: true },
+          take: 1,
         },
       },
       orderBy: { displayName: "asc" },
       take: 12,
     });
-    return jsonPrivate({ members: members.map(member => ({
-      id: member.id, name: member.displayName,
-      number: member.memberNumber, active: member.subscriptions.length > 0,
-    })) });
+    return jsonPrivate({
+      members: members.map((member) => ({
+        id: member.id,
+        name: member.displayName,
+        number: member.memberNumber,
+        active: member.subscriptions.length > 0,
+      })),
+    });
   } catch (error) {
     return onboardingFailure(error);
   }

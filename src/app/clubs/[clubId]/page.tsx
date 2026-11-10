@@ -81,8 +81,20 @@ async function ClubContent({ params }: { params: Promise<{ clubId: string }> }) 
           Your private club space. Access is isolated from your Personal account and other clubs.
         </p>
         {canOperate && (
-          <nav aria-label="Club administration" className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <Link href={`/clubs/${clubId}/attendance`} className="flex items-center justify-between rounded-2xl border border-[#f6dc9b]/20 bg-gradient-to-br from-[#382012] to-[#26190f] p-5 font-semibold text-[#f7d8a3] hover:border-[#ffa451]"><span className="flex items-center gap-2"><ScanLine className="size-5"/>Check-in</span><ArrowRight className="size-4"/></Link>
+          <nav
+            aria-label="Club administration"
+            className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
+          >
+            <Link
+              href={`/clubs/${clubId}/attendance`}
+              className="flex items-center justify-between rounded-2xl border border-[#f6dc9b]/20 bg-gradient-to-br from-[#382012] to-[#26190f] p-5 font-semibold text-[#f7d8a3] hover:border-[#ffa451]"
+            >
+              <span className="flex items-center gap-2">
+                <ScanLine className="size-5" />
+                Check-in
+              </span>
+              <ArrowRight className="size-4" />
+            </Link>
             <Link
               href={`/clubs/${clubId}/members`}
               className="flex items-center justify-between rounded-2xl border border-[#f6dc9b]/20 bg-[#26190f] p-5 font-semibold text-[#f7d8a3] hover:border-[#ffa451]"
@@ -137,15 +149,31 @@ async function ClubContent({ params }: { params: Promise<{ clubId: string }> }) 
           <section className="mt-8 rounded-3xl border border-[#f6dc9b]/20 bg-[#17100b] p-8">
             <ScanLine className="size-8 text-[#ffa451]" aria-hidden="true" />
             <h2 className="mt-4 text-2xl font-semibold">Your reception desk is ready</h2>
-            <p className="mt-3 leading-7 text-[#b8a08c]">Scan members into the club, welcome walk-ins, and look up members securely. Plan and owner settings remain protected.</p>
-            <Link href={`/clubs/${clubId}/attendance`} className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#f4bc75] px-5 font-bold text-[#281607]">Open check-in <ArrowRight className="size-4"/></Link>
+            <p className="mt-3 leading-7 text-[#b8a08c]">
+              Scan members into the club, welcome walk-ins, and look up members securely. Plan and
+              owner settings remain protected.
+            </p>
+            <Link
+              href={`/clubs/${clubId}/attendance`}
+              className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#f4bc75] px-5 font-bold text-[#281607]"
+            >
+              Open check-in <ArrowRight className="size-4" />
+            </Link>
           </section>
         ) : (
           <section className="mt-8 rounded-3xl border border-[#f6dc9b]/20 bg-[#17100b] p-8">
             <ShieldCheck className="size-8 text-[#ffa451]" aria-hidden="true" />
             <h2 className="mt-4 text-2xl font-semibold">Welcome to your club</h2>
-            <p className="mt-3 leading-7 text-[#b8a08c]">Your private member pass refreshes automatically and works with the reception QR scanner when your plan is active. Your Personal records stay private.</p>
-            <Link href={`/clubs/${clubId}/my-attendance`} className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-xl bg-gradient-to-r from-[#f3bf73] to-[#ef711c] px-6 font-bold text-[#281607]">Show my check-in pass <ArrowRight className="size-4"/></Link>
+            <p className="mt-3 leading-7 text-[#b8a08c]">
+              Your private member pass refreshes automatically and works with the reception QR
+              scanner when your plan is active. Your Personal records stay private.
+            </p>
+            <Link
+              href={`/clubs/${clubId}/my-attendance`}
+              className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-xl bg-gradient-to-r from-[#f3bf73] to-[#ef711c] px-6 font-bold text-[#281607]"
+            >
+              Show my check-in pass <ArrowRight className="size-4" />
+            </Link>
           </section>
         )}
       </div>

@@ -1,5 +1,12 @@
 import Link from "next/link";
-import { ArrowLeft, CalendarDays, LayoutDashboard, Layers3, ScanLine, UsersRound } from "lucide-react";
+import {
+  ArrowLeft,
+  CalendarDays,
+  LayoutDashboard,
+  Layers3,
+  ScanLine,
+  UsersRound,
+} from "lucide-react";
 
 export function BusinessShell({
   clubId,

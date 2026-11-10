@@ -70,7 +70,12 @@ async function MemberContent({ params }: Props) {
     }),
   ]);
   if (!member) notFound();
-  const recentVisits=await prisma.clubAttendance.findMany({where:{clubId,memberRecordId:member.id},select:{id:true,localDate:true,method:true},orderBy:{checkedInAt:"desc"},take:4});
+  const recentVisits = await prisma.clubAttendance.findMany({
+    where: { clubId, memberRecordId: member.id },
+    select: { id: true, localDate: true, method: true },
+    orderBy: { checkedInAt: "desc" },
+    take: 4,
+  });
   const activeTerm =
     member.subscriptions.find((term) => !term.cancelledAt && term.endAt > new Date()) ?? null;
   const lastTerm = member.subscriptions.find((term) => !term.cancelledAt) ?? null;
@@ -181,8 +186,37 @@ async function MemberContent({ params }: Props) {
         }))}
       />
       <section className="mt-7 rounded-3xl border border-[#f6dc9b]/15 bg-[#1d140e] p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="flex items-center gap-2 text-lg font-semibold"><CalendarDays className="size-5 text-[#f3b86a]"/>Recent check-ins</h2><Link href={`/clubs/${clubId}/attendance/history?memberId=${member.id}`} className="text-xs font-semibold text-[#f5c489] hover:underline">Full attendance history →</Link></div>
-        {recentVisits.length===0?<p className="mt-4 text-sm text-[#b8a08c]">No check-ins recorded yet. Scan the member’s live QR or check them in from reception.</p>:<ul className="mt-5 grid gap-3 sm:grid-cols-2">{recentVisits.map(visit=><li key={visit.id} className="rounded-2xl border border-[#f6dc9b]/10 bg-[#281a10] px-4 py-3"><p className="font-semibold">{visit.localDate}</p><p className="mt-1 text-xs text-[#b6a087]">{visit.method==="QR"?"QR scan":"Manual reception entry"}</p></li>)}</ul>}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="flex items-center gap-2 text-lg font-semibold">
+            <CalendarDays className="size-5 text-[#f3b86a]" />
+            Recent check-ins
+          </h2>
+          <Link
+            href={`/clubs/${clubId}/attendance/history?memberId=${member.id}`}
+            className="text-xs font-semibold text-[#f5c489] hover:underline"
+          >
+            Full attendance history →
+          </Link>
+        </div>
+        {recentVisits.length === 0 ? (
+          <p className="mt-4 text-sm text-[#b8a08c]">
+            No check-ins recorded yet. Scan the member’s live QR or check them in from reception.
+          </p>
+        ) : (
+          <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+            {recentVisits.map((visit) => (
+              <li
+                key={visit.id}
+                className="rounded-2xl border border-[#f6dc9b]/10 bg-[#281a10] px-4 py-3"
+              >
+                <p className="font-semibold">{visit.localDate}</p>
+                <p className="mt-1 text-xs text-[#b6a087]">
+                  {visit.method === "QR" ? "QR scan" : "Manual reception entry"}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
       <section className="mt-7 grid gap-5 xl:grid-cols-2">
         <div className="rounded-3xl border border-[#f6dc9b]/15 bg-[#17100b] p-6">

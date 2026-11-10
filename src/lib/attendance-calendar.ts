@@ -12,14 +12,21 @@ export function isValidClubTimeZone(value: string): boolean {
 export function clubLocalDate(now: Date, timeZone: string): string {
   if (!isValidClubTimeZone(timeZone)) throw new Error("Club time zone is not configured");
   const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone, year: "numeric", month: "2-digit", day: "2-digit", calendar: "gregory",
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    calendar: "gregory",
   }).formatToParts(now);
-  const get = (type: string) => parts.find(part => part.type === type)?.value ?? "";
+  const get = (type: string) => parts.find((part) => part.type === type)?.value ?? "";
   return [get("year"), get("month"), get("day")].join("-");
 }
 
 export function clockForClub(now: Date, timeZone: string): string {
   return new Intl.DateTimeFormat("en", {
-    timeZone, hour: "2-digit", minute: "2-digit", hour12: true,
+    timeZone,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
   }).format(now);
 }

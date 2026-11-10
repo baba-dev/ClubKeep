@@ -1,12 +1,18 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { recordAttendance } from "@/lib/attendance-service";
-import { guardOnboardingPost, jsonPrivate, onboardingFailure, readOnboardingBody } from "@/lib/onboarding-http";
+import {
+  guardOnboardingPost,
+  jsonPrivate,
+  onboardingFailure,
+  readOnboardingBody,
+} from "@/lib/onboarding-http";
 import { checkInInput } from "@/lib/validations/attendance";
 import { idInput } from "@/lib/validations/onboarding";
 
 export async function POST(
-  request: NextRequest, context: { params: Promise<{ clubId: string }> }
+  request: NextRequest,
+  context: { params: Promise<{ clubId: string }> }
 ): Promise<Response> {
   try {
     const { clubId } = await context.params;

@@ -24,7 +24,9 @@ Last updated: 10 Nov 2026 (final medical Free and no-clinician clarifications). 
 
 ## B1 implementation status
 
-- [ ] **B1 Members & Membership Plans, PR pending:** additive roster and plan schema, club-specific walk-in registration and optional unverified contact, plan CRUD, idempotent term assignment/renewal, central active member limits, mobile-first Luxe UI, native PostgreSQL tests. Full production release requires green CI, verified staging provider and restore gates. See [B1 runbook](B1_MEMBERS_PLANS_RUNBOOK.md).
+- [x] **B1 Members & Membership Plans, merged PR #16:** additive roster and plan schema, club-specific walk-in registration and optional unverified contact, plan CRUD, idempotent term assignment/renewal, central active member limits, mobile-first Luxe UI, native PostgreSQL tests. Full production release requires green CI, verified staging provider and restore gates. See [B1 runbook](B1_MEMBERS_PLANS_RUNBOOK.md).
+
+- [ ] **B2 Attendance & Check-in, PR in review:** signed short-lived member QR, manual staff check-in, indexed local-day attendance ledger, member pass, history/CSV and Luxe reception UI. [B2 runbook](B2_ATTENDANCE_RUNBOOK.md). Live staging acceptance and policy limits remain.
 
 ## Month-1 build order
 
@@ -32,7 +34,7 @@ Cut from the bottom of this list first if time runs short (order of cuts: ID car
 
 1. [ ] **Foundations:** app shell, Luxe design tokens, mobile navigation and **real Google/passkey/magic-link authentication without SMS**, with owner-issued single-use seven-day invite/QR claims.
 2. [ ] **Clubs and roles:** `Club`, `ClubMember`, role guards, create-a-club flow with vertical template and branding.
-3. [ ] **Members and plans:** `Plan`, `Membership`, invite members via secure single-use links or QR (`Invite`), optional unverified phone contacts, member list and renewal status.
+3. [x] **Members and plans:** `Plan`, `Membership`, invite members via secure single-use links or QR (`Invite`), optional unverified phone contacts, member list and renewal status.
 4. [ ] **Check-in:** QR (signed rotating token), manual by staff, attendance history.
 5. [ ] **Payment records:** record cash, UPI or card payments, dues, receipts.
 6. [ ] **Member app:** profile, bio stats history, payment history, my clubs.

@@ -1,6 +1,7 @@
 import type { PrismaClient } from "@/generated/prisma/client";
 import { requireClubRole, AccessDeniedError } from "@/lib/club-access";
 import { OnboardingError } from "@/lib/club-onboarding";
+import { assertMemberSeatAvailable } from "@/lib/business-entitlements";
 
 type MemberInput = { displayName: string; phoneE164?: string };
 
@@ -30,6 +31,7 @@ export async function registerMember(
       data: { memberSequence: { increment: 1 } },
       select: { memberSequence: true },
     });
+    await assertMemberSeatAvailable(tx, clubId);
     const member = await tx.clubMemberRecord.create({
       data: {
         clubId,

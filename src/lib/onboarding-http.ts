@@ -3,6 +3,7 @@ import { auth, authLimiter } from "@/lib/auth";
 import { resolveAuthConfig } from "@/lib/auth-config";
 import { AccessDeniedError } from "@/lib/club-access";
 import { OnboardingError } from "@/lib/club-onboarding";
+import { MemberLimitError } from "@/lib/business-entitlements";
 
 export const PRIVATE_HEADERS = {
   "Cache-Control": "private, no-store",
@@ -15,6 +16,9 @@ export function jsonPrivate(value: unknown, status = 200): NextResponse {
 }
 export function onboardingFailure(error: unknown): NextResponse {
   if (error instanceof OnboardingError) {
+    return jsonPrivate({ error: error.message }, error.status);
+  }
+  if (error instanceof MemberLimitError) {
     return jsonPrivate({ error: error.message }, error.status);
   }
   if (error instanceof AccessDeniedError) {

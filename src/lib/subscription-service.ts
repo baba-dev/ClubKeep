@@ -13,11 +13,11 @@ export async function assignMembership(
     await requireClubActive(tx, actorId, clubId, ["OWNER", "MANAGER", "STAFF"]);
     // Serialize *all* subscription writes on the roster record. A Prisma
     // findFirst alone does not guard overlapping concurrent terms.
-    const locked = await tx.$queryRaw<{id:string}[]>\`
+    const locked = await tx.$queryRaw<{id:string}[]>`
       SELECT "id" FROM "ClubMemberRecord"
-      WHERE "id" = \${memberId} AND "clubId" = \${clubId} AND "status" = 'ACTIVE'
+      WHERE "id" = ${memberId} AND "clubId" = ${clubId} AND "status" = 'ACTIVE'
       FOR UPDATE
-    \`;
+    `;
     if (locked.length !== 1) throw new OnboardingError(404, "Member not available");
 
     const repeat = await tx.memberSubscription.findUnique({ where: { operationKey: input.operationKey } });
@@ -67,9 +67,9 @@ export async function cancelMembershipTerm(
 ) {
   return db.$transaction(async tx => {
     await requireClubActive(tx, actorId, clubId, ["OWNER", "MANAGER"]);
-    const locked = await tx.$queryRaw<{id:string}[]>\`
-      SELECT "id" FROM "ClubMemberRecord" WHERE "id" = \${memberId} AND "clubId" = \${clubId} FOR UPDATE
-    \`;
+    const locked = await tx.$queryRaw<{id:string}[]>`
+      SELECT "id" FROM "ClubMemberRecord" WHERE "id" = ${memberId} AND "clubId" = ${clubId} FOR UPDATE
+    `;
     if (locked.length !== 1) throw new OnboardingError(404, "Member not found");
     const changed = await tx.memberSubscription.updateMany({
       where: { id: subscriptionId, clubId, memberRecordId: memberId, cancelledAt: null },

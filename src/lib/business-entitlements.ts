@@ -10,8 +10,12 @@ export const MEMBER_LIMITS: Record<BusinessTier, number | null> = {
 
 export class MemberLimitError extends Error {
   readonly status = 409;
-  constructor(public readonly limit: number) {
-    super("Your club has reached its active member limit. Archive an eligible inactive member or upgrade the plan.");
+  readonly limit: number;
+  constructor(limit: number) {
+    super(
+      "Your club has reached its active member limit. Archive an eligible inactive member or upgrade the plan."
+    );
+    this.limit = limit;
     this.name = "MemberLimitError";
   }
 }
@@ -31,7 +35,7 @@ export async function assertMemberSeatAvailable(tx: Client, clubId: string) {
   if (!club || club.status !== "ACTIVE") throw new MemberLimitError(0);
   const limit = MEMBER_LIMITS[club.businessTier];
   if (limit === null) return;
-  const counts = await tx.$queryRaw<{used:number}[]>`
+  const counts = await tx.$queryRaw<{ used: number }[]>`
     SELECT (
       (SELECT COUNT(*) FROM "ClubMemberRecord" WHERE "clubId" = ${clubId} AND "status" = 'ACTIVE') +
       (SELECT COUNT(*) FROM "ClubMembership" AS m

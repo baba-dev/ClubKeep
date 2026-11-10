@@ -1,6 +1,9 @@
 export function currencyDigits(currency: string): number {
   try {
-    return new Intl.NumberFormat("en", { style: "currency", currency }).resolvedOptions().maximumFractionDigits;
+    return (
+      new Intl.NumberFormat("en", { style: "currency", currency }).resolvedOptions()
+        .maximumFractionDigits ?? 2
+    );
   } catch {
     throw new Error("Unsupported currency");
   }
@@ -9,7 +12,9 @@ export function currencyDigits(currency: string): number {
 export function formatMinorMoney(priceMinor: number, currency: string): string {
   const digits = currencyDigits(currency);
   return new Intl.NumberFormat("en", {
-    style: "currency", currency, maximumFractionDigits: digits,
+    style: "currency",
+    currency,
+    maximumFractionDigits: digits,
   }).format(priceMinor / 10 ** digits);
 }
 

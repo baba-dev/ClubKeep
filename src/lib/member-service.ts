@@ -12,7 +12,10 @@ export async function requireClubActive(
   roles: ("OWNER" | "MANAGER" | "STAFF" | "MEMBER")[]
 ) {
   const context = await requireClubRole(tx, actorId, clubId, roles);
-  const club = await tx.club.findFirst({ where: { id: clubId, status: "ACTIVE" }, select: { id: true, businessTier: true } });
+  const club = await tx.club.findFirst({
+    where: { id: clubId, status: "ACTIVE" },
+    select: { id: true, businessTier: true },
+  });
   if (!club) throw new AccessDeniedError();
   return { ...context, businessTier: club.businessTier };
 }
@@ -23,7 +26,7 @@ export async function registerMember(
   clubId: string,
   input: MemberInput
 ) {
-  return db.$transaction(async tx => {
+  return db.$transaction(async (tx) => {
     await requireClubActive(tx, actorId, clubId, ["OWNER", "MANAGER", "STAFF"]);
     // An atomic tenant-local sequence prevents duplicate member numbers.
     const club = await tx.club.update({
@@ -59,7 +62,7 @@ export async function updateMember(
   memberId: string,
   input: MemberInput
 ) {
-  return db.$transaction(async tx => {
+  return db.$transaction(async (tx) => {
     await requireClubActive(tx, actorId, clubId, ["OWNER", "MANAGER", "STAFF"]);
     const result = await tx.clubMemberRecord.updateMany({
       where: { id: memberId, clubId, status: "ACTIVE" },
@@ -90,7 +93,7 @@ export async function linkMemberAccount(
   memberId: string,
   membershipId: string
 ) {
-  return db.$transaction(async tx => {
+  return db.$transaction(async (tx) => {
     // Explicit owner/manager confirmation. Never match by unverified phone/email.
     await requireClubActive(tx, actorId, clubId, ["OWNER", "MANAGER"]);
     const membership = await tx.clubMembership.findFirst({
@@ -102,25 +105,47 @@ export async function linkMemberAccount(
       where: { id: memberId, clubId, membershipId: null, status: "ACTIVE" },
       data: { membershipId },
     });
-    if (changed.count !== 1) throw new OnboardingError(409, "Member is already linked or unavailable");
+    if (changed.count !== 1)
+      throw new OnboardingError(409, "Member is already linked or unavailable");
     await tx.memberEvent.create({
-      data: { clubId, memberRecordId: memberId, actorUserId: actorId, eventType: "LINKED", referenceId: membershipId },
+      data: {
+        clubId,
+        memberRecordId: memberId,
+        actorUserId: actorId,
+        eventType: "LINKED",
+        referenceId: membershipId,
+      },
     });
     return { name: membership.user.name };
   });
 }
 
-export async function archiveMember(db: PrismaClient, actorId: string, clubId: string, memberId: string) {
-  return db.$transaction(async tx => {
+export async function archiveMember(
+  db: PrismaClient,
+  actorId: string,
+  clubId: string,
+  memberId: string
+) {
+  return db.$transaction(async (tx) => {
     await requireClubActive(tx, actorId, clubId, ["OWNER", "MANAGER"]);
+    // Share the same member row lock as renewal/cancellation to rule out
+    // archiving a record between the active-term check and an assignment.
+    const locked = await tx.$queryRaw<{ id: string }[]>`
+      SELECT "id" FROM "ClubMemberRecord"
+      WHERE "id" = ${memberId} AND "clubId" = ${clubId} AND "status" = 'ACTIVE'
+      FOR UPDATE
+    `;
+    if (locked.length !== 1) throw new OnboardingError(404, "Member not found");
     const now = new Date();
     const activeTerm = await tx.memberSubscription.findFirst({
       where: { clubId, memberRecordId: memberId, cancelledAt: null, endAt: { gt: now } },
       select: { id: true },
     });
-    if (activeTerm) throw new OnboardingError(409, "Cancel future membership terms before archiving");
+    if (activeTerm)
+      throw new OnboardingError(409, "Cancel future membership terms before archiving");
     const changed = await tx.clubMemberRecord.updateMany({
-      where: { id: memberId, clubId, status: "ACTIVE" }, data: { status: "ARCHIVED" },
+      where: { id: memberId, clubId, status: "ACTIVE" },
+      data: { status: "ARCHIVED" },
     });
     if (changed.count !== 1) throw new OnboardingError(404, "Member not found");
     await tx.memberEvent.create({

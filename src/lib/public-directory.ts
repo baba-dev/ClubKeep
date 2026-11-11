@@ -199,7 +199,12 @@ export async function moderateProfileVisibility(
     const approved = validatedPublic(profile.published);
     if (!approved) throw new OnboardingError(409, "Approved content is unavailable");
     const status = action === "suspend" ? "SUSPENDED" : approved.listed ? "LISTED" : "UNLISTED";
-    await tx.clubPublicProfile.update({ where: { clubId }, data: { status } });
+    const changed = await tx.clubPublicProfile.updateMany({
+      where: { clubId, status: profile.status },
+      data: { status },
+    });
+    if (changed.count !== 1)
+      throw new OnboardingError(409, "Profile changed during moderation");
     await tx.securityEvent.create({
       data: {
         clubId,

@@ -50,7 +50,14 @@ async function ClubSettingsContent({ params }: { params: Promise<{ clubId: strin
       description="Review your club identity and take control of what appears publicly."
     >
       <div className="mt-8 grid gap-4 md:grid-cols-2">
-        <ClubSettingsEditor clubId={clubId} initial={{vertical:club.vertical,countryCode:club.setupProgress?.countryCode??"",city:club.setupProgress?.city??""}}/>
+        <ClubSettingsEditor
+          clubId={clubId}
+          initial={{
+            vertical: club.vertical,
+            countryCode: club.setupProgress?.countryCode ?? "",
+            city: club.setupProgress?.city ?? "",
+          }}
+        />
         <section className="rounded-3xl border border-[#f6dc9b]/20 bg-[#1c130d] p-7">
           <h2 className="text-xl font-semibold">Public presence</h2>
           <p className="mt-3 text-sm leading-7 text-[#bca28b]">

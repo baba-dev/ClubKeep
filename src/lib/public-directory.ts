@@ -203,8 +203,7 @@ export async function moderateProfileVisibility(
       where: { clubId, status: profile.status },
       data: { status },
     });
-    if (changed.count !== 1)
-      throw new OnboardingError(409, "Profile changed during moderation");
+    if (changed.count !== 1) throw new OnboardingError(409, "Profile changed during moderation");
     await tx.securityEvent.create({
       data: {
         clubId,

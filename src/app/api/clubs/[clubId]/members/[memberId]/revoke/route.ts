@@ -11,10 +11,11 @@ import { idInput } from "@/lib/validations/onboarding";
 
 export async function POST(
   request: NextRequest,
-  context: { params: Promise<{ clubId: string; membershipId: string }> }
+  context: { params: Promise<{ clubId: string; memberId: string }> }
 ): Promise<Response> {
   try {
-    const { clubId, membershipId } = await context.params;
+    // The URL slot is shared with business member records. Revocation uses a club membership ID.
+    const { clubId, memberId: membershipId } = await context.params;
     if (!idInput.safeParse(clubId).success || !idInput.safeParse(membershipId).success)
       return jsonPrivate({ error: "Not found" }, 404);
     const guard = await guardOnboardingPost(request, "revoke-member", 20, true);

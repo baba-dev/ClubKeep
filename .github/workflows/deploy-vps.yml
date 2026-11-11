@@ -105,7 +105,9 @@ jobs:
           npm run typecheck
           npm run test
           npm run security:audit
+          node infra/deploy/check-route-segments.mjs
           npm run build
+          bash infra/deploy/smoke-standalone.sh
           bash infra/deploy/package-release.sh "$TARGET_SHA"
 
       - name: Confirm revision remains current before deploy

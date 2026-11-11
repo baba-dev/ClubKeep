@@ -23,6 +23,7 @@ model User {
   phoneNumber         String?
   phoneNumberVerified Boolean?  @default(false)
   role                String?   @default("user")
+
   // New global capability: only a live database lookup may authorize platform operations.
   // Never treat legacy role or ClubMembership.role as a platform permission.
   platformRole        PlatformRole @default(USER)
@@ -36,6 +37,7 @@ model User {
   claimedInvites      ClubInvite[] @relation("InviteClaimant")
   securityEvents      SecurityEvent[] @relation("SecurityEventActor")
   memberEvents        MemberEvent[]
+  recordedAttendance  ClubAttendance[] @relation("AttendanceRecorder")
 
   @@map("user")
 }
@@ -157,6 +159,7 @@ enum SecurityEventType {
   INVITE_CLAIMED
   MEMBERSHIP_CHANGED
   SECURITY_REVIEW
+  CLUB_TIMEZONE_CHANGED
 }
 
 model Club {
@@ -169,6 +172,8 @@ model Club {
   // Provisional tenant entitlements; no public tier-switching or checkout in B1.
   businessTier BusinessTier @default(FREE)
   memberSequence Int @default(0)
+  // IANA zone for the club's calendar-day attendance boundary; UTC is safe until configured.
+  timeZone String @default("UTC")
 
   memberships ClubMembership[]
   invites     ClubInvite[]
@@ -178,6 +183,7 @@ model Club {
   plans         ClubPlan[]
   subscriptions MemberSubscription[]
   memberEvents  MemberEvent[]
+  attendanceEvents ClubAttendance[]
 }
 
 model ClubMembership {
@@ -307,6 +313,7 @@ model ClubMemberRecord {
   contacts     ClubContact[]
   subscriptions MemberSubscription[]
   events       MemberEvent[]
+  attendanceEvents ClubAttendance[]
 
   @@unique([clubId, id])
   @@unique([clubId, memberNumber])
@@ -371,4 +378,33 @@ model MemberEvent {
   actor          User @relation(fields: [actorUserId], references: [id], onDelete: Restrict)
 
   @@index([clubId, memberRecordId, createdAt])
+}
+
+enum CheckInMethod {
+  QR
+  MANUAL
+}
+
+/**
+ * Immutable entry register; exactly one entry per club member and club-local day.
+ * A rejected scan never creates a row. Identifiable medical/Personal data is not joined.
+ */
+model ClubAttendance {
+  id                String @id @default(cuid())
+  clubId            String
+  memberRecordId    String
+  localDate         String @db.VarChar(10)
+  checkedInAt       DateTime @default(now())
+  method            CheckInMethod
+  checkedInByUserId String
+  overrideReason    String? @db.VarChar(240)
+  createdAt         DateTime @default(now())
+
+  club         Club @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  memberRecord ClubMemberRecord @relation(fields: [clubId, memberRecordId], references: [clubId, id], onDelete: Restrict)
+  checkedInBy  User @relation("AttendanceRecorder", fields: [checkedInByUserId], references: [id], onDelete: Restrict)
+
+  @@unique([clubId, memberRecordId, localDate])
+  @@index([clubId, localDate, checkedInAt(sort: Desc)])
+  @@index([clubId, memberRecordId, checkedInAt(sort: Desc)])
 }

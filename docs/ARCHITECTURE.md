@@ -125,3 +125,7 @@ Club creation writes a Club + active OWNER ClubMembership + SecurityEvent in one
 ## B1 — member records, plans and renewable terms
 
 The B1 additive migration introduces `ClubMemberRecord`, `ClubPlan`, `MemberSubscription` and `MemberEvent`. Every club-owned row has `clubId`, including composite foreign keys to prohibit cross-club associations. A walk-in roster record has **no global User** until a verified authenticated ClubMembership is explicitly linked by an authorized club manager. Optional ClubContact numbers are unverified and nonunique. Subscription terms snapshot the assigned plan amount in integer minor units and preserve history. Staff mutations require verified ClubKeep sessions and club-specific authorization; renewal locks the roster row for transaction isolation. See [B1 runbook](B1_MEMBERS_PLANS_RUNBOOK.md).
+
+## B2 — club attendance and signed check-in
+
+The `ClubAttendance` ledger is scoped to a club with composite roster foreign keys, a unique `(clubId,memberRecordId,localDate)` daily admission rule, an actor, source and optional documented manager exception. A club-configured IANA timezone sets the immutable civil-day snapshot; B1 subscription validity remains UTC based. Short-lived HMAC-SHA256 QR codes are issued to verified linked MEMBER accounts and redeemed by verified staff, while unlinked walk-ins use authenticated manual reception. Neither path reads Personal data. Details, migrations and operational gates are in [B2 runbook](B2_ATTENDANCE_RUNBOOK.md).

@@ -62,6 +62,7 @@ CREATE TABLE "ClubPaymentReversal" (
   CONSTRAINT "ClubPaymentReversal_reversedByUserId_fkey" FOREIGN KEY ("reversedByUserId") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 CREATE UNIQUE INDEX "ClubPaymentReversal_paymentId_key" ON "ClubPaymentReversal"("paymentId");
+CREATE UNIQUE INDEX "ClubPaymentReversal_clubId_paymentId_key" ON "ClubPaymentReversal"("clubId","paymentId");
 CREATE INDEX "ClubPaymentReversal_clubId_createdAt_idx" ON "ClubPaymentReversal"("clubId","createdAt" DESC);
 
 -- A reversal is the only correction path; financial entries cannot be edited or deleted.

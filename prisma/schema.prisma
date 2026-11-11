@@ -557,5 +557,6 @@ model ClubPaymentReversal {
   payment ClubPayment @relation(fields: [clubId, paymentId], references: [clubId, id], onDelete: Restrict)
   actor User @relation("ClubPaymentReversalActor", fields: [reversedByUserId], references: [id], onDelete: Restrict)
 
+  @@unique([clubId, paymentId])
   @@index([clubId, createdAt(sort: Desc)])
 }

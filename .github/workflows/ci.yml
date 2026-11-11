@@ -55,6 +55,9 @@ jobs:
           npx prettier --write src tests prisma.config.ts next.config.ts
           git diff --exit-code -- src tests prisma.config.ts next.config.ts
 
+      - name: Reject conflicting Next.js route parameter names
+        run: node infra/deploy/check-route-segments.mjs
+
       - name: Validate and generate Prisma client (no migration in Phase 0A)
         run: |
           npm run db:validate
@@ -88,6 +91,9 @@ jobs:
 
       - name: Build Next.js
         run: npm run build
+
+      - name: Smoke test actual x64 standalone runtime
+        run: bash infra/deploy/smoke-standalone.sh
 
       - name: Audit production dependency critical vulnerabilities
         run: npm run security:audit
@@ -124,8 +130,14 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Reject conflicting route segment names on ARM64
+        run: node infra/deploy/check-route-segments.mjs
+
       - name: Build standalone output on ARM64
         run: npm run build
+
+      - name: Smoke test actual ARM64 standalone runtime
+        run: bash infra/deploy/smoke-standalone.sh
 
   migrations:
     name: PostgreSQL 17 baseline and identity migrations (native)

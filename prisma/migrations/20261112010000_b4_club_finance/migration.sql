@@ -1,4 +1,6 @@
 -- B4 ledger: additive, no changes to membership terms or existing prices.
+ALTER TYPE "SecurityEventType" ADD VALUE IF NOT EXISTS 'PAYMENT_RECORDED';
+ALTER TYPE "SecurityEventType" ADD VALUE IF NOT EXISTS 'PAYMENT_REVERSED';
 CREATE TYPE "ClubPaymentMethod" AS ENUM ('CASH','UPI','CARD','OTHER');
 
 ALTER TABLE "Club" ADD COLUMN "receiptSequence" INTEGER NOT NULL DEFAULT 0;

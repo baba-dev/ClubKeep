@@ -14,5 +14,5 @@ export default function SetupHome({ params }: { params: Promise<{ clubId: string
 
 async function SetupHomeContent({ params }: { params: Promise<{ clubId: string }> }) {
   const { clubId } = await params;
-  redirect("/clubs/" + encodeURIComponent(clubId) + "/setup/type");
+  return redirect("/clubs/" + encodeURIComponent(clubId) + "/setup/type");
 }

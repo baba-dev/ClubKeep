@@ -130,8 +130,13 @@ export async function reviewProfile(
     if (revision.club.status !== "ACTIVE" || revision.club.setupStatus === "IN_PROGRESS")
       throw new OnboardingError(409, "Club unavailable");
     // Lock the public profile before approving a revision: suspension or hiding wins.
-    const lockedProfile=await tx.clubPublicProfile.update({where:{clubId:revision.clubId},data:{updatedAt:new Date()},select:{status:true}});
-    if(lockedProfile.status==="SUSPENDED"||lockedProfile.status==="HIDDEN")throw new OnboardingError(409,"Profile is hidden or suspended; review cannot publish it");
+    const lockedProfile = await tx.clubPublicProfile.update({
+      where: { clubId: revision.clubId },
+      data: { updatedAt: new Date() },
+      select: { status: true },
+    });
+    if (lockedProfile.status === "SUSPENDED" || lockedProfile.status === "HIDDEN")
+      throw new OnboardingError(409, "Profile is hidden or suspended; review cannot publish it");
     const changed = await tx.clubPublicRevision.updateMany({
       where: { id: revisionId, status: "PENDING" },
       data: {

@@ -15,7 +15,10 @@ test("sibling dynamic route segments with different names are rejected", () => {
     const base = join(root, "api", "clubs", "[clubId]", "members");
     mkdirSync(join(base, "[memberId]", "archive"), { recursive: true });
     mkdirSync(join(base, "[membershipId]", "revoke"), { recursive: true });
-    assert.throws(() => assertConsistentRouteParams(root), /Conflicting dynamic Next.js URL segments/);
+    assert.throws(
+      () => assertConsistentRouteParams(root),
+      /Conflicting dynamic Next.js URL segments/
+    );
     rmSync(join(base, "[membershipId]"), { recursive: true });
     mkdirSync(join(base, "[memberId]", "revoke"), { recursive: true });
     assert.doesNotThrow(() => assertConsistentRouteParams(root));

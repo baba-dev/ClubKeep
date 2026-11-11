@@ -45,6 +45,14 @@ export async function recordClubPayment(
         throw new OnboardingError(409, "Idempotency key is already used for a different payment");
       return { id: repeat.id, receiptNo: repeat.receiptNo, repeated: true };
     }
+    // B1 renew/cancel/archive take the roster row lock. Share it to prevent
+    // recording a payment while a term is concurrently cancelled or archived.
+    const locked=await tx.$queryRaw<{id:string}[]>`
+      SELECT "id" FROM "ClubMemberRecord"
+      WHERE "id"=${input.memberId} AND "clubId"=${clubId} AND "status"='ACTIVE'
+      FOR UPDATE
+    `;
+    if(locked.length!==1)throw new OnboardingError(404,"Active club member not found");
     const term = await tx.memberSubscription.findFirst({
       where: {
         id: input.subscriptionId,

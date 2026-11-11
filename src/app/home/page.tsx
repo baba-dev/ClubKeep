@@ -111,7 +111,18 @@ async function ClubKeepHomeContent() {
             )}
           </section>
         </div>
-        <div className="mt-8 rounded-2xl border border-[#f6dc9b]/15 bg-[#251910] p-6"><h2 className="text-xl font-semibold">Discover nearby communities</h2><p className="mt-2 text-sm text-[#c3a58b]">Explore owner-approved public gyms, yoga studios, dance schools and sports academies.</p><Link href="/discover/clubs" className="mt-4 inline-flex min-h-11 items-center rounded-xl border border-[#e3b877]/30 px-5 py-2 text-sm text-[#f1c18c]">Explore clubs →</Link></div>
+        <div className="mt-8 rounded-2xl border border-[#f6dc9b]/15 bg-[#251910] p-6">
+          <h2 className="text-xl font-semibold">Discover nearby communities</h2>
+          <p className="mt-2 text-sm text-[#c3a58b]">
+            Explore owner-approved public gyms, yoga studios, dance schools and sports academies.
+          </p>
+          <Link
+            href="/discover/clubs"
+            className="mt-4 inline-flex min-h-11 items-center rounded-xl border border-[#e3b877]/30 px-5 py-2 text-sm text-[#f1c18c]"
+          >
+            Explore clubs →
+          </Link>
+        </div>
         <Link
           href="/account/security"
           className="mt-8 inline-flex items-center gap-2 text-[#ffa451] underline underline-offset-4"

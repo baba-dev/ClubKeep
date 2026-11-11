@@ -204,6 +204,8 @@ jobs:
         run: node --test tests/integration/business-schema.test.mjs
       - name: Validate B2 attendance constraints and tenant isolation on PostgreSQL 17
         run: node --test tests/integration/attendance-schema.test.mjs
+      - name: Validate B3 schema constraints and public revision safety on PostgreSQL 17
+        run: node --test tests/integration/b3-schema.test.mjs
       - name: One-time platform administrator provisioning on isolated PostgreSQL 17
         run: node --test tests/integration/platform-bootstrap.test.mjs
       - name: Legacy unversioned Better Auth baseline and populated upgrade

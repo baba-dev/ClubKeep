@@ -1,6 +1,7 @@
 import type { PrismaClient, PlanDurationUnit } from "@/generated/prisma/client";
 import { OnboardingError } from "@/lib/club-onboarding";
 import { requireClubActive } from "@/lib/member-service";
+import { requireSetupPlanPermission } from "@/lib/club-setup";
 
 export type PlanInput = {
   name: string;
@@ -15,10 +16,12 @@ export async function createPlan(
   db: PrismaClient,
   actorId: string,
   clubId: string,
-  input: PlanInput
+  input: PlanInput,
+  forSetup = false
 ) {
   return db.$transaction(async (tx) => {
-    await requireClubActive(tx, actorId, clubId, ["OWNER", "MANAGER"]);
+    if (forSetup) await requireSetupPlanPermission(tx, actorId, clubId, input.currency);
+    else await requireClubActive(tx, actorId, clubId, ["OWNER", "MANAGER"]);
     const plan = await tx.clubPlan.create({
       data: { clubId, ...input },
       select: { id: true, name: true },

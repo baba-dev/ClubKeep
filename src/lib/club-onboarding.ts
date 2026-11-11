@@ -42,8 +42,12 @@ async function requireLiveClub(
   roles: ("OWNER" | "MANAGER" | "STAFF")[]
 ) {
   await requireClubRole(tx, userId, clubId, roles);
-  const club = await tx.club.findUnique({ where: { id: clubId }, select: { status: true } });
-  if (club?.status !== "ACTIVE") throw new AccessDeniedError();
+  const club = await tx.club.findUnique({
+    where: { id: clubId },
+    select: { status: true, setupStatus: true },
+  });
+  if (club?.status !== "ACTIVE" || club.setupStatus === "IN_PROGRESS")
+    throw new AccessDeniedError();
 }
 
 export async function createClub(db: PrismaClient, actorId: string, name: string) {

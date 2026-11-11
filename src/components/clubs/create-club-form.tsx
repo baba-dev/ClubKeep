@@ -27,7 +27,7 @@ export function CreateClubForm() {
         setMessage(payload.error || "Could not create club");
         return;
       }
-      router.replace(`/clubs/${encodeURIComponent(payload.club.id)}`);
+      router.replace(`/clubs/${encodeURIComponent(payload.club.id)}/setup/type`);
       router.refresh();
     } catch {
       setMessage("Couldn't create your club. Please try again.");

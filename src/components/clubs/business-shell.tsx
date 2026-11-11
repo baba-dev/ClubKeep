@@ -11,13 +11,14 @@ import {
   Building2,
   Menu,
   Fingerprint,
+  WalletCards,
 } from "lucide-react";
 import { requireSession } from "@/lib/required-session";
 import { prisma } from "@/lib/prisma";
 import { requireActiveClubMembership } from "@/lib/club-access";
 import { ClubThemeToggle } from "@/components/clubs/theme-toggle";
 
-type Active = "members" | "plans" | "renewals" | "overview" | "attendance";
+type Active = "members" | "plans" | "renewals" | "overview" | "attendance" | "finance";
 export async function BusinessShell({
   clubId,
   clubName,
@@ -44,6 +45,7 @@ export async function BusinessShell({
     { key: "members", label: "Members", href: "/members", icon: UsersRound },
     { key: "plans", label: "Membership Plans", href: "/plans", icon: Layers3 },
     { key: "renewals", label: "Renewals", href: "/renewals", icon: CalendarClock },
+    ...(context.role==="OWNER"||context.role==="MANAGER" ? [{key:"finance",label:"Finance & dues",href:"/finance",icon:WalletCards}] : []),
     ...(isOwner
       ? [
           {
@@ -153,7 +155,7 @@ export async function BusinessShell({
         className="fixed inset-x-3 bottom-3 z-40 flex items-stretch justify-around rounded-2xl border border-[#d9ac73]/25 bg-[#18110b]/95 px-1 py-2 shadow-2xl backdrop-blur-xl lg:hidden"
       >
         {nav
-          .filter((x) => ["overview", "attendance", "members", "renewals"].includes(x.key))
+          .filter((x) => ["overview", "attendance", "members", "finance"].includes(x.key)|| (context.role==="STAFF"&&x.key==="renewals"))
           .map(({ key, label, href, icon: Icon }) => (
             <Link
               key={key}
@@ -169,7 +171,7 @@ export async function BusinessShell({
             </Link>
           ))}
         <Link
-          href={isOwner ? base + "/settings" : base + "/plans"}
+          href={isOwner ? base + "/settings" : base + "/renewals"}
           className="flex flex-1 flex-col items-center gap-1 px-1 py-2 text-[10px] text-[#b7a08c]"
         >
           <Settings2 className="size-5" />

@@ -144,3 +144,15 @@ export async function clubDuesPage(db:PrismaClient,clubId:string,cursor?:string)
   `;
   return rows.map(r=>({...r,paidMinor:asSafeNumber(r.paidMinor),dueMinor:asSafeNumber(r.dueMinor)}));
 }
+
+export async function financeMonthlyTrend(db:PrismaClient,clubId:string,timeZone:string){
+  const cutoff=new Date(Date.now()-215*86400000);
+  const rows=await db.$queryRaw<Array<{month:string;currency:string;amount:bigint}>>`
+    SELECT to_char(p."receivedAt" AT TIME ZONE ${timeZone},'YYYY-MM') AS month,
+      p."currency",SUM(p."amountMinor")::bigint AS amount
+    FROM "ClubPayment" p LEFT JOIN "ClubPaymentReversal" r ON r."paymentId"=p."id"
+    WHERE p."clubId"=${clubId} AND p."receivedAt">=${cutoff} AND r."id" IS NULL
+    GROUP BY month,p."currency" ORDER BY month ASC,p."currency" ASC
+  `;
+  return rows.map(row=>({month:row.month,currency:row.currency,amount:asSafeNumber(row.amount)}));
+}

@@ -152,8 +152,7 @@ export function SetupWizard({
       if (initialStep === "membership" && plans.length === 0) {
         if (!name.trim()) throw new Error("Give your first plan a name");
         const minor = parseMinorMoney(price, currency || current?.currencyCode || "");
-        if (minor === null)
-          throw new Error("Enter a valid nonnegative price");
+        if (minor === null) throw new Error("Enter a valid nonnegative price");
         const result = await post("/api" + base + "/setup/plan", {
           name: name.trim(),
           description: "",

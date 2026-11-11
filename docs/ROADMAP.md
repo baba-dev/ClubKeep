@@ -1,6 +1,6 @@
 # ClubKeep roadmap
 
-Last updated: 10 Nov 2026 (final medical Free and no-clinician clarifications). This remains the **Business gym-first** roadmap. ClubKeep Personal has a separate staged plan in [DELIVERY_PLAN.md](DELIVERY_PLAN.md). Round 1–2 decisions are locked in [BUSINESS_SPEC.md](BUSINESS_SPEC.md), with pricing and unresolved caps in [ENTITLEMENTS.md](ENTITLEMENTS.md). Agents pick work from the top unchecked item; do not infer unapproved limits or claim planned health features shipped.
+Last updated: 12 Nov 2026 (B4 external fee ledger implementation). **All club verticals are available at launch**, as approved in B3. Existing advanced vertical-specific engines remain separately staged. ClubKeep Personal has a separate staged plan in [DELIVERY_PLAN.md](DELIVERY_PLAN.md). Round 1–2 decisions are locked in [BUSINESS_SPEC.md](BUSINESS_SPEC.md), with pricing and unresolved caps in [ENTITLEMENTS.md](ENTITLEMENTS.md). Agents pick work from the top unchecked item; do not infer unapproved limits or claim planned health features shipped.
 
 ## Phase 0 foundation first
 
@@ -8,7 +8,7 @@ Last updated: 10 Nov 2026 (final medical Free and no-clinician clarifications). 
 - [x] **Phase 0B merged:** PR #9 (commit `d8b6395b`) added shared identity schema, two Prisma migrations and native PG17/x64/ARM64 tests. **Schema code merged, not deployed to production.**
 - [x] **Phase 0C code merged:** [real authentication plan](PHASE_0C_AUTHENTICATION_PLAN.md): Google OAuth with explicit linking, passkeys after verified login, hashed five-minute magic links via self-hosted `mx.bababuilds.com:587` STARTTLS, recovery and abuse controls. No SMS or production provisioning in the code PR.
 
-- [ ] **Phase 0D in PR #15 (draft):** [club onboarding runbook](PHASE_0D_RUNBOOK.md): authenticated club creation, owner role, atomic seven-day invite issue/claim/revoke, local QR, tenant isolation; live provider and policy gates remain.
+- [x] **Phase 0D merged in PR #15:** [club onboarding runbook](PHASE_0D_RUNBOOK.md): authenticated club creation, owner role, atomic seven-day invite issue/claim/revoke, local QR, tenant isolation; live provider and policy gates remain.
 - [ ] [SMS-free production foundation](PHASE_0_FOUNDATION.md): Google OAuth, passkeys, single-use 7-day invites/QR, email-link recovery, optional nonunique unverified phone contacts, shared global identity, Prisma 7 migrations, club-scoped roles, isolated Redis security, native co-host deployment, GitHub CI and restore tests.
 - [ ] **No Phase 0 medical tables**; Free medical vault (insurance information, blood type, user-authored biological instructions) and paid clinical history are later Personal features.
 - [ ] No dedicated clinician accounts. Verified two-way external messaging is deferred pending a separately approved non-account model.
@@ -20,13 +20,18 @@ Last updated: 10 Nov 2026 (final medical Free and no-clinician clarifications). 
 | 1     | Nov 2026            | Discover and design: interviews, scope lock             | 10 gym-owner interviews done                 |
 | 2     | Dec 2026            | One-month solo build of the month-1 scope, 5 partner gyms live | 5 partner gyms using it every week     |
 | 3     | Jan to Mar 2027     | Paid launch, pricing tiers live, WhatsApp AI beta       | 20 paying clubs, churn under 3% a month      |
-| 4     | Apr to Sep 2027     | Scale: yoga, dance and sports templates, city leaderboards | Growth toward 100 clubs                   |
+| 4     | Apr to Sep 2027     | Scale: advanced yoga, dance and sports capabilities, city leaderboards | Growth toward 100 clubs                   |
 
 ## B1 implementation status
 
 - [x] **B1 Members & Membership Plans, merged PR #16:** additive roster and plan schema, club-specific walk-in registration and optional unverified contact, plan CRUD, idempotent term assignment/renewal, central active member limits, mobile-first Luxe UI, native PostgreSQL tests. Full production release requires green CI, verified staging provider and restore gates. See [B1 runbook](B1_MEMBERS_PLANS_RUNBOOK.md).
 
-- [ ] **B2 Attendance & Check-in, PR in review:** signed short-lived member QR, manual staff check-in, indexed local-day attendance ledger, member pass, history/CSV and Luxe reception UI. [B2 runbook](B2_ATTENDANCE_RUNBOOK.md). Live staging acceptance and policy limits remain.
+- [x] **B2 Attendance & Check-in, merged PR #17:** signed short-lived member QR, manual staff check-in, indexed local-day attendance ledger, member pass, history/CSV and Luxe reception UI. [B2 runbook](B2_ATTENDANCE_RUNBOOK.md). Live staging acceptance and policy limits remain.
+
+## B3 / B4 implementation status
+
+- [x] **B3 Unified Club Experience, merged PR #20:** all five verticals, required setup for new clubs, Luxe navigation and opt-in, moderated public club profiles.
+- [ ] **B4 Finance and Receipts, PR #21:** externally received collections, member dues, printable immutable payment snapshots and owner financial views. See [B4 release contract](B4_CLUB_FINANCE.md). This is not gateway processing or statutory invoicing. CI and staging gates apply.
 
 ## Month-1 build order
 
@@ -36,7 +41,7 @@ Cut from the bottom of this list first if time runs short (order of cuts: ID car
 2. [ ] **Clubs and roles:** `Club`, `ClubMember`, role guards, create-a-club flow with vertical template and branding.
 3. [x] **Members and plans:** `Plan`, `Membership`, invite members via secure single-use links or QR (`Invite`), optional unverified phone contacts, member list and renewal status.
 4. [ ] **Check-in:** QR (signed rotating token), manual by staff, attendance history.
-5. [ ] **Payment records:** record cash, UPI or card payments, dues, receipts.
+5. [ ] **Payment records (B4 PR #21 in review):** externally received cash, UPI or card records, dues, receipts, corrections. No payment gateway settlement.
 6. [ ] **Member app:** profile, bio stats history, payment history, my clubs.
 7. [ ] **ID card:** digital card page with QR to the member's profile, printable at credit-card size with one default layout.
 8. [ ] **Leaderboards:** `Season`, `Activity`, `Kpi`, `Score` with approval, club leaderboard, shareable visual.

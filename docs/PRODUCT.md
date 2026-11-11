@@ -17,7 +17,7 @@ ClubKeep is a polished, mobile-first operating system for small fitness and acti
 - **Pitch:** Run your club from your phone. Keep your members for life.
 - **North-star metric:** weekly active members per paying club.
 - **Market:** global from day one. India uses INR pricing and Razorpay; the rest of the world uses USD pricing and Stripe.
-- **First vertical:** gyms. Sports clubs, yoga and dance studios follow on the same engine with their own templates.
+- **Launch verticals:** gym/fitness, yoga, dance, sports and general clubs from day one, with a shared membership engine (B3 owner decision on 11 November 2026). Advanced class packs, schedules, batches and competition engines follow separately.
 - **Build:** solo developer, first release in about one month.
 
 ## Principles

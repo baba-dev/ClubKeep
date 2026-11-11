@@ -30,7 +30,12 @@ async function DirectoryAdminContent() {
   } catch {
     notFound();
   }
-  const visible = await prisma.clubPublicProfile.findMany({where:{status:{in:["LISTED","UNLISTED","SUSPENDED"]}},select:{clubId:true,status:true,club:{select:{name:true}}},take:50,orderBy:{updatedAt:"desc"}});
+  const visible = await prisma.clubPublicProfile.findMany({
+    where: { status: { in: ["LISTED", "UNLISTED", "SUSPENDED"] } },
+    select: { clubId: true, status: true, club: { select: { name: true } } },
+    take: 50,
+    orderBy: { updatedAt: "desc" },
+  });
   const revisions = await prisma.clubPublicRevision.findMany({
     where: { status: "PENDING" },
     orderBy: { submittedAt: "asc" },
@@ -66,7 +71,9 @@ async function DirectoryAdminContent() {
             submittedAt: x.submittedAt.toISOString(),
           }))}
         />
-        <DirectoryVisibility items={visible.map(x=>({clubId:x.clubId,status:x.status,name:x.club.name}))}/>
+        <DirectoryVisibility
+          items={visible.map((x) => ({ clubId: x.clubId, status: x.status, name: x.club.name }))}
+        />
       </div>
     </main>
   );

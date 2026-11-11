@@ -24,6 +24,10 @@ model User {
   phoneNumberVerified Boolean?  @default(false)
   role                String?   @default("user")
 
+  // New global capability: only a live database lookup may authorize platform operations.
+  // Never treat legacy role or ClubMembership.role as a platform permission.
+  platformRole        PlatformRole @default(USER)
+
   sessions            Session[]
   accounts            Account[]
   passkeys            Passkey[]
@@ -116,6 +120,11 @@ model PersonalProfile {
   displayName String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+enum PlatformRole {
+  USER
+  PLATFORM_ADMIN
 }
 
 enum ClubStatus {

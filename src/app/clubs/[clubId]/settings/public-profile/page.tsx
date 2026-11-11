@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { requireSession } from "@/lib/required-session";
@@ -9,7 +10,15 @@ export const metadata: Metadata = {
   title: "Public club profile · ClubKeep",
   robots: { index: false },
 };
-export default async function OwnerPublicProfile({
+export default function OwnerPublicProfile({ params }: { params: Promise<{ clubId: string }> }) {
+  return (
+    <Suspense fallback={<main className="min-h-screen bg-[#0b0705] p-8 text-[#fbf1e6]">Loading ClubKeep…</main>}>
+      <OwnerPublicProfileContent params={params} />
+    </Suspense>
+  );
+}
+
+async function OwnerPublicProfileContent({
   params,
 }: {
   params: Promise<{ clubId: string }>;

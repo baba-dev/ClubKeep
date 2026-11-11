@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -41,7 +42,15 @@ export async function generateMetadata({
     },
   };
 }
-export default async function ClubPublic({ params }: { params: Promise<{ slug: string }> }) {
+export default function ClubPublic({ params }: { params: Promise<{ slug: string }> }) {
+  return (
+    <Suspense fallback={<main className="min-h-screen bg-[#0b0705] p-8 text-[#fbf1e6]">Loading ClubKeep…</main>}>
+      <ClubPublicContent params={params} />
+    </Suspense>
+  );
+}
+
+async function ClubPublicContent({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const club = await getClub(slug);
   if (

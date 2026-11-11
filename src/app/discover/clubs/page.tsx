@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
@@ -26,7 +27,15 @@ const icons = {
   OTHER: Building2,
 } as const;
 const categories = ["GYM", "YOGA", "DANCE", "SPORTS", "OTHER"] as const;
-export default async function Discover({ searchParams }: { searchParams: Promise<Query> }) {
+export default function Discover({ searchParams }: { searchParams: Promise<Query> }) {
+  return (
+    <Suspense fallback={<main className="min-h-screen bg-[#0b0705] p-8 text-[#fbf1e6]">Loading ClubKeep…</main>}>
+      <DiscoverContent searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function DiscoverContent({ searchParams }: { searchParams: Promise<Query> }) {
   const input = await searchParams;
   const q = (input.q || "").trim().slice(0, 80);
   const city = (input.city || "").trim().slice(0, 100);

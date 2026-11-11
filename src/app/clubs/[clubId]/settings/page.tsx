@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -6,7 +7,15 @@ import { requireClubRole } from "@/lib/club-access";
 import { prisma } from "@/lib/prisma";
 import { BusinessShell } from "@/components/clubs/business-shell";
 export const metadata: Metadata = { title: "Club settings · ClubKeep", robots: { index: false } };
-export default async function ClubSettings({ params }: { params: Promise<{ clubId: string }> }) {
+export default function ClubSettings({ params }: { params: Promise<{ clubId: string }> }) {
+  return (
+    <Suspense fallback={<main className="min-h-screen bg-[#0b0705] p-8 text-[#fbf1e6]">Loading ClubKeep…</main>}>
+      <ClubSettingsContent params={params} />
+    </Suspense>
+  );
+}
+
+async function ClubSettingsContent({ params }: { params: Promise<{ clubId: string }> }) {
   const { clubId } = await params;
   const session = await requireSession();
   try {

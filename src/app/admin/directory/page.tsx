@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -9,7 +10,15 @@ export const metadata: Metadata = {
   title: "Directory moderation · ClubKeep Admin",
   robots: { index: false },
 };
-export default async function DirectoryAdmin() {
+export default function DirectoryAdmin() {
+  return (
+    <Suspense fallback={<main className="min-h-screen bg-[#0b0705] p-8 text-[#fbf1e6]">Loading ClubKeep…</main>}>
+      <DirectoryAdminContent />
+    </Suspense>
+  );
+}
+
+async function DirectoryAdminContent() {
   const session = await requireSession();
   try {
     await platformAdmin(prisma, session.user.id);

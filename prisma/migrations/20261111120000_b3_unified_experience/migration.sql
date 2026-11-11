@@ -22,7 +22,7 @@ CREATE TABLE "ClubSetupProgress" (
   "address" VARCHAR(240),
   "contactEmail" VARCHAR(254),
   "logoUrl" VARCHAR(512),
-  "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+  "updatedAt" TIMESTAMP(3) NOT NULL
 );
 CREATE TABLE "ClubPublicProfile" (
   "clubId" TEXT NOT NULL PRIMARY KEY REFERENCES "Club"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -31,7 +31,7 @@ CREATE TABLE "ClubPublicProfile" (
   "city" VARCHAR(100),
   "status" "ClubPublicationStatus" NOT NULL DEFAULT 'HIDDEN',
   "publishedAt" TIMESTAMP(3),
-  "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+  "updatedAt" TIMESTAMP(3) NOT NULL
 );
 CREATE TABLE "ClubPublicRevision" (
   "id" TEXT NOT NULL PRIMARY KEY,

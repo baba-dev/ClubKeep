@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { redirect, notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { requireSession } from "@/lib/required-session";
@@ -9,7 +10,15 @@ export const metadata: Metadata = {
   robots: { index: false },
 };
 const steps = ["type", "details", "identity", "membership", "review"] as const;
-export default async function SetupStep({
+export default function SetupStep({ params }: { params: Promise<{ clubId: string; step: string }> }) {
+  return (
+    <Suspense fallback={<main className="min-h-screen bg-[#0b0705] p-8 text-[#fbf1e6]">Loading ClubKeep…</main>}>
+      <SetupStepContent params={params} />
+    </Suspense>
+  );
+}
+
+async function SetupStepContent({
   params,
 }: {
   params: Promise<{ clubId: string; step: string }>;

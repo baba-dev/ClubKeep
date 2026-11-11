@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { ShieldCheck, Users, CalendarDays, Layers3, ArrowRight, ScanLine } from "lucide-react";
 import { requireSession } from "@/lib/required-session";
@@ -32,8 +32,12 @@ async function ClubContent({ params }: { params: Promise<{ clubId: string }> }) 
   }
   const club = await prisma.club.findFirst({
     where: { id: clubId, status: "ACTIVE" },
-    select: { id: true, name: true },
+    select: { id: true, name: true, setupStatus: true },
   });
+  if (club?.setupStatus === "IN_PROGRESS") {
+    if (role === "OWNER") redirect(`/clubs/${clubId}/setup/type`);
+    notFound();
+  }
   if (!club) notFound();
   const canInvite = role === "OWNER" || role === "MANAGER";
   const canOperate = role !== "MEMBER";

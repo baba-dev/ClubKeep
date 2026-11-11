@@ -192,6 +192,8 @@ export async function moderateProfileVisibility(
       throw new OnboardingError(409, "Club is not eligible for reinstatement");
     if (action === "suspend" && profile.status === "SUSPENDED")
       return { ok: true, status: "SUSPENDED" };
+    if (action === "suspend" && profile.status === "HIDDEN")
+      throw new OnboardingError(409, "A privately hidden profile cannot be suspended");
     if (action === "reinstate" && profile.status !== "SUSPENDED")
       throw new OnboardingError(409, "This profile is not suspended");
     const approved = validatedPublic(profile.published);

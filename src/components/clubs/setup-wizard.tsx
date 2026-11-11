@@ -1,6 +1,7 @@
 "use client";
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { parseMinorMoney } from "@/lib/money-format";
 import {
   ArrowLeft,
   ArrowRight,
@@ -150,8 +151,8 @@ export function SetupWizard({
         );
       if (initialStep === "membership" && plans.length === 0) {
         if (!name.trim()) throw new Error("Give your first plan a name");
-        const minor = Math.round(Number(price) * 100);
-        if (!Number.isSafeInteger(minor) || minor < 0)
+        const minor = parseMinorMoney(price, currency || current?.currencyCode || "");
+        if (minor === null)
           throw new Error("Enter a valid nonnegative price");
         const result = await post("/api" + base + "/setup/plan", {
           name: name.trim(),
@@ -403,7 +404,7 @@ export function SetupWizard({
                       type="number"
                       min={0}
                       max={1000000}
-                      step="0.01"
+                      step="any"
                       value={price}
                       onChange={(e) => setPrice(e.target.value)}
                     />

@@ -88,7 +88,7 @@ export async function submitProfile(db: PrismaClient, actorId: string, clubId: s
       data: { clubId, content: data },
       select: { id: true },
     });
-    if (!profile.published)
+    if (!profile.published || profile.status === "HIDDEN")
       await tx.clubPublicProfile.update({ where: { clubId }, data: { status: "PENDING" } });
     return { revisionId: revision.id };
   });

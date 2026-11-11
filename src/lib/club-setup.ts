@@ -33,9 +33,27 @@ const identityInput = z
   })
   .strict();
 export const setupStepInput = z.discriminatedUnion("step", [
-  z.object({ step: z.literal("type"), vertical: z.enum(VERTICALS), expectedVersion:z.number().int().nonnegative() }).strict(),
-  z.object({ step: z.literal("details"), data: detailsInput, expectedVersion:z.number().int().nonnegative() }).strict(),
-  z.object({ step: z.literal("identity"), data: identityInput, expectedVersion:z.number().int().nonnegative() }).strict(),
+  z
+    .object({
+      step: z.literal("type"),
+      vertical: z.enum(VERTICALS),
+      expectedVersion: z.number().int().nonnegative(),
+    })
+    .strict(),
+  z
+    .object({
+      step: z.literal("details"),
+      data: detailsInput,
+      expectedVersion: z.number().int().nonnegative(),
+    })
+    .strict(),
+  z
+    .object({
+      step: z.literal("identity"),
+      data: identityInput,
+      expectedVersion: z.number().int().nonnegative(),
+    })
+    .strict(),
 ]);
 export type SetupStepInput = z.infer<typeof setupStepInput>;
 
@@ -90,9 +108,13 @@ export async function saveSetup(
   await requireOwner(db, actorId, clubId);
   return db.$transaction(async (tx) => {
     // Serialize all step writes, including optional identity, across browser tabs.
-    await tx.club.update({where:{id:clubId},data:{updatedAt:new Date()}});
-    const progress=await tx.clubSetupProgress.findUnique({where:{clubId},select:{version:true}});
-    if((progress?.version??0)!==input.expectedVersion)throw new OnboardingError(409,"Setup changed elsewhere. Reload this step and try again.");
+    await tx.club.update({ where: { id: clubId }, data: { updatedAt: new Date() } });
+    const progress = await tx.clubSetupProgress.findUnique({
+      where: { clubId },
+      select: { version: true },
+    });
+    if ((progress?.version ?? 0) !== input.expectedVersion)
+      throw new OnboardingError(409, "Setup changed elsewhere. Reload this step and try again.");
     const club = await tx.club.findUniqueOrThrow({
       where: { id: clubId },
       select: { setupStatus: true },
@@ -128,7 +150,7 @@ export async function saveSetup(
           : { identityConfirmed: true };
     return tx.clubSetupProgress.upsert({
       where: { clubId },
-      create: { clubId, currentStep, version:1, ...data, ...confirmed },
+      create: { clubId, currentStep, version: 1, ...data, ...confirmed },
       update: { ...data, ...confirmed, currentStep, version: { increment: 1 } },
     });
   });

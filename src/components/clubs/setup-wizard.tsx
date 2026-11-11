@@ -78,7 +78,7 @@ export function SetupWizard({
   const router = useRouter();
   const stepIndex = steps.indexOf(initialStep);
   const current = initial.club.setupProgress;
-  const expectedVersion=current?.version??0;
+  const expectedVersion = current?.version ?? 0;
   const [vertical, setVertical] = useState(initial.club.vertical);
   const [country, setCountry] = useState(current?.countryCode || "");
   const [currency, setCurrency] = useState(current?.currencyCode || "");
@@ -128,7 +128,8 @@ export function SetupWizard({
         await post(
           "/api" + base + "/setup",
           {
-            step: "details", expectedVersion,
+            step: "details",
+            expectedVersion,
             data: {
               countryCode: country.trim().toUpperCase(),
               currencyCode: currency.trim().toUpperCase(),

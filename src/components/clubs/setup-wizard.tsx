@@ -10,7 +10,6 @@ import {
   Flower2,
   Music2,
   Trophy,
-  Layers3,
 } from "lucide-react";
 
 const steps = ["type", "details", "identity", "membership", "review"] as const;
@@ -30,6 +29,7 @@ type Initial = {
       address: string | null;
       contactEmail: string | null;
       logoUrl: string | null;
+      version: number;
     } | null;
   };
   plans: { id: string; name: string; currency: string }[];
@@ -78,6 +78,7 @@ export function SetupWizard({
   const router = useRouter();
   const stepIndex = steps.indexOf(initialStep);
   const current = initial.club.setupProgress;
+  const expectedVersion=current?.version??0;
   const [vertical, setVertical] = useState(initial.club.vertical);
   const [country, setCountry] = useState(current?.countryCode || "");
   const [currency, setCurrency] = useState(current?.currencyCode || "");
@@ -120,14 +121,14 @@ export function SetupWizard({
       if (initialStep === "type")
         await post(
           base.replace("/clubs/", "/api/clubs/") + "/setup",
-          { step: "type", vertical },
+          { step: "type", vertical, expectedVersion },
           "PATCH"
         );
       if (initialStep === "details")
         await post(
           "/api" + base + "/setup",
           {
-            step: "details",
+            step: "details", expectedVersion,
             data: {
               countryCode: country.trim().toUpperCase(),
               currencyCode: currency.trim().toUpperCase(),
@@ -143,7 +144,7 @@ export function SetupWizard({
       if (initialStep === "identity")
         await post(
           "/api" + base + "/setup",
-          { step: "identity", data: { logoUrl: logo } },
+          { step: "identity", data: { logoUrl: logo }, expectedVersion },
           "PATCH"
         );
       if (initialStep === "membership" && plans.length === 0) {

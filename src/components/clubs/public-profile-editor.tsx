@@ -89,7 +89,7 @@ export function PublicProfileEditor({
           <p className="text-xs font-semibold tracking-widest text-[#ffbd78] uppercase">
             Public directory
           </p>
-          <h2 className="mt-2 text-2xl font-semibold">Tell your club's story</h2>
+          <h2 className="mt-2 text-2xl font-semibold">Tell your club&apos;s story</h2>
           <p className="mt-2 text-sm text-[#baa18d]">
             Only what you explicitly submit and the platform approves becomes public.
           </p>

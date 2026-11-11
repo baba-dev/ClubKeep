@@ -6,6 +6,7 @@ import { requireSession } from "@/lib/required-session";
 import { requireClubRole } from "@/lib/club-access";
 import { prisma } from "@/lib/prisma";
 import { BusinessShell } from "@/components/clubs/business-shell";
+import { ClubSettingsEditor } from "@/components/clubs/club-settings-editor";
 export const metadata: Metadata = { title: "Club settings · ClubKeep", robots: { index: false } };
 export default function ClubSettings({ params }: { params: Promise<{ clubId: string }> }) {
   return (
@@ -49,30 +50,7 @@ async function ClubSettingsContent({ params }: { params: Promise<{ clubId: strin
       description="Review your club identity and take control of what appears publicly."
     >
       <div className="mt-8 grid gap-4 md:grid-cols-2">
-        <section className="rounded-3xl border border-[#f6dc9b]/20 bg-[#1c130d] p-7">
-          <h2 className="text-xl font-semibold">Club identity</h2>
-          <dl className="mt-6 space-y-4 text-sm">
-            <div>
-              <dt className="text-[#ba9e86]">Name</dt>
-              <dd className="mt-1 font-semibold">{club.name}</dd>
-            </div>
-            <div>
-              <dt className="text-[#ba9e86]">Club type</dt>
-              <dd className="mt-1 capitalize">{club.vertical.toLowerCase()}</dd>
-            </div>
-            <div>
-              <dt className="text-[#ba9e86]">Timezone</dt>
-              <dd className="mt-1">{club.timeZone}</dd>
-            </div>
-            <div>
-              <dt className="text-[#ba9e86]">Country / Currency</dt>
-              <dd className="mt-1">
-                {club.setupProgress?.countryCode ?? "Not configured"} /{" "}
-                {club.setupProgress?.currencyCode ?? "Not configured"}
-              </dd>
-            </div>
-          </dl>
-        </section>
+        <ClubSettingsEditor clubId={clubId} initial={{vertical:club.vertical,countryCode:club.setupProgress?.countryCode??"",city:club.setupProgress?.city??""}}/>
         <section className="rounded-3xl border border-[#f6dc9b]/20 bg-[#1c130d] p-7">
           <h2 className="text-xl font-semibold">Public presence</h2>
           <p className="mt-3 text-sm leading-7 text-[#bca28b]">

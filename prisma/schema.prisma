@@ -445,6 +445,9 @@ model ClubSetupProgress {
   clubId String @id
   currentStep Int @default(0)
   version Int @default(0)
+  typeConfirmed Boolean @default(false)
+  detailsConfirmed Boolean @default(false)
+  identityConfirmed Boolean @default(false)
   countryCode String? @db.VarChar(2)
   currencyCode String? @db.VarChar(3)
   operatingMode String? @db.VarChar(16)
@@ -460,11 +463,13 @@ model ClubPublicProfile {
   clubId String @id
   draft Json @default("{}")
   published Json?
+  city String? @db.VarChar(100)
   status ClubPublicationStatus @default(HIDDEN)
   publishedAt DateTime?
   updatedAt DateTime @updatedAt
   club Club @relation(fields: [clubId], references: [id], onDelete: Restrict)
   @@index([status, publishedAt])
+  @@index([status, city, publishedAt])
 }
 
 model ClubPublicRevision {

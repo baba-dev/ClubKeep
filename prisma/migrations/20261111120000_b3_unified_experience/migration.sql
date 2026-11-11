@@ -12,6 +12,9 @@ CREATE TABLE "ClubSetupProgress" (
   "clubId" TEXT NOT NULL PRIMARY KEY REFERENCES "Club"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
   "currentStep" INTEGER NOT NULL DEFAULT 0,
   "version" INTEGER NOT NULL DEFAULT 0,
+  "typeConfirmed" BOOLEAN NOT NULL DEFAULT false,
+  "detailsConfirmed" BOOLEAN NOT NULL DEFAULT false,
+  "identityConfirmed" BOOLEAN NOT NULL DEFAULT false,
   "countryCode" VARCHAR(2),
   "currencyCode" VARCHAR(3),
   "operatingMode" VARCHAR(16),
@@ -25,6 +28,7 @@ CREATE TABLE "ClubPublicProfile" (
   "clubId" TEXT NOT NULL PRIMARY KEY REFERENCES "Club"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
   "draft" JSONB NOT NULL DEFAULT '{}'::jsonb,
   "published" JSONB,
+  "city" VARCHAR(100),
   "status" "ClubPublicationStatus" NOT NULL DEFAULT 'HIDDEN',
   "publishedAt" TIMESTAMP(3),
   "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -39,5 +43,7 @@ CREATE TABLE "ClubPublicRevision" (
   "reviewerId" TEXT
 );
 CREATE INDEX "ClubPublicProfile_status_publishedAt_idx" ON "ClubPublicProfile"("status","publishedAt");
+CREATE INDEX "ClubPublicProfile_status_city_publishedAt_idx" ON "ClubPublicProfile"("status","city","publishedAt");
 CREATE INDEX "ClubPublicRevision_clubId_status_submittedAt_idx" ON "ClubPublicRevision"("clubId","status","submittedAt");
 CREATE INDEX "ClubPublicRevision_status_submittedAt_idx" ON "ClubPublicRevision"("status","submittedAt");
+CREATE UNIQUE INDEX "ClubPublicRevision_one_pending_per_club" ON "ClubPublicRevision" ("clubId") WHERE "status"='PENDING';

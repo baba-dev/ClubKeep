@@ -55,9 +55,10 @@ export async function saveSetup(db:PrismaClient,actorId:string,clubId:string,inp
       address:input.data.address||null,contactEmail:input.data.contactEmail||null
     }:input.step==="identity"?{logoUrl:input.data.logoUrl||null}:{};
     const currentStep=input.step==="type"?1:input.step==="details"?2:3;
+    const confirmed=input.step==="type"?{typeConfirmed:true}:input.step==="details"?{detailsConfirmed:true}:{identityConfirmed:true};
     return tx.clubSetupProgress.upsert({
-      where:{clubId},create:{clubId,currentStep,...data},
-      update:{...data,currentStep,version:{increment:1}}
+      where:{clubId},create:{clubId,currentStep,...data,...confirmed},
+      update:{...data,...confirmed,currentStep,version:{increment:1}}
     });
   });
 }
@@ -73,7 +74,7 @@ export async function completeSetup(db:PrismaClient,actorId:string,clubId:string
     if(club.setupStatus==="READY") return {ready:true};
     if(club.setupStatus==="LEGACY_ACTIVE") throw new OnboardingError(409,"Existing club is already operational");
     const progress=club.setupProgress;
-    if(!progress?.countryCode||!progress.currencyCode||!progress.operatingMode||!validZone(club.timeZone))
+    if(!progress?.countryCode||!progress.currencyCode||!progress.operatingMode||!progress.typeConfirmed||!progress.detailsConfirmed||!progress.identityConfirmed||!validZone(club.timeZone))
       throw new OnboardingError(409,"Complete club details before launching");
     const plan=await tx.clubPlan.findFirst({where:{clubId,archivedAt:null,currency:progress.currencyCode},select:{id:true}});
     if(!plan) throw new OnboardingError(409,"Create at least one membership plan in your chosen currency");
@@ -81,8 +82,10 @@ export async function completeSetup(db:PrismaClient,actorId:string,clubId:string
     return {ready:true};
   });
 }
-export async function requireSetupPlanPermission(db:PrismaClient,actorId:string,clubId:string,currency:string){
-  const club=await requireOwner(db,actorId,clubId);
+export async function requireSetupPlanPermission(db:Pick<PrismaClient,"club"|"clubMembership"|"clubSetupProgress">,actorId:string,clubId:string,currency:string){
+  await requireClubRole(db,actorId,clubId,["OWNER"]);
+  const club=await db.club.findFirst({where:{id:clubId,status:"ACTIVE"},select:{setupStatus:true}});
+  if(!club)throw new AccessDeniedError();
   if(club.setupStatus!=="IN_PROGRESS") throw new OnboardingError(409,"Use the membership plan studio");
   const p=await db.clubSetupProgress.findUnique({where:{clubId}});
   if(!p?.currencyCode||currency!==p.currencyCode)throw new OnboardingError(409,"Choose club currency first; plan currency must match");

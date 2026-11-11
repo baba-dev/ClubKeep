@@ -39,7 +39,7 @@ export async function saveOwnerProfile(db:PrismaClient,actorId:string,clubId:str
 export async function submitProfile(db:PrismaClient,actorId:string,clubId:string){
   await owner(db,actorId,clubId);
   return db.$transaction(async tx=>{
-    const profile=await tx.clubPublicProfile.findUnique({where:{clubId}});
+    const profile=await tx.clubPublicProfile.update({where:{clubId},data:{updatedAt:new Date()}});
     if(!profile||profile.status==="SUSPENDED")throw new OnboardingError(409,"Profile unavailable for publication");
     const data=validatedPublic(profile.draft);
     if(!data?.tagline||!data.description||!data.city)throw new OnboardingError(409,"Add a tagline, description and city before submitting");
@@ -72,9 +72,10 @@ export async function reviewProfile(db:PrismaClient,actorId:string,revisionId:st
     const data=validatedPublic(revision.content);
     if(approve){
       if(!data)throw new OnboardingError(409,"Invalid profile content");
-      await tx.clubPublicProfile.update({where:{clubId:revision.clubId},data:{published:data,status:data.listed?"LISTED":"UNLISTED",publishedAt:new Date()}});
+      await tx.clubPublicProfile.update({where:{clubId:revision.clubId},data:{published:data,city:data.city,status:data.listed?"LISTED":"UNLISTED",publishedAt:new Date()}});
     }else{
-      await tx.clubPublicProfile.updateMany({where:{clubId:revision.clubId,published:null},data:{status:"HIDDEN"}});
+      const profile=await tx.clubPublicProfile.findUnique({where:{clubId:revision.clubId},select:{published:true}});
+      if(!profile?.published)await tx.clubPublicProfile.update({where:{clubId:revision.clubId},data:{status:"HIDDEN"}});
     }
     return {ok:true};
   });

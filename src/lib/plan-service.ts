@@ -19,9 +19,9 @@ export async function createPlan(
   input: PlanInput,
   forSetup = false
 ) {
-  if (forSetup) await requireSetupPlanPermission(db, actorId, clubId, input.currency);
   return db.$transaction(async (tx) => {
-    if (!forSetup) await requireClubActive(tx, actorId, clubId, ["OWNER", "MANAGER"]);
+    if (forSetup) await requireSetupPlanPermission(tx, actorId, clubId, input.currency);
+    else await requireClubActive(tx, actorId, clubId, ["OWNER", "MANAGER"]);
     const plan = await tx.clubPlan.create({
       data: { clubId, ...input },
       select: { id: true, name: true },

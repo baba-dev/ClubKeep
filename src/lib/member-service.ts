@@ -14,9 +14,9 @@ export async function requireClubActive(
   const context = await requireClubRole(tx, actorId, clubId, roles);
   const club = await tx.club.findFirst({
     where: { id: clubId, status: "ACTIVE" },
-    select: { id: true, businessTier: true },
+    select: { id: true, businessTier: true, setupStatus: true },
   });
-  if (!club) throw new AccessDeniedError();
+  if (!club || club.setupStatus === "IN_PROGRESS") throw new AccessDeniedError();
   return { ...context, businessTier: club.businessTier };
 }
 

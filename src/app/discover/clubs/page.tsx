@@ -29,7 +29,11 @@ const icons = {
 const categories = ["GYM", "YOGA", "DANCE", "SPORTS", "OTHER"] as const;
 export default function Discover({ searchParams }: { searchParams: Promise<Query> }) {
   return (
-    <Suspense fallback={<main className="min-h-screen bg-[#0b0705] p-8 text-[#fbf1e6]">Loading ClubKeep…</main>}>
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-[#0b0705] p-8 text-[#fbf1e6]">Loading ClubKeep…</main>
+      }
+    >
       <DiscoverContent searchParams={searchParams} />
     </Suspense>
   );

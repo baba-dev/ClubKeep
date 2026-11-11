@@ -44,7 +44,11 @@ export async function generateMetadata({
 }
 export default function ClubPublic({ params }: { params: Promise<{ slug: string }> }) {
   return (
-    <Suspense fallback={<main className="min-h-screen bg-[#0b0705] p-8 text-[#fbf1e6]">Loading ClubKeep…</main>}>
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-[#0b0705] p-8 text-[#fbf1e6]">Loading ClubKeep…</main>
+      }
+    >
       <ClubPublicContent params={params} />
     </Suspense>
   );

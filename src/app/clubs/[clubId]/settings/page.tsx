@@ -9,7 +9,11 @@ import { BusinessShell } from "@/components/clubs/business-shell";
 export const metadata: Metadata = { title: "Club settings · ClubKeep", robots: { index: false } };
 export default function ClubSettings({ params }: { params: Promise<{ clubId: string }> }) {
   return (
-    <Suspense fallback={<main className="min-h-screen bg-[#0b0705] p-8 text-[#fbf1e6]">Loading ClubKeep…</main>}>
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-[#0b0705] p-8 text-[#fbf1e6]">Loading ClubKeep…</main>
+      }
+    >
       <ClubSettingsContent params={params} />
     </Suspense>
   );

@@ -12,17 +12,17 @@ export const metadata: Metadata = {
 };
 export default function OwnerPublicProfile({ params }: { params: Promise<{ clubId: string }> }) {
   return (
-    <Suspense fallback={<main className="min-h-screen bg-[#0b0705] p-8 text-[#fbf1e6]">Loading ClubKeep…</main>}>
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-[#0b0705] p-8 text-[#fbf1e6]">Loading ClubKeep…</main>
+      }
+    >
       <OwnerPublicProfileContent params={params} />
     </Suspense>
   );
 }
 
-async function OwnerPublicProfileContent({
-  params,
-}: {
-  params: Promise<{ clubId: string }>;
-}) {
+async function OwnerPublicProfileContent({ params }: { params: Promise<{ clubId: string }> }) {
   const { clubId } = await params;
   const session = await requireSession();
   let data;

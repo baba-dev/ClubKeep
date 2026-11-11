@@ -10,19 +10,23 @@ export const metadata: Metadata = {
   robots: { index: false },
 };
 const steps = ["type", "details", "identity", "membership", "review"] as const;
-export default function SetupStep({ params }: { params: Promise<{ clubId: string; step: string }> }) {
+export default function SetupStep({
+  params,
+}: {
+  params: Promise<{ clubId: string; step: string }>;
+}) {
   return (
-    <Suspense fallback={<main className="min-h-screen bg-[#0b0705] p-8 text-[#fbf1e6]">Loading ClubKeep…</main>}>
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-[#0b0705] p-8 text-[#fbf1e6]">Loading ClubKeep…</main>
+      }
+    >
       <SetupStepContent params={params} />
     </Suspense>
   );
 }
 
-async function SetupStepContent({
-  params,
-}: {
-  params: Promise<{ clubId: string; step: string }>;
-}) {
+async function SetupStepContent({ params }: { params: Promise<{ clubId: string; step: string }> }) {
   const { clubId, step } = await params;
   if (!steps.some((s) => s === step)) notFound();
   const session = await requireSession();

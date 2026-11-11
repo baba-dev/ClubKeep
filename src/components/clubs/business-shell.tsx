@@ -45,7 +45,9 @@ export async function BusinessShell({
     { key: "members", label: "Members", href: "/members", icon: UsersRound },
     { key: "plans", label: "Membership Plans", href: "/plans", icon: Layers3 },
     { key: "renewals", label: "Renewals", href: "/renewals", icon: CalendarClock },
-    ...(context.role==="OWNER"||context.role==="MANAGER" ? [{key:"finance",label:"Finance & dues",href:"/finance",icon:WalletCards}] : []),
+    ...(context.role === "OWNER" || context.role === "MANAGER"
+      ? [{ key: "finance", label: "Finance & dues", href: "/finance", icon: WalletCards }]
+      : []),
     ...(isOwner
       ? [
           {
@@ -155,7 +157,11 @@ export async function BusinessShell({
         className="fixed inset-x-3 bottom-3 z-40 flex items-stretch justify-around rounded-2xl border border-[#d9ac73]/25 bg-[#18110b]/95 px-1 py-2 shadow-2xl backdrop-blur-xl lg:hidden"
       >
         {nav
-          .filter((x) => ["overview", "attendance", "members", "finance"].includes(x.key)|| (context.role==="STAFF"&&x.key==="renewals"))
+          .filter(
+            (x) =>
+              ["overview", "attendance", "members", "finance"].includes(x.key) ||
+              (context.role === "STAFF" && x.key === "renewals")
+          )
           .map(({ key, label, href, icon: Icon }) => (
             <Link
               key={key}

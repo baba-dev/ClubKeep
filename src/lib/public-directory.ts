@@ -164,3 +164,29 @@ export async function reviewProfile(
     return { ok: true };
   });
 }
+
+/** Moderation cannot grant a platform operator tenant or Personal data access. */
+export async function moderateProfileVisibility(
+  db: PrismaClient,
+  actorId: string,
+  clubId: string,
+  action: "suspend" | "reinstate"
+) {
+  await platformAdmin(db, actorId);
+  return db.$transaction(async (tx) => {
+    const club = await tx.club.findUnique({where:{id:clubId},select:{status:true,setupStatus:true}});
+    const profile = await tx.clubPublicProfile.findUnique({where:{clubId}});
+    if (!club || !profile?.published) throw new OnboardingError(404,"Published profile not found");
+    if (action==="reinstate"&&(club.status!=="ACTIVE"||club.setupStatus==="IN_PROGRESS"))
+      throw new OnboardingError(409,"Club is not eligible for reinstatement");
+    if (action==="suspend"&&profile.status==="SUSPENDED") return {ok:true,status:"SUSPENDED"};
+    if (action==="reinstate"&&profile.status!=="SUSPENDED")
+      throw new OnboardingError(409,"This profile is not suspended");
+    const approved=validatedPublic(profile.published);
+    if(!approved)throw new OnboardingError(409,"Approved content is unavailable");
+    const status=action==="suspend"?"SUSPENDED":approved.listed?"LISTED":"UNLISTED";
+    await tx.clubPublicProfile.update({where:{clubId},data:{status}});
+    await tx.securityEvent.create({data:{clubId,actorUserId:actorId,eventType:"SECURITY_REVIEW",referenceId:"public-profile-"+action}});
+    return {ok:true,status};
+  });
+}

@@ -115,10 +115,14 @@ export async function memberClubFinance(db:PrismaClient,clubId:string,memberId:s
     orderBy:[{createdAt:"desc"},{id:"desc"}],take:80,
     select:{id:true,planName:true,priceMinor:true,currency:true,createdAt:true,cancelledAt:true,
       endAt:true,payments:{select:{id:true,amountMinor:true,receiptNo:true,receivedAt:true,method:true,
-        reversal:{select:{id:true}}},orderBy:{createdAt:"desc"},take:80}}
+        reversal:{select:{id:true}}},orderBy:{createdAt:"desc"},take:10}}
   });
+  const aggregates=terms.length?await db.clubPayment.groupBy({by:["subscriptionId"],
+    where:{clubId,memberRecordId:memberId,subscriptionId:{in:terms.map(t=>t.id)},reversal:{is:null}},
+    _sum:{amountMinor:true}}):[];
+  const paidByTerm=new Map(aggregates.map(a=>[a.subscriptionId,a._sum.amountMinor??0]));
   return terms.map(term=>{
-    const paid=term.payments.reduce((sum,p)=>sum+(p.reversal?0:p.amountMinor),0);
+    const paid=paidByTerm.get(term.id)??0;
     return {...term,paidMinor:paid,dueMinor:term.cancelledAt?0:financeBalance(term.priceMinor,paid)};
   });
 }

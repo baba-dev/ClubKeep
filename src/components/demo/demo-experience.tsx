@@ -368,7 +368,7 @@ export function DemoExperience({ initialRole, initialView }: { initialRole: Demo
                   <p className="text-xs leading-6 text-[#bba795]">In production, the club checks witness evidence, and a submitter cannot approve their own result. This fictional preview shows both actions for testing.</p>
                 </form></Panel>
               </div>
-            </>}
+            </div>}
             {view==="leaderboard" && <div className="grid gap-5 lg:grid-cols-[1.35fr_1fr]">
               <Panel title="Private league standings" icon={Trophy} extra={<DemoPill emphasis>Season 2026 · Strength</DemoPill>}>
                 {data.rankingOptIn?standings.map((s,i)=><DemoRow key={s.memberId}

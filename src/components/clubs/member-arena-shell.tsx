@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Activity, ArrowLeft, CalendarDays, CreditCard, IdCard, ScanLine, Zap } from "lucide-react";
+import { Activity, ArrowLeft, CalendarDays, CreditCard, IdCard, Zap } from "lucide-react";
 
 type Tab = "arena" | "card" | "visits" | "fees" | "renewal";
 const items = [

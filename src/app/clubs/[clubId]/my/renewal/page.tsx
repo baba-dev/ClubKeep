@@ -60,7 +60,7 @@ export default async function MemberRenewal({ params }: { params: Promise<{ club
               </p>
               {pending ? (
                 <p className="mt-6 flex gap-3 rounded-xl border border-[#ffc17c]/30 bg-[#523219]/30 p-4 text-sm text-[#ffcb93]">
-                  <BellRing className="size-5 shrink-0" /> Your request is with reception. You'll
+                  <BellRing className="size-5 shrink-0" /> Your request is with reception. You&apos;ll
                   see its reviewed status here.
                 </p>
               ) : (
@@ -96,7 +96,7 @@ export default async function MemberRenewal({ params }: { params: Promise<{ club
             </ul>
           ) : (
             <p className="mt-5 text-sm leading-7 text-[#baa99a]">
-              You haven't submitted a renewal request yet.
+              You haven&apos;t submitted a renewal request yet.
             </p>
           )}
           <Link

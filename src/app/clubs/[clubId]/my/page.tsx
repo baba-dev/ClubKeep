@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowUpRight, CalendarClock, CheckCircle2, CircleDollarSign, Flame, IdCard, ScanLine, ShieldCheck, Sparkles, Trophy } from "lucide-react";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { requireSession } from "@/lib/required-session";
 import { prisma } from "@/lib/prisma";

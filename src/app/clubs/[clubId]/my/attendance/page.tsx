@@ -54,11 +54,11 @@ export default async function MySessions({
           {!member ? <p className="p-8 text-sm leading-7 text-[#bda99c]">Ask reception to link your verified account before your visit history can be displayed.</p> :
             page.length === 0 ? <p className="p-8 text-sm leading-7 text-[#bda99c]">No visits recorded yet. Your first training day starts here.</p> : (
             <ul className="divide-y divide-white/10">
-              {page.map((visit, index) => (
+              {page.map((visit) => (
                 <li key={visit.id} className="flex flex-wrap items-center justify-between gap-3 p-5 sm:px-7">
                   <div className="flex items-center gap-3">
                     <span className="grid size-10 place-items-center rounded-xl bg-[#302720] text-[#ffbc78]"><CheckCircle2 className="size-5" /></span>
-                    <div><p className="font-bold text-[#fcebdc]">Session {overview!.visitCount - (cursor ? 0 : index)}</p><p className="mt-1 text-xs text-[#ae9c91]">{visit.localDate}</p></div>
+                    <div><p className="font-bold text-[#fcebdc]">Recorded session</p><p className="mt-1 text-xs text-[#ae9c91]">{visit.localDate}</p></div>
                   </div>
                   <div className="text-left sm:text-right"><p className="flex items-center gap-2 text-sm font-semibold text-[#e9c29c]"><Clock3 className="size-4" /> {fmt.format(visit.checkedInAt)}</p><p className="mt-1 text-xs text-[#a99c91]">{visit.method === "QR" ? "Verified QR" : "Reception check-in"}</p></div>
                 </li>

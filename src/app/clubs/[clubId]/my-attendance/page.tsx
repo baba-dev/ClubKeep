@@ -46,7 +46,7 @@ async function MyAttendanceContent({ params }: { params: Promise<{ clubId: strin
       <div className="mx-auto max-w-3xl">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#f6dc9b]/15 pb-5">
           <Link
-            href={`/clubs/${clubId}`}
+            href={`/clubs/${clubId}/my`}
             className="inline-flex min-h-10 items-center gap-2 text-sm text-[#f4bd80] hover:underline"
           >
             <ArrowLeft className="size-4" />

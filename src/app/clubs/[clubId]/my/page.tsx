@@ -25,7 +25,11 @@ export const metadata: Metadata = { title: "Member Arena · ClubKeep", robots: {
 
 export default function MyClubPageRoute(props: { params: Promise<{ clubId: string }> }) {
   return (
-    <Suspense fallback={<main className="min-h-screen bg-[#0b0b0e] p-8 text-[#fce8d2]">Loading your club…</main>}>
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-[#0b0b0e] p-8 text-[#fce8d2]">Loading your club…</main>
+      }
+    >
       <MyClubPage {...props} />
     </Suspense>
   );

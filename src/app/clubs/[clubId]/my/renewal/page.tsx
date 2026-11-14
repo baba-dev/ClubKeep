@@ -18,7 +18,11 @@ export const metadata: Metadata = {
 
 export default function MemberRenewalRoute(props: { params: Promise<{ clubId: string }> }) {
   return (
-    <Suspense fallback={<main className="min-h-screen bg-[#0b0b0e] p-8 text-[#fce8d2]">Loading your club…</main>}>
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-[#0b0b0e] p-8 text-[#fce8d2]">Loading your club…</main>
+      }
+    >
       <MemberRenewal {...props} />
     </Suspense>
   );
@@ -68,8 +72,8 @@ async function MemberRenewal({ params }: { params: Promise<{ clubId: string }> }
               </p>
               {pending ? (
                 <p className="mt-6 flex gap-3 rounded-xl border border-[#ffc17c]/30 bg-[#523219]/30 p-4 text-sm text-[#ffcb93]">
-                  <BellRing className="size-5 shrink-0" /> Your request is with reception. You&apos;ll
-                  see its reviewed status here.
+                  <BellRing className="size-5 shrink-0" /> Your request is with reception.
+                  You&apos;ll see its reviewed status here.
                 </p>
               ) : (
                 <RenewalRequestForm clubId={clubId} />

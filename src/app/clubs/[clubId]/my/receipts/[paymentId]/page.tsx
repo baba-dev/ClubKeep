@@ -14,9 +14,15 @@ import { PrintClubReceiptButton } from "@/components/clubs/print-club-receipt-bu
 
 export const metadata: Metadata = { title: "My Club Receipt · ClubKeep", robots: { index: false } };
 
-export default function MemberReceiptPageRoute(props: { params: Promise<{ clubId: string; paymentId: string }> }) {
+export default function MemberReceiptPageRoute(props: {
+  params: Promise<{ clubId: string; paymentId: string }>;
+}) {
   return (
-    <Suspense fallback={<main className="min-h-screen bg-[#0b0b0e] p-8 text-[#fce8d2]">Loading your club…</main>}>
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-[#0b0b0e] p-8 text-[#fce8d2]">Loading your club…</main>
+      }
+    >
       <MemberReceiptPage {...props} />
     </Suspense>
   );

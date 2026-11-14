@@ -9,12 +9,15 @@ import { prisma } from "@/lib/prisma";
 import { BusinessShell } from "@/components/clubs/business-shell";
 import { RenewalDecisionButtons } from "@/components/clubs/renewal-decision-buttons";
 
-
 type Props = { params: Promise<{ clubId: string }>; searchParams: Promise<{ cursor?: string }> };
 
 export default function RenewalRequestQueueRoute(props: Props) {
   return (
-    <Suspense fallback={<main className="min-h-screen bg-[#0b0b0e] p-8 text-[#fce8d2]">Loading your club…</main>}>
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-[#0b0b0e] p-8 text-[#fce8d2]">Loading your club…</main>
+      }
+    >
       <RenewalRequestQueue {...props} />
     </Suspense>
   );
@@ -108,7 +111,14 @@ async function RenewalRequestQueue({ params, searchParams }: Props) {
           </ul>
         )}
       </div>
-      {next && <Link href={"?cursor=" + encodeURIComponent(next)} className="mt-5 inline-flex min-h-12 items-center rounded-xl border border-[#ffc17b]/25 px-5 text-sm font-bold text-[#ffc17b]">Next pending requests →</Link>}
+      {next && (
+        <Link
+          href={"?cursor=" + encodeURIComponent(next)}
+          className="mt-5 inline-flex min-h-12 items-center rounded-xl border border-[#ffc17b]/25 px-5 text-sm font-bold text-[#ffc17b]"
+        >
+          Next pending requests →
+        </Link>
+      )}
       <p className="mt-5 flex gap-2 text-xs text-[#ab917c]">
         <ShieldCheck className="size-4 shrink-0" /> Marking reviewed does not charge anyone or renew
         a subscription; use the member record to assign a new B1 term.

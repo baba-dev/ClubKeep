@@ -19,9 +19,16 @@ import { MemberArenaShell } from "@/components/clubs/member-arena-shell";
 
 export const metadata: Metadata = { title: "My Sessions · ClubKeep", robots: { index: false } };
 
-export default function MySessionsRoute(props: { params: Promise<{ clubId: string }>; searchParams: Promise<{ cursor?: string }> }) {
+export default function MySessionsRoute(props: {
+  params: Promise<{ clubId: string }>;
+  searchParams: Promise<{ cursor?: string }>;
+}) {
   return (
-    <Suspense fallback={<main className="min-h-screen bg-[#0b0b0e] p-8 text-[#fce8d2]">Loading your club…</main>}>
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-[#0b0b0e] p-8 text-[#fce8d2]">Loading your club…</main>
+      }
+    >
       <MySessions {...props} />
     </Suspense>
   );

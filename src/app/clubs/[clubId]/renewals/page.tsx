@@ -27,7 +27,11 @@ export default function RenewalsPage({ params }: Props) {
 async function RenewalsContent({ params }: Props) {
   const { clubId } = await params,
     session = await requireSession();
-  const access = await requireClubActive(prisma, session.user.id, clubId, ["OWNER", "MANAGER", "STAFF"]);
+  const access = await requireClubActive(prisma, session.user.id, clubId, [
+    "OWNER",
+    "MANAGER",
+    "STAFF",
+  ]);
   const [club, records] = await Promise.all([
     prisma.club.findUniqueOrThrow({ where: { id: clubId }, select: { name: true } }),
     prisma.clubMemberRecord.findMany({
@@ -66,8 +70,10 @@ async function RenewalsContent({ params }: Props) {
       description="See who is approaching expiry, follow up with care and renew membership terms in a few taps. No payment is processed here."
     >
       {access.role !== "STAFF" && (
-        <Link href={"/clubs/" + encodeURIComponent(clubId) + "/renewal-requests"}
-          className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-xl border border-[#ffc17b]/35 bg-[#352316] px-5 text-sm font-bold text-[#ffc780]">
+        <Link
+          href={"/clubs/" + encodeURIComponent(clubId) + "/renewal-requests"}
+          className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-xl border border-[#ffc17b]/35 bg-[#352316] px-5 text-sm font-bold text-[#ffc780]"
+        >
           Open member renewal request inbox <ArrowRight className="size-4" />
         </Link>
       )}

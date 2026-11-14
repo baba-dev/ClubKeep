@@ -8,7 +8,11 @@ import { RenewalDecisionButtons } from "@/components/clubs/renewal-decision-butt
 
 export const dynamic = "force-dynamic";
 
-export default async function RenewalRequestQueue({ params }: { params: Promise<{ clubId: string }> }) {
+export default async function RenewalRequestQueue({
+  params,
+}: {
+  params: Promise<{ clubId: string }>;
+}) {
   const { clubId } = await params;
   const session = await requireSession();
   await requireClubActive(prisma, session.user.id, clubId, ["OWNER", "MANAGER"]);
@@ -19,31 +23,75 @@ export default async function RenewalRequestQueue({ params }: { params: Promise<
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
       take: 50,
       select: {
-        id: true, message: true, createdAt: true, memberRecordId: true,
+        id: true,
+        message: true,
+        createdAt: true,
+        memberRecordId: true,
         member: { select: { displayName: true, memberNumber: true } },
       },
     }),
   ]);
   return (
-    <BusinessShell clubId={clubId} clubName={club.name} active="renewals" eyebrow="Members first"
-      title="Renewal request inbox" description="Review requests from your verified linked members. Only the existing B1 member renewal flow can extend a term.">
+    <BusinessShell
+      clubId={clubId}
+      clubName={club.name}
+      active="renewals"
+      eyebrow="Members first"
+      title="Renewal request inbox"
+      description="Review requests from your verified linked members. Only the existing B1 member renewal flow can extend a term."
+    >
       <div className="mt-8 overflow-hidden rounded-3xl border border-[#f6c78c]/20 bg-[#19110d]">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#f6dc9b]/15 p-6">
-          <h2 className="flex items-center gap-2 text-lg font-bold"><BellRing className="size-5 text-[#ffc178]" /> Pending requests</h2><span className="text-xs text-[#c5aa92]">{requests.length} displayed · up to 50</span>
+          <h2 className="flex items-center gap-2 text-lg font-bold">
+            <BellRing className="size-5 text-[#ffc178]" /> Pending requests
+          </h2>
+          <span className="text-xs text-[#c5aa92]">{requests.length} displayed · up to 50</span>
         </div>
-        {requests.length === 0 ? <p className="p-9 text-sm text-[#baa38e]">All caught up. New member requests will arrive here.</p> :
-          <ul className="divide-y divide-[#f6dc9b]/10">{requests.map((request) => (
-            <li key={request.id} className="grid gap-5 p-6 lg:grid-cols-[1fr_auto]">
-              <div><p className="text-base font-bold text-[#fff0d9]">{request.member.displayName} <span className="text-xs font-normal text-[#bda48e]">#{request.member.memberNumber}</span></p>
-                <p className="mt-2 text-xs text-[#ad9680]">Requested {request.createdAt.toISOString().slice(0, 10)}</p>
-                {request.message && <p className="mt-3 max-w-xl text-sm leading-6 text-[#dfc3a4]">{request.message}</p>}
-                <Link href={"/clubs/" + encodeURIComponent(clubId) + "/members/" + encodeURIComponent(request.memberRecordId)} className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[#ffc17b]">Open member and manage renewal <ArrowUpRight className="size-4" /></Link>
-              </div>
-              <RenewalDecisionButtons clubId={clubId} requestId={request.id} />
-            </li>
-          ))}</ul>}
+        {requests.length === 0 ? (
+          <p className="p-9 text-sm text-[#baa38e]">
+            All caught up. New member requests will arrive here.
+          </p>
+        ) : (
+          <ul className="divide-y divide-[#f6dc9b]/10">
+            {requests.map((request) => (
+              <li key={request.id} className="grid gap-5 p-6 lg:grid-cols-[1fr_auto]">
+                <div>
+                  <p className="text-base font-bold text-[#fff0d9]">
+                    {request.member.displayName}{" "}
+                    <span className="text-xs font-normal text-[#bda48e]">
+                      #{request.member.memberNumber}
+                    </span>
+                  </p>
+                  <p className="mt-2 text-xs text-[#ad9680]">
+                    Requested {request.createdAt.toISOString().slice(0, 10)}
+                  </p>
+                  {request.message && (
+                    <p className="mt-3 max-w-xl text-sm leading-6 text-[#dfc3a4]">
+                      {request.message}
+                    </p>
+                  )}
+                  <Link
+                    href={
+                      "/clubs/" +
+                      encodeURIComponent(clubId) +
+                      "/members/" +
+                      encodeURIComponent(request.memberRecordId)
+                    }
+                    className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[#ffc17b]"
+                  >
+                    Open member and manage renewal <ArrowUpRight className="size-4" />
+                  </Link>
+                </div>
+                <RenewalDecisionButtons clubId={clubId} requestId={request.id} />
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
-      <p className="mt-5 flex gap-2 text-xs text-[#ab917c]"><ShieldCheck className="size-4 shrink-0" /> Marking reviewed does not charge anyone or renew a subscription; use the member record to assign a new B1 term.</p>
+      <p className="mt-5 flex gap-2 text-xs text-[#ab917c]">
+        <ShieldCheck className="size-4 shrink-0" /> Marking reviewed does not charge anyone or renew
+        a subscription; use the member record to assign a new B1 term.
+      </p>
     </BusinessShell>
   );
 }

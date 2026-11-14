@@ -14,8 +14,13 @@ export async function memberArenaSnapshot(
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       take: 8,
       select: {
-        id: true, planName: true, priceMinor: true, currency: true,
-        startAt: true, endAt: true, cancelledAt: true,
+        id: true,
+        planName: true,
+        priceMinor: true,
+        currency: true,
+        startAt: true,
+        endAt: true,
+        cancelledAt: true,
       },
     }),
     db.clubAttendance.findMany({
@@ -30,7 +35,8 @@ export async function memberArenaSnapshot(
     ? await db.clubPayment.groupBy({
         by: ["subscriptionId"],
         where: {
-          clubId, memberRecordId,
+          clubId,
+          memberRecordId,
           subscriptionId: { in: terms.map((term) => term.id) },
           reversal: { is: null },
         },
@@ -80,8 +86,13 @@ export async function memberPaymentPage(
     take: 21,
     ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
     select: {
-      id: true, receiptNo: true, planName: true, currency: true,
-      amountMinor: true, receivedAt: true, method: true,
+      id: true,
+      receiptNo: true,
+      planName: true,
+      currency: true,
+      amountMinor: true,
+      receivedAt: true,
+      method: true,
       reversal: { select: { id: true } },
     },
   });
@@ -97,11 +108,19 @@ export async function memberReceipt(
   return db.clubPayment.findFirst({
     where: { id: paymentId, clubId, memberRecordId },
     select: {
-      id: true, receiptNo: true, clubName: true,
-      memberName: true, memberNumber: true,
-      planName: true, currency: true, termPriceMinor: true,
-      termStartsAt: true, termEndsAt: true,
-      amountMinor: true, method: true, receivedAt: true,
+      id: true,
+      receiptNo: true,
+      clubName: true,
+      memberName: true,
+      memberNumber: true,
+      planName: true,
+      currency: true,
+      termPriceMinor: true,
+      termStartsAt: true,
+      termEndsAt: true,
+      amountMinor: true,
+      method: true,
+      receivedAt: true,
       reversal: { select: { id: true, createdAt: true } },
     },
   });

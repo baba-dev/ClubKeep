@@ -21,8 +21,12 @@ export async function createRenewalRequest(
     if (locked.count !== 1) throw new AccessDeniedError();
     const retry = await tx.memberRenewalRequest.findUnique({ where: { operationKey } });
     if (retry) {
-      if (retry.clubId !== clubId || retry.memberRecordId !== member.id ||
-          retry.requestedByUserId !== actorId || (retry.message ?? "") !== message)
+      if (
+        retry.clubId !== clubId ||
+        retry.memberRecordId !== member.id ||
+        retry.requestedByUserId !== actorId ||
+        (retry.message ?? "") !== message
+      )
         throw new OnboardingError(409, "Request identifier already in use");
       return { id: retry.id, repeated: true };
     }
@@ -32,11 +36,22 @@ export async function createRenewalRequest(
     });
     if (pending) return { id: pending.id, repeated: true };
     const created = await tx.memberRenewalRequest.create({
-      data: { clubId, memberRecordId: member.id, requestedByUserId: actorId, operationKey, message: message || null },
+      data: {
+        clubId,
+        memberRecordId: member.id,
+        requestedByUserId: actorId,
+        operationKey,
+        message: message || null,
+      },
       select: { id: true },
     });
     await tx.securityEvent.create({
-      data: { clubId, actorUserId: actorId, eventType: "RENEWAL_REQUESTED", referenceId: created.id },
+      data: {
+        clubId,
+        actorUserId: actorId,
+        eventType: "RENEWAL_REQUESTED",
+        referenceId: created.id,
+      },
     });
     return { id: created.id, repeated: false };
   });

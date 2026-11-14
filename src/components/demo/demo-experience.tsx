@@ -23,8 +23,6 @@ import {
   Flame,
   IdCard,
   Layers3,
-  Medal,
-  PlayCircle,
   Plus,
   RotateCcw,
   ScanLine,
@@ -492,11 +490,7 @@ export function DemoExperience({
                 onChange={(e) =>
                   navigate(
                     e.target.value as DemoRole,
-                    role === "member"
-                      ? "overview"
-                      : e.target.value === "member"
-                        ? "member-card"
-                        : "overview"
+                    e.target.value === "member" ? "member-card" : "overview"
                   )
                 }
               >
@@ -511,7 +505,22 @@ export function DemoExperience({
                 Simulation only · no permissions granted
               </p>
             </div>
-            <nav aria-label="Demo features" className="mt-5 space-y-5">
+            <label htmlFor="demo-feature-mobile" className="mt-4 block text-xs font-semibold text-[#e7cba9] lg:hidden">
+              Explore a feature
+              <select
+                id="demo-feature-mobile"
+                className={fieldClass}
+                value={view}
+                onChange={(e) => jump(e.target.value as DemoView)}
+              >
+                {DEMO_NAV.map((item) => (
+                  <option key={item.key} value={item.key}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <nav aria-label="Demo features" className="mt-5 hidden space-y-5 lg:block">
               {Object.entries(contents).map(([section, views]) => (
                 <div key={section}>
                   <h2 className="mb-2 px-2 text-[10px] font-black tracking-[.18em] text-[#ac998b] uppercase">

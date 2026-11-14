@@ -25,10 +25,21 @@ test("public demo routes are fixture-only and cover all shipped B1 through B6 mo
     "my-payments",
     "my-sessions",
     "admin-directory",
+    "invites",
+    "discover",
+    "account-security",
   ])
     assert.ok(DEMO_VIEWS.includes(key), key);
   assert.deepEqual(DEMO_ROLES, ["owner", "manager", "staff", "member", "admin"]);
   assert.equal(demoRoute("member", "leaderboard"), "/demo?role=member&view=leaderboard");
   assert.equal(initialDemo.members[0].due, 600);
   assert.ok(initialDemo.payments.every((p) => !("email" in p) && !("phone" in p)));
+});
+
+test("no demo API access or private server modules are imported by the client tour", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const tour = await readFile(new URL("../../src/components/demo/demo-experience.tsx", import.meta.url), "utf8");
+  assert.ok(!/\\bfetch\\s*\\(/.test(tour), "The public tour must never call real APIs");
+  assert.ok(!tour.includes("@/lib/prisma"), "The demo must not import the production database");
+  assert.ok(!tour.includes("@/lib/auth"), "The demo must not impersonate a verified session");
 });

@@ -23,6 +23,9 @@ import {
   Flame,
   IdCard,
   Layers3,
+  KeyRound,
+  Link2,
+  Search,
   Plus,
   RotateCcw,
   ScanLine,
@@ -50,6 +53,7 @@ import {
 const tabIcons: Record<DemoView, typeof Activity> = {
   overview: BarChart3,
   onboarding: Building2,
+  invites: Link2,
   members: UsersRound,
   plans: Layers3,
   attendance: ScanLine,
@@ -60,6 +64,8 @@ const tabIcons: Record<DemoView, typeof Activity> = {
   challenges: Flag,
   profile: Eye,
   settings: Settings2,
+  discover: Search,
+  "account-security": KeyRound,
   "member-card": IdCard,
   "my-payments": CreditCard,
   "my-sessions": Activity,
@@ -80,6 +86,10 @@ const hero: Record<DemoView, [string, string]> = {
   onboarding: [
     "Launch something great.",
     "Walk through a real-world club setup without creating production data.",
+  ],
+  invites: [
+    "Bring your people in.",
+    "Explore short-lived member-only invitations and owner-controlled access.",
   ],
   members: [
     "Every athlete matters.",
@@ -120,6 +130,14 @@ const hero: Record<DemoView, [string, string]> = {
   settings: [
     "Your club. Your rules.",
     "Review identity, vertical, regional settings and presentation.",
+  ],
+  discover: [
+    "Find your community.",
+    "Preview searchable, owner-approved club profiles and private-by-default discovery.",
+  ],
+  "account-security": [
+    "Your account. Your protection.",
+    "Explore verified sign-in, passkeys, password recovery and session-security boundaries.",
   ],
   "member-card": [
     "Made to belong.",
@@ -252,6 +270,10 @@ export function DemoExperience({
   const [challengeGoal, setChallengeGoal] = useState("10");
   const [timeZoneDraft, setTimeZoneDraft] = useState(initialDemo.timezone);
   const [portalMessage, setPortalMessage] = useState("");
+  const [invitesCreated, setInvitesCreated] = useState(0);
+  const [inviteRevoked, setInviteRevoked] = useState(false);
+  const [discoverTerm, setDiscoverTerm] = useState("");
+  const [demoPasskey, setDemoPasskey] = useState(false);
 
   function navigate(nextRole: DemoRole, nextView: DemoView) {
     setRole(nextRole);
@@ -266,6 +288,10 @@ export function DemoExperience({
   function reset() {
     setData(structuredClone(initialDemo));
     setNewMember("");
+    setInvitesCreated(0);
+    setInviteRevoked(false);
+    setDiscoverTerm("");
+    setDemoPasskey(false);
     setNewPlan("");
     setScoreValue("145");
     setNotice("");
@@ -427,6 +453,7 @@ export function DemoExperience({
     "Club operations": [
       "overview",
       "onboarding",
+      "invites",
       "members",
       "plans",
       "attendance",
@@ -435,7 +462,7 @@ export function DemoExperience({
     ],
     "Sports & engagement": ["competition", "leaderboard", "challenges"],
     "Member self-service": ["member-card", "my-sessions", "my-payments"],
-    "Presence & administration": ["profile", "settings", "admin-directory"],
+    "Presence & administration": ["profile", "settings", "discover", "account-security", "admin-directory"],
   };
 
   return (
@@ -1565,6 +1592,120 @@ export function DemoExperience({
                     >
                       Request renewal
                     </button>
+                  </Panel>
+                </div>
+              )}
+              {view === "invites" && (
+                <div className="grid gap-5 lg:grid-cols-2">
+                  <Panel title="Private member invitations" icon={Link2}>
+                    <p className="text-sm leading-7 text-[#c7b5a4]">
+                      Each real invitation grants MEMBER access only, expires after seven days,
+                      and is valid once. Only owners or managers issue them.
+                    </p>
+                    <div className="mt-6 flex flex-wrap items-center gap-3">
+                      <DemoPill emphasis>Single-use</DemoPill>
+                      <DemoPill>Member only</DemoPill>
+                      <DemoPill>Seven days</DemoPill>
+                    </div>
+                    <button
+                      type="button"
+                      className={mainButton + " mt-6"}
+                      onClick={() => {
+                        setInvitesCreated((count) => count + 1);
+                        setInviteRevoked(false);
+                        action("One fictional invitation created; no real invitation token exists");
+                      }}
+                    >
+                      <Plus className="size-4" /> Generate sample invitation
+                    </button>
+                    {invitesCreated > 0 && (
+                      <div className="mt-6 rounded-2xl border border-[#ffc47e]/25 bg-[#2b2018] p-5">
+                        <p className="text-xs font-black tracking-widest text-[#ffcd91] uppercase">
+                          Preview · Invitation #{invitesCreated}
+                        </p>
+                        <p className="mt-3 text-sm leading-6 text-[#cfb5a0]">
+                          The live product reveals its secure invitation only once. This demo
+                          intentionally does not manufacture a valid bearer token or shareable link.
+                        </p>
+                        <p className="mt-3"><DemoPill emphasis={!inviteRevoked}>
+                          {inviteRevoked ? "Revoked" : "Unclaimed · Member"}
+                        </DemoPill></p>
+                        <button type="button" className={secondaryButton + " mt-4"}
+                          disabled={inviteRevoked}
+                          onClick={() => { setInviteRevoked(true); action("Fictional invitation revoked"); }}>
+                          Revoke sample invitation
+                        </button>
+                      </div>
+                    )}
+                  </Panel>
+                  <Panel title="Access boundaries" icon={ShieldCheck}>
+                    <p className="text-sm leading-7 text-[#c7b5a4]">
+                      The invite does not verify a phone number, merge an existing identity,
+                      grant club management rights or unlock private health information.
+                      Redemption is handled by a verified authenticated session.
+                    </p>
+                    <button type="button" className={secondaryButton + " mt-5"}
+                      onClick={() => jump("members")}>Open member roster <ArrowRight className="size-4" /></button>
+                  </Panel>
+                </div>
+              )}
+              {view === "discover" && (
+                <div className="grid gap-5 lg:grid-cols-[1.35fr_1fr]">
+                  <Panel title="Discover approved clubs" icon={Search}>
+                    <label htmlFor="demo-search-clubs" className="text-sm font-bold text-[#f9d7b7]">Search fictional clubs</label>
+                    <input id="demo-search-clubs" type="search" maxLength={80}
+                      value={discoverTerm} onChange={(event) => setDiscoverTerm(event.target.value)}
+                      placeholder="Try gym, yoga, dance or a city" className={fieldClass} />
+                    <div className="mt-5 space-y-2">
+                      {[
+                        {name:"Ironworks Athletic Club",city:"Bengaluru",type:"GYM"},
+                        {name:"Harbor Yoga Circle",city:"Mumbai",type:"YOGA"},
+                        {name:"The Movement Studio",city:"Jaipur",type:"DANCE"},
+                        {name:"Summit Sports Academy",city:"Pune",type:"SPORTS"},
+                      ].filter((club) => [club.name,club.city,club.type].join(" ").toLowerCase().includes(discoverTerm.trim().toLowerCase()))
+                        .map((club) => <DemoRow key={club.name}
+                          title={club.name} subtitle={club.city + " · " + club.type}
+                          trailing={<DemoPill emphasis>Approved listing</DemoPill>} />)}
+                    </div>
+                  </Panel>
+                  <Panel title="Publication, not automatic exposure" icon={Eye}>
+                    <p className="text-sm leading-7 text-[#c8b5a4]">
+                      ClubKeep only lists clubs after owners submit public profiles and platform
+                      moderation approves them. Member rosters, payment ledgers and private
+                      performance rankings are never part of the public directory.
+                    </p>
+                    <button className={secondaryButton + " mt-5"}
+                      onClick={() => jump("profile")}>Preview public profile review</button>
+                  </Panel>
+                </div>
+              )}
+              {view === "account-security" && (
+                <div className="grid gap-5 lg:grid-cols-2">
+                  <Panel title="Identity protections" icon={KeyRound}>
+                    <div className="space-y-3">
+                      <DemoRow title="Verified email" subtitle="Required before private club mutations"
+                        trailing={<DemoPill emphasis>Verified</DemoPill>} />
+                      <DemoRow title="Passkey" subtitle="Optional device-backed authentication when enabled"
+                        trailing={<DemoPill emphasis={demoPasskey}>{demoPasskey ? "Simulated enabled" : "Not enabled"}</DemoPill>} />
+                      <DemoRow title="Existing password" subtitle="Legacy password sign-in remains available"
+                        trailing={<DemoPill>Protected</DemoPill>} />
+                      <DemoRow title="Session protection" subtitle="Server-verified sessions, exact-origin POST and abuse limiting"
+                        trailing={<ShieldCheck className="size-5 text-[#ffc387]" />} />
+                    </div>
+                    <button className={mainButton + " mt-5"} type="button"
+                      onClick={() => { setDemoPasskey(!demoPasskey); action(demoPasskey ? "Demo passkey removed" : "Demo passkey enabled; no WebAuthn ceremony occurred"); }}>
+                      {demoPasskey ? "Disable sample passkey" : "Simulate adding a passkey"}
+                    </button>
+                  </Panel>
+                  <Panel title="Protected live account" icon={ShieldCheck}>
+                    <p className="text-sm leading-7 text-[#c6b4a4]">
+                      Real passkey enrollment requires authenticated browser/device WebAuthn and
+                      configured providers. This demonstration does not collect a password,
+                      create a credential, call an authentication endpoint or replace session safeguards.
+                    </p>
+                    <Link href="/account/security" className={secondaryButton + " mt-5"}>
+                      Open real account security (sign-in required) <ArrowRight className="size-4" />
+                    </Link>
                   </Panel>
                 </div>
               )}

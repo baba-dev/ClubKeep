@@ -4,6 +4,7 @@ export type DemoRole = (typeof DEMO_ROLES)[number];
 export const DEMO_VIEWS = [
   "overview",
   "onboarding",
+  "invites",
   "members",
   "plans",
   "attendance",
@@ -14,6 +15,8 @@ export const DEMO_VIEWS = [
   "challenges",
   "profile",
   "settings",
+  "discover",
+  "account-security",
   "member-card",
   "my-payments",
   "my-sessions",
@@ -23,6 +26,7 @@ export type DemoView = (typeof DEMO_VIEWS)[number];
 export const DEMO_NAV: { key: DemoView; label: string; section: string }[] = [
   { key: "overview", label: "Dashboard", section: "Club operations" },
   { key: "onboarding", label: "Club setup", section: "Club operations" },
+  { key: "invites", label: "Member invitations", section: "Club operations" },
   { key: "members", label: "Members", section: "Club operations" },
   { key: "plans", label: "Membership plans", section: "Club operations" },
   { key: "attendance", label: "Check-in & QR", section: "Club operations" },
@@ -33,6 +37,8 @@ export const DEMO_NAV: { key: DemoView; label: string; section: string }[] = [
   { key: "challenges", label: "Challenges", section: "Sports & engagement" },
   { key: "profile", label: "Public club profile", section: "Presence & administration" },
   { key: "settings", label: "Club settings", section: "Presence & administration" },
+  { key: "discover", label: "Club discovery", section: "Presence & administration" },
+  { key: "account-security", label: "Account security", section: "Presence & administration" },
   { key: "member-card", label: "My digital ID", section: "Member self-service" },
   { key: "my-payments", label: "My payments", section: "Member self-service" },
   { key: "my-sessions", label: "My sessions", section: "Member self-service" },

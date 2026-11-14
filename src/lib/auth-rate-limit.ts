@@ -9,7 +9,7 @@ local ttl=redis.call('TTL',KEYS[1])
 return {count, ttl}
 `;
 
-export type LimitDecision = { allowed: boolean; retryAfter: number | null };
+export type LimitDecision = { allowed: boolean; retryAfter: number | null; unavailable?: boolean };
 
 /**
  * All security counters are keyed HMAC digests, not email addresses, raw IPs
@@ -70,7 +70,7 @@ export function createAuthRateLimiter(redisUrl: string, secret: string) {
     } catch {
       // If the security store is unavailable, never fall back to memory or
       // allow requests that bypass a distributed security boundary.
-      return { allowed: false, retryAfter: period };
+      return { allowed: false, retryAfter: period, unavailable: true };
     }
   }
   return {

@@ -140,9 +140,20 @@ export function resolveAuthConfig(env: Env = process.env): AuthFeatureConfig {
     result.webauthn = { rpID, origin: rpOrigin.origin };
   }
 
-  if (features.google || features.emailLink || features.passkey) {
-    // Sensitive authentication must use isolated, non-evicting security state.
-    const redis = requireValue(env, "AUTH_RATE_LIMIT_REDIS_URL");
+  // Club mutations require the same isolated, fail-closed security limiter as
+  // modern authentication *even when all optional sign-in providers are off*.
+  // Existing password-only production installs already have a ClubKeep-owned
+  // REDIS_URL; use it only if no explicit auth limiter URL was configured.
+  const providerEnabled = features.google || features.emailLink || features.passkey;
+  const redis =
+    env.AUTH_RATE_LIMIT_REDIS_URL?.trim() ||
+    (!providerEnabled ? env.REDIS_URL?.trim() : undefined);
+  if (providerEnabled && !env.AUTH_RATE_LIMIT_REDIS_URL?.trim()) {
+    throw new Error("Missing required auth configuration: AUTH_RATE_LIMIT_REDIS_URL");
+  }
+  if (redis) {
+    // Security state must never use MenuMinute's independently-owned Redis.
+
     let url: URL;
     try {
       url = new URL(redis);
@@ -160,7 +171,7 @@ export function resolveAuthConfig(env: Env = process.env): AuthFeatureConfig {
       throw new Error("ClubKeep auth must not use MenuMinute Redis instances");
     }
     const ipHeader = env.AUTH_TRUSTED_IP_HEADER?.toLowerCase();
-    if (production && !ipHeader)
+    if (production && providerEnabled && !ipHeader)
       throw new Error("Missing AUTH_TRUSTED_IP_HEADER for trusted Nginx proxy");
     if (ipHeader && !["x-clubkeep-client-ip", "cf-connecting-ip"].includes(ipHeader)) {
       throw new Error("Unsupported trusted IP header");

@@ -116,3 +116,21 @@ test("production rejects MenuMinute auth Redis and absent Nginx header contract"
     /AUTH_TRUSTED_IP_HEADER/
   );
 });
+
+test("password-only owner onboarding uses ClubKeep security Redis instead of disabling mutations", () => {
+  const passwordOnly = {
+    ...base,
+    REDIS_URL: "redis://127.0.0.1:6383",
+  };
+  const config = resolveAuthConfig(passwordOnly);
+  assert.equal(config.rateLimitRedisUrl, passwordOnly.REDIS_URL);
+  assert.equal(config.features.google, false);
+  assert.equal(config.features.emailLink, false);
+  assert.equal(config.features.passkey, false);
+  assert.equal(resolveAuthConfig({ ...passwordOnly, AUTH_RATE_LIMIT_REDIS_URL: "redis://127.0.0.1:6399" }).rateLimitRedisUrl, "redis://127.0.0.1:6399");
+  assert.equal(resolveAuthConfig(base).rateLimitRedisUrl, undefined); // No security store means mutation guard must reject.
+  assert.throws(
+    () => resolveAuthConfig({ ...passwordOnly, NODE_ENV: "production", REDIS_URL: "redis://127.0.0.1:6381" }),
+    /MenuMinute/
+  );
+});

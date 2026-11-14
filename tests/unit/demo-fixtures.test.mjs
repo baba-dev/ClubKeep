@@ -42,7 +42,7 @@ test("no demo API access or private server modules are imported by the client to
     new URL("../../src/components/demo/demo-experience.tsx", import.meta.url),
     "utf8"
   );
-  assert.ok(!/\\bfetch\\s*\\(/.test(tour), "The public tour must never call real APIs");
+  assert.ok(!tour.includes("fetch("), "The public tour must never call real APIs");
   assert.ok(!tour.includes("@/lib/prisma"), "The demo must not import the production database");
   assert.ok(!tour.includes("@/lib/auth"), "The demo must not impersonate a verified session");
 });

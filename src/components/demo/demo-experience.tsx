@@ -462,7 +462,13 @@ export function DemoExperience({
     ],
     "Sports & engagement": ["competition", "leaderboard", "challenges"],
     "Member self-service": ["member-card", "my-sessions", "my-payments"],
-    "Presence & administration": ["profile", "settings", "discover", "account-security", "admin-directory"],
+    "Presence & administration": [
+      "profile",
+      "settings",
+      "discover",
+      "account-security",
+      "admin-directory",
+    ],
   };
 
   return (
@@ -531,7 +537,10 @@ export function DemoExperience({
                 Simulation only · no permissions granted
               </p>
             </div>
-            <label htmlFor="demo-feature-mobile" className="mt-4 block text-xs font-semibold text-[#e7cba9] lg:hidden">
+            <label
+              htmlFor="demo-feature-mobile"
+              className="mt-4 block text-xs font-semibold text-[#e7cba9] lg:hidden"
+            >
               Explore a feature
               <select
                 id="demo-feature-mobile"
@@ -1599,8 +1608,8 @@ export function DemoExperience({
                 <div className="grid gap-5 lg:grid-cols-2">
                   <Panel title="Private member invitations" icon={Link2}>
                     <p className="text-sm leading-7 text-[#c7b5a4]">
-                      Each real invitation grants MEMBER access only, expires after seven days,
-                      and is valid once. Only owners or managers issue them.
+                      Each real invitation grants MEMBER access only, expires after seven days, and
+                      is valid once. Only owners or managers issue them.
                     </p>
                     <div className="mt-6 flex flex-wrap items-center gap-3">
                       <DemoPill emphasis>Single-use</DemoPill>
@@ -1627,12 +1636,20 @@ export function DemoExperience({
                           The live product reveals its secure invitation only once. This demo
                           intentionally does not manufacture a valid bearer token or shareable link.
                         </p>
-                        <p className="mt-3"><DemoPill emphasis={!inviteRevoked}>
-                          {inviteRevoked ? "Revoked" : "Unclaimed · Member"}
-                        </DemoPill></p>
-                        <button type="button" className={secondaryButton + " mt-4"}
+                        <p className="mt-3">
+                          <DemoPill emphasis={!inviteRevoked}>
+                            {inviteRevoked ? "Revoked" : "Unclaimed · Member"}
+                          </DemoPill>
+                        </p>
+                        <button
+                          type="button"
+                          className={secondaryButton + " mt-4"}
                           disabled={inviteRevoked}
-                          onClick={() => { setInviteRevoked(true); action("Fictional invitation revoked"); }}>
+                          onClick={() => {
+                            setInviteRevoked(true);
+                            action("Fictional invitation revoked");
+                          }}
+                        >
                           Revoke sample invitation
                         </button>
                       </div>
@@ -1640,32 +1657,56 @@ export function DemoExperience({
                   </Panel>
                   <Panel title="Access boundaries" icon={ShieldCheck}>
                     <p className="text-sm leading-7 text-[#c7b5a4]">
-                      The invite does not verify a phone number, merge an existing identity,
-                      grant club management rights or unlock private health information.
-                      Redemption is handled by a verified authenticated session.
+                      The invite does not verify a phone number, merge an existing identity, grant
+                      club management rights or unlock private health information. Redemption is
+                      handled by a verified authenticated session.
                     </p>
-                    <button type="button" className={secondaryButton + " mt-5"}
-                      onClick={() => jump("members")}>Open member roster <ArrowRight className="size-4" /></button>
+                    <button
+                      type="button"
+                      className={secondaryButton + " mt-5"}
+                      onClick={() => jump("members")}
+                    >
+                      Open member roster <ArrowRight className="size-4" />
+                    </button>
                   </Panel>
                 </div>
               )}
               {view === "discover" && (
                 <div className="grid gap-5 lg:grid-cols-[1.35fr_1fr]">
                   <Panel title="Discover approved clubs" icon={Search}>
-                    <label htmlFor="demo-search-clubs" className="text-sm font-bold text-[#f9d7b7]">Search fictional clubs</label>
-                    <input id="demo-search-clubs" type="search" maxLength={80}
-                      value={discoverTerm} onChange={(event) => setDiscoverTerm(event.target.value)}
-                      placeholder="Try gym, yoga, dance or a city" className={fieldClass} />
+                    <label htmlFor="demo-search-clubs" className="text-sm font-bold text-[#f9d7b7]">
+                      Search fictional clubs
+                    </label>
+                    <input
+                      id="demo-search-clubs"
+                      type="search"
+                      maxLength={80}
+                      value={discoverTerm}
+                      onChange={(event) => setDiscoverTerm(event.target.value)}
+                      placeholder="Try gym, yoga, dance or a city"
+                      className={fieldClass}
+                    />
                     <div className="mt-5 space-y-2">
                       {[
-                        {name:"Ironworks Athletic Club",city:"Bengaluru",type:"GYM"},
-                        {name:"Harbor Yoga Circle",city:"Mumbai",type:"YOGA"},
-                        {name:"The Movement Studio",city:"Jaipur",type:"DANCE"},
-                        {name:"Summit Sports Academy",city:"Pune",type:"SPORTS"},
-                      ].filter((club) => [club.name,club.city,club.type].join(" ").toLowerCase().includes(discoverTerm.trim().toLowerCase()))
-                        .map((club) => <DemoRow key={club.name}
-                          title={club.name} subtitle={club.city + " · " + club.type}
-                          trailing={<DemoPill emphasis>Approved listing</DemoPill>} />)}
+                        { name: "Ironworks Athletic Club", city: "Bengaluru", type: "GYM" },
+                        { name: "Harbor Yoga Circle", city: "Mumbai", type: "YOGA" },
+                        { name: "The Movement Studio", city: "Jaipur", type: "DANCE" },
+                        { name: "Summit Sports Academy", city: "Pune", type: "SPORTS" },
+                      ]
+                        .filter((club) =>
+                          [club.name, club.city, club.type]
+                            .join(" ")
+                            .toLowerCase()
+                            .includes(discoverTerm.trim().toLowerCase())
+                        )
+                        .map((club) => (
+                          <DemoRow
+                            key={club.name}
+                            title={club.name}
+                            subtitle={club.city + " · " + club.type}
+                            trailing={<DemoPill emphasis>Approved listing</DemoPill>}
+                          />
+                        ))}
                     </div>
                   </Panel>
                   <Panel title="Publication, not automatic exposure" icon={Eye}>
@@ -1674,8 +1715,9 @@ export function DemoExperience({
                       moderation approves them. Member rosters, payment ledgers and private
                       performance rankings are never part of the public directory.
                     </p>
-                    <button className={secondaryButton + " mt-5"}
-                      onClick={() => jump("profile")}>Preview public profile review</button>
+                    <button className={secondaryButton + " mt-5"} onClick={() => jump("profile")}>
+                      Preview public profile review
+                    </button>
                   </Panel>
                 </div>
               )}
@@ -1683,28 +1725,55 @@ export function DemoExperience({
                 <div className="grid gap-5 lg:grid-cols-2">
                   <Panel title="Identity protections" icon={KeyRound}>
                     <div className="space-y-3">
-                      <DemoRow title="Verified email" subtitle="Required before private club mutations"
-                        trailing={<DemoPill emphasis>Verified</DemoPill>} />
-                      <DemoRow title="Passkey" subtitle="Optional device-backed authentication when enabled"
-                        trailing={<DemoPill emphasis={demoPasskey}>{demoPasskey ? "Simulated enabled" : "Not enabled"}</DemoPill>} />
-                      <DemoRow title="Existing password" subtitle="Legacy password sign-in remains available"
-                        trailing={<DemoPill>Protected</DemoPill>} />
-                      <DemoRow title="Session protection" subtitle="Server-verified sessions, exact-origin POST and abuse limiting"
-                        trailing={<ShieldCheck className="size-5 text-[#ffc387]" />} />
+                      <DemoRow
+                        title="Verified email"
+                        subtitle="Required before private club mutations"
+                        trailing={<DemoPill emphasis>Verified</DemoPill>}
+                      />
+                      <DemoRow
+                        title="Passkey"
+                        subtitle="Optional device-backed authentication when enabled"
+                        trailing={
+                          <DemoPill emphasis={demoPasskey}>
+                            {demoPasskey ? "Simulated enabled" : "Not enabled"}
+                          </DemoPill>
+                        }
+                      />
+                      <DemoRow
+                        title="Existing password"
+                        subtitle="Legacy password sign-in remains available"
+                        trailing={<DemoPill>Protected</DemoPill>}
+                      />
+                      <DemoRow
+                        title="Session protection"
+                        subtitle="Server-verified sessions, exact-origin POST and abuse limiting"
+                        trailing={<ShieldCheck className="size-5 text-[#ffc387]" />}
+                      />
                     </div>
-                    <button className={mainButton + " mt-5"} type="button"
-                      onClick={() => { setDemoPasskey(!demoPasskey); action(demoPasskey ? "Demo passkey removed" : "Demo passkey enabled; no WebAuthn ceremony occurred"); }}>
+                    <button
+                      className={mainButton + " mt-5"}
+                      type="button"
+                      onClick={() => {
+                        setDemoPasskey(!demoPasskey);
+                        action(
+                          demoPasskey
+                            ? "Demo passkey removed"
+                            : "Demo passkey enabled; no WebAuthn ceremony occurred"
+                        );
+                      }}
+                    >
                       {demoPasskey ? "Disable sample passkey" : "Simulate adding a passkey"}
                     </button>
                   </Panel>
                   <Panel title="Protected live account" icon={ShieldCheck}>
                     <p className="text-sm leading-7 text-[#c6b4a4]">
                       Real passkey enrollment requires authenticated browser/device WebAuthn and
-                      configured providers. This demonstration does not collect a password,
-                      create a credential, call an authentication endpoint or replace session safeguards.
+                      configured providers. This demonstration does not collect a password, create a
+                      credential, call an authentication endpoint or replace session safeguards.
                     </p>
                     <Link href="/account/security" className={secondaryButton + " mt-5"}>
-                      Open real account security (sign-in required) <ArrowRight className="size-4" />
+                      Open real account security (sign-in required){" "}
+                      <ArrowRight className="size-4" />
                     </Link>
                   </Panel>
                 </div>

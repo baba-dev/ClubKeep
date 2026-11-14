@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { Activity, ArrowLeft, CalendarDays, CreditCard, IdCard, Zap } from "lucide-react";
+import { Activity, ArrowLeft, CalendarDays, CreditCard, IdCard, Zap, Trophy } from "lucide-react";
 
-type Tab = "arena" | "card" | "visits" | "fees" | "renewal";
+type Tab = "arena" | "play" | "card" | "visits" | "fees" | "renewal";
 const items = [
   { key: "arena", label: "Arena", href: "", Icon: Zap },
+  { key: "play", label: "Compete", href: "/play", Icon: Trophy },
   { key: "card", label: "My ID", href: "/card", Icon: IdCard },
   { key: "visits", label: "Sessions", href: "/attendance", Icon: Activity },
   { key: "fees", label: "Payments", href: "/payments", Icon: CreditCard },
@@ -99,7 +100,7 @@ export function MemberArenaShell({
       </main>
       <nav
         aria-label="Mobile member navigation"
-        className="fixed inset-x-2 bottom-2 z-40 grid grid-cols-5 gap-1 rounded-2xl border border-[#ffc783]/20 bg-[#161317]/95 p-2 shadow-2xl backdrop-blur-xl sm:hidden print:hidden"
+        className="fixed inset-x-2 bottom-2 z-40 grid grid-cols-6 gap-0.5 rounded-2xl border border-[#ffc783]/20 bg-[#161317]/95 p-2 shadow-2xl backdrop-blur-xl sm:hidden print:hidden"
       >
         {items.map(({ key, label, href, Icon }) => (
           <Link
@@ -107,7 +108,7 @@ export function MemberArenaShell({
             href={base + href}
             aria-current={active === key ? "page" : undefined}
             className={
-              "flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-semibold focus-visible:outline-2 focus-visible:outline-[#ffbe79] " +
+              "flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl text-[9px] font-semibold focus-visible:outline-2 focus-visible:outline-[#ffbe79] " +
               (active === key ? "bg-[#e98134] text-[#1a1010]" : "text-[#ceb9a8]")
             }
           >

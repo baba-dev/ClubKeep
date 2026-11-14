@@ -105,7 +105,7 @@ export async function guardOnboardingPost(
   const userLimit =
     requireUser && session?.user
       ? await authLimiter.consume("club-onboarding-user:" + scope, session.user.id, 3600, max)
-      : { allowed: true };
+      : { allowed: true, retryAfter: null, unavailable: false };
   if (ipLimit.unavailable || userLimit.unavailable) {
     return {
       ok: false,

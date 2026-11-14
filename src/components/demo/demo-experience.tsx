@@ -45,7 +45,6 @@ import {
   type DemoRole,
   type DemoView,
   type DemoState,
-  type DemoMember,
 } from "@/lib/demo-fixtures";
 
 const tabIcons: Record<DemoView, typeof Activity> = {

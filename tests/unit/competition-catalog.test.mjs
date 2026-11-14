@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { METRICS, supportsMetric, validScore, threeMonthEnd } from "../../src/lib/competition-catalog.ts";
+import {
+  METRICS,
+  supportsMetric,
+  validScore,
+  threeMonthEnd,
+} from "../../src/lib/competition-catalog.ts";
 
 test("B6 performance metrics exclude biometric/medical signals and have explicit bounds", () => {
   assert.equal(Object.keys(METRICS).length, 5);

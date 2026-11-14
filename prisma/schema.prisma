@@ -735,7 +735,8 @@ model ClubLeaderboardBest {
   score ClubScore @relation(fields: [clubId, scoreId], references: [clubId, id], onDelete: Restrict)
 
   @@id([clubId, seasonMetricId, memberRecordId])
-  @@index([clubId, seasonMetricId, value(sort: Desc), approvedAt, memberRecordId])
+  @@unique([clubId, scoreId])
+  @@index([clubId, seasonMetricId, value(sort: Desc), approvedAt, memberRecordId], map: "clubkeep_best_ranking_idx")
 }
 
 model ClubChallenge {

@@ -19,7 +19,8 @@ import { prisma } from "@/lib/prisma";
 import { requireActiveClubMembership } from "@/lib/club-access";
 import { ClubThemeToggle } from "@/components/clubs/theme-toggle";
 
-type Active = "members" | "plans" | "renewals" | "overview" | "attendance" | "finance" | "competition";
+type Active =
+  "members" | "plans" | "renewals" | "overview" | "attendance" | "finance" | "competition";
 export async function BusinessShell({
   clubId,
   clubName,

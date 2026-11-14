@@ -98,7 +98,8 @@ CREATE TABLE "ClubLeaderboardBest" (
  CONSTRAINT "ClubLeaderboardBest_clubId_scoreId_fkey" FOREIGN KEY ("clubId","scoreId") REFERENCES "ClubScore"("clubId","id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 CREATE UNIQUE INDEX "ClubLeaderboardBest_scoreId_key" ON "ClubLeaderboardBest"("scoreId");
-CREATE INDEX "ClubLeaderboardBest_clubId_seasonMetricId_value_approvedAt_memberRecordId_idx"
+CREATE UNIQUE INDEX "ClubLeaderboardBest_clubId_scoreId_key" ON "ClubLeaderboardBest"("clubId","scoreId");
+CREATE INDEX "clubkeep_best_ranking_idx"
  ON "ClubLeaderboardBest"("clubId","seasonMetricId","value" DESC,"approvedAt","memberRecordId");
 
 CREATE TABLE "ClubChallenge" (

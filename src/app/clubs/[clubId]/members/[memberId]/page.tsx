@@ -198,9 +198,18 @@ async function MemberContent({ params }: Props) {
       />
       {member.status === "ACTIVE" && activeCompetition?.metrics.length ? (
         <section className="mt-7 rounded-3xl border border-[#f6dc9b]/15 bg-[#19110d] p-6 sm:p-8">
-          <h2 className="mb-3 flex items-center gap-2 text-xl font-black"><Trophy className="size-6 text-[#ffc07a]" /> Propose verified performance</h2>
-          <p className="mb-5 max-w-xl text-sm leading-7 text-[#bba18b]">Only enter a witnessed result. A separate owner or manager must independently approve it; a submitter cannot approve their own score.</p>
-          <ScoreSubmitForm clubId={clubId} metrics={activeCompetition.metrics} memberRecordId={member.id} />
+          <h2 className="mb-3 flex items-center gap-2 text-xl font-black">
+            <Trophy className="size-6 text-[#ffc07a]" /> Propose verified performance
+          </h2>
+          <p className="mb-5 max-w-xl text-sm leading-7 text-[#bba18b]">
+            Only enter a witnessed result. A separate owner or manager must independently approve
+            it; a submitter cannot approve their own score.
+          </p>
+          <ScoreSubmitForm
+            clubId={clubId}
+            metrics={activeCompetition.metrics}
+            memberRecordId={member.id}
+          />
         </section>
       ) : null}
       <RecordClubPaymentForm

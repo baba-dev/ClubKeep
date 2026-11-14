@@ -13,7 +13,12 @@ function uniqueError(error: unknown): boolean {
   return typeof error === "object" && error !== null && "code" in error && error.code === "P2002";
 }
 
-export async function submitClubScore(db: PrismaClient, actorId: string, clubId: string, input: ScoreInput) {
+export async function submitClubScore(
+  db: PrismaClient,
+  actorId: string,
+  clubId: string,
+  input: ScoreInput
+) {
   try {
     return await db.$transaction(async (tx) => {
       let memberRecordId: string;
@@ -32,11 +37,18 @@ export async function submitClubScore(db: PrismaClient, actorId: string, clubId:
       const metric = await requireSeasonMetric(tx as PrismaClient, clubId, input.seasonMetricId);
       if (!validScore(metric.metric, input.value))
         throw new OnboardingError(400, "Score is outside the permitted range for this activity");
-      const previous = await tx.clubScore.findUnique({ where: { operationKey: input.operationKey } });
+      const previous = await tx.clubScore.findUnique({
+        where: { operationKey: input.operationKey },
+      });
       if (previous) {
-        if (previous.clubId !== clubId || previous.memberRecordId !== memberRecordId ||
-            previous.seasonMetricId !== metric.id || previous.submittedByUserId !== actorId ||
-            previous.value !== input.value || (previous.note ?? "") !== input.note)
+        if (
+          previous.clubId !== clubId ||
+          previous.memberRecordId !== memberRecordId ||
+          previous.seasonMetricId !== metric.id ||
+          previous.submittedByUserId !== actorId ||
+          previous.value !== input.value ||
+          (previous.note ?? "") !== input.note
+        )
           throw new OnboardingError(409, "Submission key already used for a different score");
         return { id: previous.id, status: previous.status, repeated: true };
       }
@@ -47,26 +59,40 @@ export async function submitClubScore(db: PrismaClient, actorId: string, clubId:
       if (pending) throw new OnboardingError(409, "A score is already awaiting verification");
       const record = await tx.clubScore.create({
         data: {
-          clubId, seasonMetricId: metric.id, memberRecordId, value: input.value,
-          note: input.note || null, operationKey: input.operationKey, submittedByUserId: actorId,
+          clubId,
+          seasonMetricId: metric.id,
+          memberRecordId,
+          value: input.value,
+          note: input.note || null,
+          operationKey: input.operationKey,
+          submittedByUserId: actorId,
         },
         select: { id: true, status: true },
       });
       await tx.securityEvent.create({
-        data: { clubId, actorUserId: actorId, eventType: "COMPETITION_SCORE_SUBMITTED", referenceId: record.id },
+        data: {
+          clubId,
+          actorUserId: actorId,
+          eventType: "COMPETITION_SCORE_SUBMITTED",
+          referenceId: record.id,
+        },
       });
       return { ...record, repeated: false };
     });
   } catch (e) {
-    if (uniqueError(e)) throw new OnboardingError(409, "A score is already pending or the operation key was reused");
+    if (uniqueError(e))
+      throw new OnboardingError(409, "A score is already pending or the operation key was reused");
     throw e;
   }
 }
 
 /** Club-only review, one-way decisions, verified best-score materialization. */
 export async function reviewClubScore(
-  db: PrismaClient, actorId: string, clubId: string,
-  scoreId: string, decision: "APPROVED" | "REJECTED"
+  db: PrismaClient,
+  actorId: string,
+  clubId: string,
+  scoreId: string,
+  decision: "APPROVED" | "REJECTED"
 ) {
   return db.$transaction(async (tx) => {
     await requireClubActive(tx as PrismaClient, actorId, clubId, ["OWNER", "MANAGER"]);
@@ -74,11 +100,15 @@ export async function reviewClubScore(
       SELECT "id" FROM "ClubScore" WHERE "clubId"=${clubId}
         AND "id"=${scoreId} AND "status"='PENDING' FOR UPDATE
     `;
-    if (locked.length !== 1) throw new OnboardingError(409, "Score already reviewed or unavailable");
+    if (locked.length !== 1)
+      throw new OnboardingError(409, "Score already reviewed or unavailable");
     const score = await tx.clubScore.findFirst({
       where: { clubId, id: scoreId, status: "PENDING" },
       select: {
-        id: true, seasonMetricId: true, memberRecordId: true, value: true,
+        id: true,
+        seasonMetricId: true,
+        memberRecordId: true,
+        value: true,
         submittedByUserId: true,
       },
     });
@@ -89,7 +119,8 @@ export async function reviewClubScore(
       where: { clubId, id: score.memberRecordId, status: "ACTIVE" },
       select: { id: true },
     });
-    if (!active) throw new OnboardingError(409, "Archived members cannot receive new verified scores");
+    if (!active)
+      throw new OnboardingError(409, "Archived members cannot receive new verified scores");
     const now = new Date();
     const update = await tx.clubScore.updateMany({
       where: { clubId, id: scoreId, status: "PENDING" },
@@ -103,23 +134,43 @@ export async function reviewClubScore(
           AND "id"=${score.memberRecordId} FOR UPDATE
       `;
       if (lockMember.length !== 1) throw new AccessDeniedError();
-      const where = { clubId_seasonMetricId_memberRecordId: {
-        clubId, seasonMetricId: score.seasonMetricId, memberRecordId: score.memberRecordId,
-      }};
+      const where = {
+        clubId_seasonMetricId_memberRecordId: {
+          clubId,
+          seasonMetricId: score.seasonMetricId,
+          memberRecordId: score.memberRecordId,
+        },
+      };
       const best = await tx.clubLeaderboardBest.findUnique({ where, select: { value: true } });
       if (!best) {
-        await tx.clubLeaderboardBest.create({ data: {
-          clubId, seasonMetricId: score.seasonMetricId, memberRecordId: score.memberRecordId,
-          scoreId, value: score.value, approvedAt: now,
-        }});
+        await tx.clubLeaderboardBest.create({
+          data: {
+            clubId,
+            seasonMetricId: score.seasonMetricId,
+            memberRecordId: score.memberRecordId,
+            scoreId,
+            value: score.value,
+            approvedAt: now,
+          },
+        });
       } else if (score.value > best.value) {
-        await tx.clubLeaderboardBest.update({ where, data: {
-          scoreId, value: score.value, approvedAt: now,
-        }});
+        await tx.clubLeaderboardBest.update({
+          where,
+          data: {
+            scoreId,
+            value: score.value,
+            approvedAt: now,
+          },
+        });
       }
     }
     await tx.securityEvent.create({
-      data: { clubId, actorUserId: actorId, eventType: "COMPETITION_SCORE_REVIEWED", referenceId: scoreId },
+      data: {
+        clubId,
+        actorUserId: actorId,
+        eventType: "COMPETITION_SCORE_REVIEWED",
+        referenceId: scoreId,
+      },
     });
     return { id: scoreId, status: decision };
   });

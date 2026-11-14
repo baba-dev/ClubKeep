@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import {
   ArrowUpRight,
@@ -21,9 +22,16 @@ import { formatMinorMoney } from "@/lib/money-format";
 import { MemberArenaShell } from "@/components/clubs/member-arena-shell";
 
 export const metadata: Metadata = { title: "Member Arena · ClubKeep", robots: { index: false } };
-export const dynamic = "force-dynamic";
 
-export default async function MyClubPage({ params }: { params: Promise<{ clubId: string }> }) {
+export default function MyClubPageRoute(props: { params: Promise<{ clubId: string }> }) {
+  return (
+    <Suspense fallback={<main className="min-h-screen bg-[#0b0b0e] p-8 text-[#fce8d2]">Loading your club…</main>}>
+      <MyClubPage {...props} />
+    </Suspense>
+  );
+}
+
+async function MyClubPage({ params }: { params: Promise<{ clubId: string }> }) {
   const { clubId } = await params;
   const session = await requireSession();
   if (!session.user.emailVerified) redirect("/home");

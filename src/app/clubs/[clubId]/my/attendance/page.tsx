@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -17,9 +18,16 @@ import { prisma } from "@/lib/prisma";
 import { MemberArenaShell } from "@/components/clubs/member-arena-shell";
 
 export const metadata: Metadata = { title: "My Sessions · ClubKeep", robots: { index: false } };
-export const dynamic = "force-dynamic";
 
-export default async function MySessions({
+export default function MySessionsRoute(props: { params: Promise<{ clubId: string }>; searchParams: Promise<{ cursor?: string }> }) {
+  return (
+    <Suspense fallback={<main className="min-h-screen bg-[#0b0b0e] p-8 text-[#fce8d2]">Loading your club…</main>}>
+      <MySessions {...props} />
+    </Suspense>
+  );
+}
+
+async function MySessions({
   params,
   searchParams,
 }: {

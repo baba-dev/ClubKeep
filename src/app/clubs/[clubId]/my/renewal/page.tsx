@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowUpRight, BellRing, CalendarClock, CheckCircle2, ShieldCheck } from "lucide-react";
 import { redirect } from "next/navigation";
@@ -14,9 +15,16 @@ export const metadata: Metadata = {
   title: "Membership Renewal · ClubKeep",
   robots: { index: false },
 };
-export const dynamic = "force-dynamic";
 
-export default async function MemberRenewal({ params }: { params: Promise<{ clubId: string }> }) {
+export default function MemberRenewalRoute(props: { params: Promise<{ clubId: string }> }) {
+  return (
+    <Suspense fallback={<main className="min-h-screen bg-[#0b0b0e] p-8 text-[#fce8d2]">Loading your club…</main>}>
+      <MemberRenewal {...props} />
+    </Suspense>
+  );
+}
+
+async function MemberRenewal({ params }: { params: Promise<{ clubId: string }> }) {
   const { clubId } = await params;
   const session = await requireSession();
   if (!session.user.emailVerified) redirect("/home");

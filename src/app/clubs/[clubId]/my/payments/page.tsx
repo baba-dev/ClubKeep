@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowRight, CreditCard, ReceiptText, ShieldCheck, Wallet } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
@@ -15,9 +16,16 @@ export const metadata: Metadata = {
   title: "My Club Payments · ClubKeep",
   robots: { index: false },
 };
-export const dynamic = "force-dynamic";
 
-export default async function MyPayments({
+export default function MyPaymentsRoute(props: { params: Promise<{ clubId: string }>; searchParams: Promise<{ cursor?: string }> }) {
+  return (
+    <Suspense fallback={<main className="min-h-screen bg-[#0b0b0e] p-8 text-[#fce8d2]">Loading your club…</main>}>
+      <MyPayments {...props} />
+    </Suspense>
+  );
+}
+
+async function MyPayments({
   params,
   searchParams,
 }: {

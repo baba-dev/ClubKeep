@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowUpRight, BellRing, ShieldCheck } from "lucide-react";
 import { requireSession } from "@/lib/required-session";
@@ -6,9 +7,16 @@ import { prisma } from "@/lib/prisma";
 import { BusinessShell } from "@/components/clubs/business-shell";
 import { RenewalDecisionButtons } from "@/components/clubs/renewal-decision-buttons";
 
-export const dynamic = "force-dynamic";
 
-export default async function RenewalRequestQueue({
+export default function RenewalRequestQueueRoute(props: { params: Promise<{ clubId: string }> }) {
+  return (
+    <Suspense fallback={<main className="min-h-screen bg-[#0b0b0e] p-8 text-[#fce8d2]">Loading your club…</main>}>
+      <RenewalRequestQueue {...props} />
+    </Suspense>
+  );
+}
+
+async function RenewalRequestQueue({
   params,
 }: {
   params: Promise<{ clubId: string }>;

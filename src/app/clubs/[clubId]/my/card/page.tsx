@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowUpRight, IdCard, ShieldCheck, ScanLine } from "lucide-react";
 import { redirect } from "next/navigation";
@@ -10,9 +11,16 @@ import { MemberArenaShell } from "@/components/clubs/member-arena-shell";
 import { PrintClubReceiptButton } from "@/components/clubs/print-club-receipt-button";
 
 export const metadata: Metadata = { title: "My Member ID · ClubKeep", robots: { index: false } };
-export const dynamic = "force-dynamic";
 
-export default async function MyCard({ params }: { params: Promise<{ clubId: string }> }) {
+export default function MyCardRoute(props: { params: Promise<{ clubId: string }> }) {
+  return (
+    <Suspense fallback={<main className="min-h-screen bg-[#0b0b0e] p-8 text-[#fce8d2]">Loading your club…</main>}>
+      <MyCard {...props} />
+    </Suspense>
+  );
+}
+
+async function MyCard({ params }: { params: Promise<{ clubId: string }> }) {
   const { clubId } = await params;
   const session = await requireSession();
   if (!session.user.emailVerified) redirect("/home");

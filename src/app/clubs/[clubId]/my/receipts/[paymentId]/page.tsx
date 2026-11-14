@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowLeft, ReceiptText, ShieldCheck, AlertTriangle } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
@@ -12,9 +13,16 @@ import { prisma } from "@/lib/prisma";
 import { PrintClubReceiptButton } from "@/components/clubs/print-club-receipt-button";
 
 export const metadata: Metadata = { title: "My Club Receipt · ClubKeep", robots: { index: false } };
-export const dynamic = "force-dynamic";
 
-export default async function MemberReceiptPage({
+export default function MemberReceiptPageRoute(props: { params: Promise<{ clubId: string; paymentId: string }> }) {
+  return (
+    <Suspense fallback={<main className="min-h-screen bg-[#0b0b0e] p-8 text-[#fce8d2]">Loading your club…</main>}>
+      <MemberReceiptPage {...props} />
+    </Suspense>
+  );
+}
+
+async function MemberReceiptPage({
   params,
 }: {
   params: Promise<{ clubId: string; paymentId: string }>;

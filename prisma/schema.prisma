@@ -40,6 +40,8 @@ model User {
   recordedAttendance  ClubAttendance[] @relation("AttendanceRecorder")
   recordedClubPayments ClubPayment[] @relation("ClubPaymentRecorder")
   reversedClubPayments ClubPaymentReversal[] @relation("ClubPaymentReversalActor")
+  renewalRequests MemberRenewalRequest[] @relation("RenewalRequester")
+  renewalDecisions MemberRenewalRequest[] @relation("RenewalDecider")
 
   @@map("user")
 }
@@ -164,6 +166,8 @@ enum SecurityEventType {
   CLUB_TIMEZONE_CHANGED
   PAYMENT_RECORDED
   PAYMENT_REVERSED
+  RENEWAL_REQUESTED
+  RENEWAL_REVIEWED
 }
 
 model Club {
@@ -197,6 +201,7 @@ model Club {
   attendanceEvents ClubAttendance[]
   payments ClubPayment[]
   paymentReversals ClubPaymentReversal[]
+  renewalRequests MemberRenewalRequest[]
 }
 
 model ClubMembership {
@@ -328,6 +333,7 @@ model ClubMemberRecord {
   events       MemberEvent[]
   attendanceEvents ClubAttendance[]
   payments ClubPayment[]
+  renewalRequests MemberRenewalRequest[]
 
   @@unique([clubId, id])
   @@unique([clubId, memberNumber])
@@ -559,4 +565,34 @@ model ClubPaymentReversal {
 
   @@unique([clubId, paymentId])
   @@index([clubId, createdAt(sort: Desc)])
+}
+
+enum MemberRenewalStatus {
+  PENDING
+  RESOLVED
+  DECLINED
+}
+
+/// Member-to-club service request, not a charged or extended term.
+model MemberRenewalRequest {
+  id String @id @default(cuid())
+  clubId String
+  memberRecordId String
+  requestedByUserId String
+  operationKey String @unique
+  message String? @db.VarChar(300)
+  status MemberRenewalStatus @default(PENDING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  decidedAt DateTime?
+  decidedByUserId String?
+
+  club Club @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  member ClubMemberRecord @relation(fields: [clubId, memberRecordId], references: [clubId, id], onDelete: Restrict)
+  requester User @relation("RenewalRequester", fields: [requestedByUserId], references: [id], onDelete: Restrict)
+  decider User? @relation("RenewalDecider", fields: [decidedByUserId], references: [id], onDelete: Restrict)
+
+  @@unique([clubId, id])
+  @@index([clubId, status, createdAt(sort: Desc)])
+  @@index([clubId, memberRecordId, createdAt(sort: Desc)])
 }

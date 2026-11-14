@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
-import { ScanLine, IdCard, ShieldCheck } from "lucide-react";
+import { ScanLine, ShieldCheck } from "lucide-react";
 import { requireSession } from "@/lib/required-session";
 import { prisma } from "@/lib/prisma";
 import { requireActiveClubMembership } from "@/lib/club-access";
@@ -38,33 +38,7 @@ async function ClubContent({ params }: { params: Promise<{ clubId: string }> }) 
     if (context.role === "OWNER") redirect("/clubs/" + encodeURIComponent(clubId) + "/setup/type");
     notFound();
   }
-  if (context.role === "MEMBER")
-    return (
-      <main className="min-h-screen bg-[#0b0705] px-5 py-10 text-[#fff0df]">
-        <div className="mx-auto max-w-3xl">
-          <Link href="/home" className="text-sm text-[#ecc18b]">
-            ← My clubs
-          </Link>
-          <div className="mt-12 rounded-3xl border border-[#f6dc9b]/20 bg-[#1c130c] p-8">
-            <IdCard className="size-10 text-[#f0ba73]" />
-            <p className="mt-6 text-xs font-semibold tracking-widest text-[#e3ad70] uppercase">
-              ClubKeep / Member
-            </p>
-            <h1 className="mt-3 text-4xl font-semibold">{club.name}</h1>
-            <p className="mt-4 leading-7 text-[#c5aa92]">
-              Your private club space. Your personal fitness and health records remain yours.
-            </p>
-            <Link
-              href={"/clubs/" + clubId + "/my-attendance"}
-              className="mt-7 inline-flex min-h-12 items-center gap-2 rounded-xl bg-gradient-to-r from-[#f1c57c] to-[#f26b00] px-6 font-bold text-[#2a1608]"
-            >
-              <ScanLine className="size-4" />
-              Open my QR pass
-            </Link>
-          </div>
-        </div>
-      </main>
-    );
+  if (context.role === "MEMBER") redirect("/clubs/" + encodeURIComponent(clubId) + "/my");
   const canInvite = context.role === "OWNER" || context.role === "MANAGER";
   const [members, invites] = canInvite
     ? await Promise.all([

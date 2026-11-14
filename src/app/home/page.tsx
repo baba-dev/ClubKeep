@@ -94,7 +94,7 @@ async function ClubKeepHomeContent() {
                 {memberships.map((member) => (
                   <li key={member.id} className="rounded-xl bg-[#25180f] px-4 py-3">
                     <Link
-                      href={`/clubs/${member.club.id}`}
+                      href={`/clubs/${member.club.id}${member.role === "MEMBER" ? "/my" : ""}`}
                       className="font-semibold text-[#ffa451] underline underline-offset-4"
                     >
                       {member.club.name}

@@ -9,6 +9,9 @@ import { prisma } from "@/lib/prisma";
 import { statusForTerm } from "@/lib/membership-dates";
 import { formatMinorMoney } from "@/lib/money-format";
 import { BusinessShell } from "@/components/clubs/business-shell";
+import { memberClubFinance } from "@/lib/finance-service";
+import { RecordClubPaymentForm } from "@/components/clubs/record-club-payment-form";
+import { ReceiptText } from "lucide-react";
 import { MemberActions } from "@/components/clubs/member-actions";
 import { CancelTermButton } from "@/components/clubs/cancel-term-button";
 
@@ -70,6 +73,7 @@ async function MemberContent({ params }: Props) {
     }),
   ]);
   if (!member) notFound();
+  const financialTerms = await memberClubFinance(prisma, clubId, member.id);
   const recentVisits = await prisma.clubAttendance.findMany({
     where: { clubId, memberRecordId: member.id },
     select: { id: true, localDate: true, method: true },
@@ -185,6 +189,69 @@ async function MemberContent({ params }: Props) {
           name: candidate.user.name,
         }))}
       />
+      <RecordClubPaymentForm
+        clubId={clubId}
+        memberId={member.id}
+        terms={financialTerms
+          .filter((t) => !t.cancelledAt && t.dueMinor > 0)
+          .map((t) => ({
+            id: t.id,
+            planName: t.planName,
+            currency: t.currency,
+            dueMinor: t.dueMinor,
+          }))}
+      />
+      <section className="mt-7 rounded-3xl border border-[#f6dc9b]/15 bg-[#19110d] p-6">
+        <h2 className="flex items-center gap-2 text-lg font-semibold">
+          <ReceiptText className="size-5 text-[#efb96e]" /> Membership dues & receipts
+        </h2>
+        {financialTerms.length === 0 ? (
+          <p className="mt-4 text-sm text-[#bda48d]">No membership term or fee history yet.</p>
+        ) : (
+          <div className="mt-5 space-y-3">
+            {financialTerms.slice(0, 10).map((term) => (
+              <div
+                key={term.id}
+                className="rounded-2xl border border-[#f6dc9b]/10 bg-[#261910] p-4"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="font-semibold">{term.planName}</p>
+                    <p className="mt-1 text-xs text-[#ae9780]">
+                      {term.cancelledAt ? "Canceled term" : "Membership term"} · {term.currency}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-semibold text-[#f3bd7b]">
+                      {formatMinorMoney(term.dueMinor, term.currency)} due
+                    </p>
+                    <p className="mt-1 text-xs text-[#baa28a]">
+                      {formatMinorMoney(term.paidMinor, term.currency)} recorded paid
+                    </p>
+                  </div>
+                </div>
+                {term.payments.slice(0, 4).map((p) => (
+                  <div
+                    key={p.id}
+                    className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-[#f6dc9b]/10 pt-3 text-xs"
+                  >
+                    <span className={p.reversal ? "text-[#aa917d] line-through" : "text-[#d3b99f]"}>
+                      {formatMinorMoney(p.amountMinor, term.currency)} · {p.method}{" "}
+                      {p.reversal ? "· VOID" : ""}
+                    </span>
+                    <Link
+                      className="text-[#f2bd7a] underline underline-offset-4"
+                      href={"/clubs/" + clubId + "/finance/receipts/" + p.id}
+                    >
+                      Receipt #{p.receiptNo}
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
       <section className="mt-7 rounded-3xl border border-[#f6dc9b]/15 bg-[#1d140e] p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="flex items-center gap-2 text-lg font-semibold">

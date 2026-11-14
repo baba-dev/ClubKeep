@@ -38,6 +38,8 @@ model User {
   securityEvents      SecurityEvent[] @relation("SecurityEventActor")
   memberEvents        MemberEvent[]
   recordedAttendance  ClubAttendance[] @relation("AttendanceRecorder")
+  recordedClubPayments ClubPayment[] @relation("ClubPaymentRecorder")
+  reversedClubPayments ClubPaymentReversal[] @relation("ClubPaymentReversalActor")
 
   @@map("user")
 }
@@ -160,6 +162,8 @@ enum SecurityEventType {
   MEMBERSHIP_CHANGED
   SECURITY_REVIEW
   CLUB_TIMEZONE_CHANGED
+  PAYMENT_RECORDED
+  PAYMENT_REVERSED
 }
 
 model Club {
@@ -172,6 +176,7 @@ model Club {
   // Provisional tenant entitlements; no public tier-switching or checkout in B1.
   businessTier BusinessTier @default(FREE)
   memberSequence Int @default(0)
+  receiptSequence Int @default(0)
   // IANA zone for the club's calendar-day attendance boundary; UTC is safe until configured.
   timeZone String @default("UTC")
   vertical ClubVertical @default(OTHER)
@@ -190,6 +195,8 @@ model Club {
   subscriptions MemberSubscription[]
   memberEvents  MemberEvent[]
   attendanceEvents ClubAttendance[]
+  payments ClubPayment[]
+  paymentReversals ClubPaymentReversal[]
 }
 
 model ClubMembership {
@@ -320,6 +327,7 @@ model ClubMemberRecord {
   subscriptions MemberSubscription[]
   events       MemberEvent[]
   attendanceEvents ClubAttendance[]
+  payments ClubPayment[]
 
   @@unique([clubId, id])
   @@unique([clubId, memberNumber])
@@ -365,7 +373,9 @@ model MemberSubscription {
   club          Club @relation(fields: [clubId], references: [id], onDelete: Restrict)
   memberRecord  ClubMemberRecord @relation(fields: [clubId, memberRecordId], references: [clubId, id], onDelete: Restrict)
   plan          ClubPlan @relation(fields: [clubId, planId], references: [clubId, id], onDelete: Restrict)
+  payments      ClubPayment[]
 
+  @@unique([clubId, id])
   @@index([clubId, memberRecordId, startAt, endAt])
   @@index([clubId, endAt])
 }
@@ -483,4 +493,70 @@ model ClubPublicRevision {
   club Club @relation(fields: [clubId], references: [id], onDelete: Restrict)
   @@index([clubId, status, submittedAt])
   @@index([status, submittedAt])
+}
+
+
+enum ClubPaymentMethod {
+  CASH
+  UPI
+  CARD
+  OTHER
+}
+
+/**
+ * Immutable attestation of an external fee collection. NOT a gateway transaction
+ * or tax invoice. The receiptNo is sequential and never reused per club.
+ */
+model ClubPayment {
+  id String @id @default(cuid())
+  clubId String
+  memberRecordId String
+  subscriptionId String
+  receiptNo Int
+  operationKey String @unique
+  amountMinor Int
+  currency String @db.VarChar(3)
+  method ClubPaymentMethod
+  externalReference String? @db.VarChar(120)
+  note String? @db.VarChar(240)
+  receivedAt DateTime @default(now())
+  createdAt DateTime @default(now())
+  recordedByUserId String
+
+  // Immutable receipt snapshots: no private Personal information, never PAN/UPI credentials.
+  clubName String @db.VarChar(200)
+  memberName String @db.VarChar(100)
+  memberNumber Int
+  planName String @db.VarChar(90)
+  termPriceMinor Int
+  termStartsAt DateTime
+  termEndsAt DateTime
+
+  club Club @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  member ClubMemberRecord @relation(fields: [clubId, memberRecordId], references: [clubId, id], onDelete: Restrict)
+  subscription MemberSubscription @relation(fields: [clubId, subscriptionId], references: [clubId, id], onDelete: Restrict)
+  recorder User @relation("ClubPaymentRecorder", fields: [recordedByUserId], references: [id], onDelete: Restrict)
+  reversal ClubPaymentReversal?
+
+  @@unique([clubId, id])
+  @@unique([clubId, receiptNo])
+  @@index([clubId, receivedAt(sort: Desc), id(sort: Desc)])
+  @@index([clubId, memberRecordId, createdAt(sort: Desc)])
+  @@index([clubId, subscriptionId])
+}
+
+model ClubPaymentReversal {
+  id String @id @default(cuid())
+  clubId String
+  paymentId String @unique
+  reason String @db.VarChar(240)
+  createdAt DateTime @default(now())
+  reversedByUserId String
+
+  club Club @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  payment ClubPayment @relation(fields: [clubId, paymentId], references: [clubId, id], onDelete: Restrict)
+  actor User @relation("ClubPaymentReversalActor", fields: [reversedByUserId], references: [id], onDelete: Restrict)
+
+  @@unique([clubId, paymentId])
+  @@index([clubId, createdAt(sort: Desc)])
 }

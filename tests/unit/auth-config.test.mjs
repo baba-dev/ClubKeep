@@ -127,10 +127,19 @@ test("password-only owner onboarding uses ClubKeep security Redis instead of dis
   assert.equal(config.features.google, false);
   assert.equal(config.features.emailLink, false);
   assert.equal(config.features.passkey, false);
-  assert.equal(resolveAuthConfig({ ...passwordOnly, AUTH_RATE_LIMIT_REDIS_URL: "redis://127.0.0.1:6399" }).rateLimitRedisUrl, "redis://127.0.0.1:6399");
+  assert.equal(
+    resolveAuthConfig({ ...passwordOnly, AUTH_RATE_LIMIT_REDIS_URL: "redis://127.0.0.1:6399" })
+      .rateLimitRedisUrl,
+    "redis://127.0.0.1:6399"
+  );
   assert.equal(resolveAuthConfig(base).rateLimitRedisUrl, undefined); // No security store means mutation guard must reject.
   assert.throws(
-    () => resolveAuthConfig({ ...passwordOnly, NODE_ENV: "production", REDIS_URL: "redis://127.0.0.1:6381" }),
+    () =>
+      resolveAuthConfig({
+        ...passwordOnly,
+        NODE_ENV: "production",
+        REDIS_URL: "redis://127.0.0.1:6381",
+      }),
     /MenuMinute/
   );
 });

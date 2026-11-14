@@ -82,7 +82,13 @@ export async function guardOnboardingPost(
     // dedicated ClubKeep REDIS_URL without enabling Google/email/passkeys.
     return {
       ok: false,
-      response: jsonPrivate({ error: "Club setup is temporarily unavailable. Contact the administrator to check the ClubKeep security service." }, 503),
+      response: jsonPrivate(
+        {
+          error:
+            "Club setup is temporarily unavailable. Contact the administrator to check the ClubKeep security service.",
+        },
+        503
+      ),
     };
   }
   const session = await auth.api.getSession({ headers: request.headers });
@@ -101,7 +107,16 @@ export async function guardOnboardingPost(
       ? await authLimiter.consume("club-onboarding-user:" + scope, session.user.id, 3600, max)
       : { allowed: true };
   if (ipLimit.unavailable || userLimit.unavailable) {
-    return { ok: false, response: jsonPrivate({ error: "Club setup security service is unavailable. Please try again after it is restored." }, 503) };
+    return {
+      ok: false,
+      response: jsonPrivate(
+        {
+          error:
+            "Club setup security service is unavailable. Please try again after it is restored.",
+        },
+        503
+      ),
+    };
   }
   if (!ipLimit.allowed || !userLimit.allowed) {
     return { ok: false, response: jsonPrivate({ error: "Too many requests" }, 429) };

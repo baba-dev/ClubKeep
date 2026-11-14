@@ -323,7 +323,10 @@ export function SignInForm({
               )}
             </div>
           )}
-          <Link href="/demo?role=owner&view=overview" className="mt-6 flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#ffc47c]/30 bg-[#2b1c12] px-5 text-sm font-bold text-[#ffc584] hover:border-[#ffc47c]">
+          <Link
+            href="/demo?role=owner&view=overview"
+            className="mt-6 flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#ffc47c]/30 bg-[#2b1c12] px-5 text-sm font-bold text-[#ffc584] hover:border-[#ffc47c]"
+          >
             <Eye className="size-4" /> Explore all features without signing in
           </Link>
           <p className="mt-7 text-xs leading-5 text-[#b8a08c]">

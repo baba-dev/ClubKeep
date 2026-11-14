@@ -32,7 +32,10 @@ async function NewClubContent() {
         <p className="mt-4 leading-7 text-[#b8a08c]">
           Start with your name, then privately invite the people who belong.
         </p>
-        <Link href="/demo?role=owner&view=onboarding" className="mt-5 inline-flex min-h-11 items-center rounded-xl border border-[#f1c37e]/30 px-4 text-sm font-bold text-[#f6c18c]">
+        <Link
+          href="/demo?role=owner&view=onboarding"
+          className="mt-5 inline-flex min-h-11 items-center rounded-xl border border-[#f1c37e]/30 px-4 text-sm font-bold text-[#f6c18c]"
+        >
           Preview every setup step safely before creating a real club →
         </Link>
         {session.user.emailVerified ? (

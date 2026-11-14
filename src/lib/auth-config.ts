@@ -146,8 +146,7 @@ export function resolveAuthConfig(env: Env = process.env): AuthFeatureConfig {
   // REDIS_URL; use it only if no explicit auth limiter URL was configured.
   const providerEnabled = features.google || features.emailLink || features.passkey;
   const redis =
-    env.AUTH_RATE_LIMIT_REDIS_URL?.trim() ||
-    (!providerEnabled ? env.REDIS_URL?.trim() : undefined);
+    env.AUTH_RATE_LIMIT_REDIS_URL?.trim() || (!providerEnabled ? env.REDIS_URL?.trim() : undefined);
   if (providerEnabled && !env.AUTH_RATE_LIMIT_REDIS_URL?.trim()) {
     throw new Error("Missing required auth configuration: AUTH_RATE_LIMIT_REDIS_URL");
   }

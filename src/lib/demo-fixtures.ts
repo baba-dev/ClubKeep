@@ -2,9 +2,22 @@
 export const DEMO_ROLES = ["owner", "manager", "staff", "member", "admin"] as const;
 export type DemoRole = (typeof DEMO_ROLES)[number];
 export const DEMO_VIEWS = [
-  "overview", "onboarding", "members", "plans", "attendance", "renewals",
-  "finance", "competition", "leaderboard", "challenges", "profile",
-  "settings", "member-card", "my-payments", "my-sessions", "admin-directory",
+  "overview",
+  "onboarding",
+  "members",
+  "plans",
+  "attendance",
+  "renewals",
+  "finance",
+  "competition",
+  "leaderboard",
+  "challenges",
+  "profile",
+  "settings",
+  "member-card",
+  "my-payments",
+  "my-sessions",
+  "admin-directory",
 ] as const;
 export type DemoView = (typeof DEMO_VIEWS)[number];
 export const DEMO_NAV: { key: DemoView; label: string; section: string }[] = [
@@ -27,18 +40,33 @@ export const DEMO_NAV: { key: DemoView; label: string; section: string }[] = [
 ];
 
 export type DemoMember = {
-  id: number; name: string; plan: string; visits: number; due: number; active: boolean;
+  id: number;
+  name: string;
+  plan: string;
+  visits: number;
+  due: number;
+  active: boolean;
 };
 export type DemoPayment = {
-  id: number; memberId: number; amount: number; method: "CASH" | "UPI" | "CARD";
+  id: number;
+  memberId: number;
+  amount: number;
+  method: "CASH" | "UPI" | "CARD";
   voided: boolean;
 };
 export type DemoScore = {
-  id: number; memberId: number; metric: string; value: number;
+  id: number;
+  memberId: number;
+  metric: string;
+  value: number;
   status: "APPROVED" | "PENDING" | "REJECTED";
 };
 export type DemoChallenge = {
-  id: number; title: string; goal: number; progress: number; joined: boolean;
+  id: number;
+  title: string;
+  goal: number;
+  progress: number;
+  joined: boolean;
 };
 export type DemoState = {
   clubName: string;

@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { Fingerprint, ShieldCheck, UserRound, Users } from "lucide-react";
+import { ArrowRight, Eye, Fingerprint, ShieldCheck, Trophy, UserRound, Users } from "lucide-react";
 import { requireSession } from "@/lib/required-session";
 import { prisma } from "@/lib/prisma";
 import { SignOutButton } from "@/components/auth/sign-out-button";
@@ -30,15 +30,22 @@ async function ClubKeepHomeContent() {
     create: { userId: session.user.id },
     update: {},
   });
-  const memberships = await prisma.clubMembership.findMany({
-    where: {
-      userId: session.user.id,
-      status: "ACTIVE",
-      club: { status: "ACTIVE" },
-    },
-    select: { id: true, role: true, club: { select: { id: true, name: true, slug: true } } },
-    orderBy: { joinedAt: "desc" },
-  });
+  const [account, memberships] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { platformRole: true, emailVerified: true },
+    }),
+    prisma.clubMembership.findMany({
+      where: {
+        userId: session.user.id,
+        status: "ACTIVE",
+        club: { status: "ACTIVE" },
+      },
+      select: { id: true, role: true, club: { select: { id: true, name: true, slug: true } } },
+      orderBy: { joinedAt: "desc" },
+    }),
+  ]);
+  const isPlatformAdmin = account?.platformRole === "PLATFORM_ADMIN" && account.emailVerified;
 
   return (
     <main className="min-h-screen bg-[#0b0705] px-5 py-9 text-[#fbf1e6] sm:px-9">
@@ -74,6 +81,53 @@ async function ClubKeepHomeContent() {
         >
           Create a club
         </Link>
+
+        <section className="relative mt-7 overflow-hidden rounded-3xl border border-[#ffc37d]/30 bg-gradient-to-r from-[#573017] via-[#2b1b13] to-[#1a1718] p-6 sm:p-8">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-28 -right-16 size-72 rounded-full border-[42px] border-[#ffd39a]/10"
+          />
+          <p className="relative flex items-center gap-2 text-xs font-black tracking-[.17em] text-[#ffd49d] uppercase">
+            <Trophy className="size-4" /> Full product access preview
+          </p>
+          <h2 className="relative mt-3 text-2xl font-black tracking-tight sm:text-3xl">
+            See every shipped feature—right now.
+          </h2>
+          <p className="relative mt-3 max-w-2xl text-sm leading-7 text-[#e1c3a9]">
+            Explore all owner, manager, reception, member and platform-administrator journeys using
+            fully fictional data. You can try the controls safely without creating real payments or
+            exposing anyone&apos;s records.
+          </p>
+          <div className="relative mt-6 flex flex-wrap gap-3">
+            <Link
+              href="/demo?role=owner&view=overview"
+              className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-gradient-to-r from-[#ffdb9f] to-[#ef8029] px-5 text-sm font-black text-[#291507]"
+            >
+              <Eye className="size-4" /> Explore demo <ArrowRight className="size-4" />
+            </Link>
+            <Link
+              href="/demo?role=member&view=member-card"
+              className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-[#ffe0b6]/30 px-5 text-sm font-bold text-[#ffe0b6]"
+            >
+              <UserRound className="size-4" /> Member perspective
+            </Link>
+            {isPlatformAdmin && (
+              <Link
+                href="/admin/directory"
+                className="inline-flex min-h-12 items-center rounded-xl border border-[#ffe0b6]/30 px-5 text-sm font-bold text-[#ffe0b6]"
+              >
+                Live directory moderation
+              </Link>
+            )}
+          </div>
+        </section>
+        {isPlatformAdmin && (
+          <p className="mt-4 text-sm text-[#d5bb9c]">
+            Your account is a verified platform administrator. Club ownership is separate; creating
+            a club makes you its OWNER. Member self-service requires a linked MEMBER account, which
+            you can explore in the safe demo.
+          </p>
+        )}
         <div className="mt-8 grid gap-5 md:grid-cols-2">
           <section className="rounded-3xl border border-[#f6dc9b]/20 bg-[#17100b] p-7">
             <UserRound className="size-7 text-[#ffa451]" aria-hidden="true" />

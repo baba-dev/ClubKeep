@@ -212,6 +212,17 @@ jobs:
         run: node --test tests/integration/b5-renewal-schema.test.mjs
       - name: Validate B6 score immutability, consent, tenant isolation and challenges on PostgreSQL 17
         run: node --test tests/integration/b6-performance-schema.test.mjs
+      - name: Verify isolated demo reviewer sandbox on clean PostgreSQL 17
+        run: |
+          set -Eeuo pipefail
+          sudo -u postgres createdb -p "$PG17_PORT" -O clubkeep_ci clubkeep_demo_ci
+          export DATABASE_URL="postgresql://clubkeep_ci:ci-only-synthetic@127.0.0.1:$PG17_PORT/clubkeep_demo_ci?schema=public"
+          export BETTER_AUTH_URL="https://demo.clubkeep.invalid"
+          export NEXT_PUBLIC_APP_URL="$BETTER_AUTH_URL"
+          npm run db:deploy
+          printf '%s' '{"owner":"ci-owner-synthetic-secret","member":"ci-member-synthetic-secret","manager":"ci-manager-synthetic-secret","staff":"ci-staff-synthetic-secret"}' |
+            CLUBKEEP_DEMO_SANDBOX=true node prisma/seed-demo-sandbox.mjs --expect-db clubkeep_demo_ci
+          node --test tests/integration/demo-sandbox.test.mjs
       - name: One-time platform administrator provisioning on isolated PostgreSQL 17
         run: node --test tests/integration/platform-bootstrap.test.mjs
       - name: Legacy unversioned Better Auth baseline and populated upgrade

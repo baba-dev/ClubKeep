@@ -78,8 +78,18 @@ export async function guardOnboardingPost(
     return { ok: false, response: jsonPrivate({ error: "Forbidden" }, 403) };
   }
   if (!authLimiter || !config.rateLimitRedisUrl) {
-    // No partial, fail-open auth/invite flows when security state is disabled.
-    return { ok: false, response: jsonPrivate({ error: "Onboarding is unavailable" }, 503) };
+    // Protected mutations never fail open. Password-only installs can use
+    // dedicated ClubKeep REDIS_URL without enabling Google/email/passkeys.
+    return {
+      ok: false,
+      response: jsonPrivate(
+        {
+          error:
+            "Club setup is temporarily unavailable. Contact the administrator to check the ClubKeep security service.",
+        },
+        503
+      ),
+    };
   }
   const session = await auth.api.getSession({ headers: request.headers });
   if (requireUser && !session?.user) {
@@ -95,7 +105,19 @@ export async function guardOnboardingPost(
   const userLimit =
     requireUser && session?.user
       ? await authLimiter.consume("club-onboarding-user:" + scope, session.user.id, 3600, max)
-      : { allowed: true };
+      : { allowed: true, retryAfter: null, unavailable: false };
+  if (ipLimit.unavailable || userLimit.unavailable) {
+    return {
+      ok: false,
+      response: jsonPrivate(
+        {
+          error:
+            "Club setup security service is unavailable. Please try again after it is restored.",
+        },
+        503
+      ),
+    };
+  }
   if (!ipLimit.allowed || !userLimit.allowed) {
     return { ok: false, response: jsonPrivate({ error: "Too many requests" }, 429) };
   }

@@ -20,7 +20,7 @@ test("unavailable Redis refuses authentication attempts, never allows a fallback
   const limiter = createAuthRateLimiter("redis://127.0.0.1:1", "synthetic-test-secret");
   try {
     const result = await limiter.consume("email-request", "member@example.test", 900, 3);
-    assert.deepEqual(result, { allowed: false, retryAfter: 900 });
+    assert.deepEqual(result, { allowed: false, retryAfter: 900, unavailable: true });
   } finally {
     limiter.close();
   }

@@ -41,22 +41,15 @@ For *real* route, API, permission, payment-record and score-verification testing
 - Fictional plans, attendance, external-payment receipts, roster membership, approvals, consent, leaderboard and challenges are seeded. The script performs one atomic transaction and rolls back on failure.
 - Use distinct strong passwords via operator's hidden prompts (do not paste them into source/PR/GitHub logs/chat). The script accepts a single protected stdin JSON object with `owner`, `member`, `manager`, `staff` keys, each distinct 12–128 characters.
 
-Example *safe workflow outline*, to execute **only inside the separate protected sandbox**:
+Protected example for a **separate demo sandbox database only** (Python `getpass` keeps passwords out of argv and environment, and only the private process pipe carries them):
 
 ```bash
-# Sanity-check dedicated env and isolated DB before seeding.
-# The four passwords are captured using read -rsp (not echoed and not literal in history).
-read -rsp 'Demo owner password: ' CK_DEMO_OWNER; printf '\\n'
-read -rsp 'Demo member password: ' CK_DEMO_MEMBER; printf '\\n'
-read -rsp 'Demo manager password: ' CK_DEMO_MANAGER; printf '\\n'
-read -rsp 'Demo staff password: ' CK_DEMO_STAFF; printf '\\n'
-CLUBKEEP_DEMO_SANDBOX=true node -e 'const [owner,member,manager,staff]=process.argv.slice(1);process.stdout.write(JSON.stringify({owner,member,manager,staff}));' \
-  "$CK_DEMO_OWNER" "$CK_DEMO_MEMBER" "$CK_DEMO_MANAGER" "$CK_DEMO_STAFF" | \
-  CLUBKEEP_DEMO_SANDBOX=true node prisma/seed-demo-sandbox.mjs --expect-db clubkeep_demo
-unset CK_DEMO_OWNER CK_DEMO_MEMBER CK_DEMO_MANAGER CK_DEMO_STAFF
+# Load the isolated demo-only DATABASE_URL/BETTER_AUTH_URL securely first.
+python3 -c 'import getpass,json,sys; roles=("owner","member","manager","staff"); secrets={role:getpass.getpass("Sandbox "+role+" password: ") for role in roles}; sys.stdout.write(json.dumps(secrets))' |
+  CLUBKEEP_DEMO_SANDBOX=true /opt/menuminute/node24/bin/node prisma/seed-demo-sandbox.mjs --expect-db clubkeep_demo
 ```
 
-**Never execute the example against the production env.** The passwords above are passed to a short-lived local Node process, not a network endpoint, but a hardened operator may prefer a private file descriptor to avoid process-argument exposure. Public end users should use the safe `/demo` tour instead of shared login credentials. Real authenticated AI review requires the operator to provision, protect and selectively share credentials for this isolated sandbox.
+**Never execute this against production.** Public visitors should use the safe `/demo` tour; AI reviewers need approved sandbox accounts and independently delivered credentials through a protected channel, not a public URL or GitHub.
 
 ## Release acceptance checklist
 

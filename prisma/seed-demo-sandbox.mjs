@@ -5,7 +5,8 @@
  * Four independent passwords are piped over stdin; never argv, env or stdout.
  */
 import { randomUUID } from "node:crypto";
-import { Client } from "pg";
+import pg from "pg";
+const { Client } = pg;
 import { hashPassword } from "better-auth/crypto";
 import { parseDemoSeedTarget, parseDemoSeedPasswords } from "./seed-demo-guards.mjs";
 
@@ -103,7 +104,9 @@ async function seed(dbUrl, target, passphrases) {
       ]);
       for(let d=1;d<=5;d++){
         const visit=new Date(Date.now()-d*86400000);
-        const day= new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Kolkata",year:"numeric",month:"2-digit",day:"2-digit"}).format(visit);
+        const parts = new Intl.DateTimeFormat("en-US",{timeZone:"Asia/Kolkata",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(visit);
+        const value = (type) => parts.find(p=>p.type===type)?.value;
+        const day = value("year")+"-"+value("month")+"-"+value("day");
         await db.query('INSERT INTO "ClubAttendance" ("id","clubId","memberRecordId","localDate","checkedInAt","method","checkedInByUserId") VALUES ($1,$2,$3,$4,$5,\'MANUAL\',$6)',[
           randomUUID(),club.id,recordId,day,visit,ids.staff,
         ]);

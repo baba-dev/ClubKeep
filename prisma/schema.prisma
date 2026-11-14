@@ -42,6 +42,11 @@ model User {
   reversedClubPayments ClubPaymentReversal[] @relation("ClubPaymentReversalActor")
   renewalRequests MemberRenewalRequest[] @relation("RenewalRequester")
   renewalDecisions MemberRenewalRequest[] @relation("RenewalDecider")
+  createdCompetitionSeasons ClubSeason[] @relation("SeasonCreator")
+  submittedCompetitionScores ClubScore[] @relation("ScoreSubmitter")
+  decidedCompetitionScores ClubScore[] @relation("ScoreDecider")
+  createdClubChallenges ClubChallenge[] @relation("ChallengeCreator")
+  rankingConsentsChanged ClubRankingConsent[] @relation("RankingConsentActor")
 
   @@map("user")
 }
@@ -168,6 +173,13 @@ enum SecurityEventType {
   PAYMENT_REVERSED
   RENEWAL_REQUESTED
   RENEWAL_REVIEWED
+  COMPETITION_SEASON_CREATED
+  COMPETITION_SCORE_SUBMITTED
+  COMPETITION_SCORE_REVIEWED
+  COMPETITION_CONSENT_CHANGED
+  CLUB_CHALLENGE_CREATED
+  CLUB_CHALLENGE_JOINED
+  CLUB_CHALLENGE_LEFT
 }
 
 model Club {
@@ -202,6 +214,13 @@ model Club {
   payments ClubPayment[]
   paymentReversals ClubPaymentReversal[]
   renewalRequests MemberRenewalRequest[]
+  competitionSeasons ClubSeason[]
+  seasonMetrics ClubSeasonMetric[]
+  competitionScores ClubScore[]
+  leaderboardBest ClubLeaderboardBest[]
+  rankingConsents ClubRankingConsent[]
+  challenges ClubChallenge[]
+  challengeEntries ClubChallengeEntry[]
 }
 
 model ClubMembership {
@@ -334,6 +353,10 @@ model ClubMemberRecord {
   attendanceEvents ClubAttendance[]
   payments ClubPayment[]
   renewalRequests MemberRenewalRequest[]
+  competitionScores ClubScore[]
+  leaderboardBest ClubLeaderboardBest[]
+  rankingConsent ClubRankingConsent?
+  challengeEntries ClubChallengeEntry[]
 
   @@unique([clubId, id])
   @@unique([clubId, memberNumber])
@@ -595,4 +618,160 @@ model MemberRenewalRequest {
   @@unique([clubId, id])
   @@index([clubId, status, createdAt(sort: Desc)])
   @@index([clubId, memberRecordId, createdAt(sort: Desc)])
+}
+
+enum CompetitionMetric {
+  GYM_STRENGTH_KG
+  SPORTS_MATCH_POINTS
+  DANCE_ROUTINE_SCORE
+  YOGA_PRACTICE_MINUTES
+  TRAINING_MINUTES
+}
+
+enum CompetitionScoreStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ClubChallengeKind {
+  ATTENDANCE
+  APPROVED_SCORES
+}
+
+/// Clubs choose the first month; never guess universal local sports seasons.
+model ClubSeason {
+  id String @id @default(cuid())
+  clubId String
+  name String @db.VarChar(90)
+  startAt DateTime
+  endAt DateTime
+  createdByUserId String
+  createdAt DateTime @default(now())
+
+  club Club @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  creator User @relation("SeasonCreator", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  metrics ClubSeasonMetric[]
+  challenges ClubChallenge[]
+
+  @@unique([clubId, id])
+  @@unique([clubId, startAt])
+  @@index([clubId, endAt])
+}
+
+model ClubSeasonMetric {
+  id String @id @default(cuid())
+  clubId String
+  seasonId String
+  metric CompetitionMetric
+  createdAt DateTime @default(now())
+
+  club Club @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  season ClubSeason @relation(fields: [clubId, seasonId], references: [clubId, id], onDelete: Restrict)
+  submissions ClubScore[]
+  bestEntries ClubLeaderboardBest[]
+
+  @@unique([clubId, id])
+  @@unique([clubId, seasonId, metric])
+  @@index([clubId, seasonId])
+}
+
+/// Written only from an authenticated, explicitly linked member account.
+model ClubRankingConsent {
+  clubId String
+  memberRecordId String
+  enabled Boolean @default(false)
+  consentedAt DateTime?
+  updatedAt DateTime @updatedAt
+  changedByUserId String
+
+  club Club @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  member ClubMemberRecord @relation(fields: [clubId, memberRecordId], references: [clubId, id], onDelete: Restrict)
+  actor User @relation("RankingConsentActor", fields: [changedByUserId], references: [id], onDelete: Restrict)
+
+  @@id([clubId, memberRecordId])
+  @@index([clubId, enabled])
+}
+
+/// Proposed score; immutable decision enforced with database trigger.
+model ClubScore {
+  id String @id @default(cuid())
+  clubId String
+  seasonMetricId String
+  memberRecordId String
+  value Int
+  note String? @db.VarChar(160)
+  status CompetitionScoreStatus @default(PENDING)
+  operationKey String @unique
+  submittedAt DateTime @default(now())
+  submittedByUserId String
+  decidedAt DateTime?
+  decidedByUserId String?
+
+  club Club @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  seasonMetric ClubSeasonMetric @relation(fields: [clubId, seasonMetricId], references: [clubId, id], onDelete: Restrict)
+  member ClubMemberRecord @relation(fields: [clubId, memberRecordId], references: [clubId, id], onDelete: Restrict)
+  submitter User @relation("ScoreSubmitter", fields: [submittedByUserId], references: [id], onDelete: Restrict)
+  decider User? @relation("ScoreDecider", fields: [decidedByUserId], references: [id], onDelete: Restrict)
+  bestEntry ClubLeaderboardBest?
+
+  @@unique([clubId, id])
+  @@index([clubId, seasonMetricId, status, submittedAt(sort: Desc)])
+  @@index([clubId, memberRecordId, submittedAt(sort: Desc)])
+}
+
+/// Incrementally maintained best scores make leaderboard reads O(page), not a full scan.
+model ClubLeaderboardBest {
+  clubId String
+  seasonMetricId String
+  memberRecordId String
+  scoreId String @unique
+  value Int
+  approvedAt DateTime
+
+  club Club @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  metric ClubSeasonMetric @relation(fields: [clubId, seasonMetricId], references: [clubId, id], onDelete: Restrict)
+  member ClubMemberRecord @relation(fields: [clubId, memberRecordId], references: [clubId, id], onDelete: Restrict)
+  score ClubScore @relation(fields: [clubId, scoreId], references: [clubId, id], onDelete: Restrict)
+
+  @@id([clubId, seasonMetricId, memberRecordId])
+  @@index([clubId, seasonMetricId, value(sort: Desc), approvedAt, memberRecordId])
+}
+
+model ClubChallenge {
+  id String @id @default(cuid())
+  clubId String
+  seasonId String
+  title String @db.VarChar(90)
+  kind ClubChallengeKind
+  target Int
+  startAt DateTime
+  endAt DateTime
+  createdByUserId String
+  createdAt DateTime @default(now())
+
+  club Club @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  season ClubSeason @relation(fields: [clubId, seasonId], references: [clubId, id], onDelete: Restrict)
+  creator User @relation("ChallengeCreator", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  entries ClubChallengeEntry[]
+
+  @@unique([clubId, id])
+  @@index([clubId, seasonId, startAt])
+}
+
+/// Opt-in participation; progress is derived from authoritative club events.
+model ClubChallengeEntry {
+  clubId String
+  challengeId String
+  memberRecordId String
+  joinedAt DateTime @default(now())
+  active Boolean @default(true)
+  updatedAt DateTime @updatedAt
+
+  club Club @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  challenge ClubChallenge @relation(fields: [clubId, challengeId], references: [clubId, id], onDelete: Restrict)
+  member ClubMemberRecord @relation(fields: [clubId, memberRecordId], references: [clubId, id], onDelete: Restrict)
+
+  @@id([clubId, challengeId, memberRecordId])
+  @@index([clubId, memberRecordId, active])
 }

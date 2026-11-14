@@ -210,6 +210,8 @@ jobs:
         run: node --test tests/integration/b4-finance-schema.test.mjs
       - name: Validate B5 renewal requests, tenant isolation and pending uniqueness on PG17
         run: node --test tests/integration/b5-renewal-schema.test.mjs
+      - name: Validate B6 score immutability, consent, tenant isolation and challenges on PostgreSQL 17
+        run: node --test tests/integration/b6-performance-schema.test.mjs
       - name: One-time platform administrator provisioning on isolated PostgreSQL 17
         run: node --test tests/integration/platform-bootstrap.test.mjs
       - name: Legacy unversioned Better Auth baseline and populated upgrade

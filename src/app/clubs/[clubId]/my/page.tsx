@@ -131,6 +131,29 @@ async function MyClubPage({ params }: { params: Promise<{ clubId: string }> }) {
               </Link>
             </section>
           </div>
+          <Link
+            href={base + "/my/play"}
+            className="group relative mt-5 flex flex-col justify-between gap-5 overflow-hidden rounded-3xl border border-[#f6c07d]/35 bg-gradient-to-r from-[#5d3014] via-[#342015] to-[#1c1819] p-6 transition hover:border-[#ffd497] focus-visible:outline-2 focus-visible:outline-[#ffbc7d] sm:flex-row sm:items-center sm:p-8"
+          >
+            <div className="relative z-10">
+              <p className="flex items-center gap-2 text-xs font-black tracking-widest text-[#ffd197] uppercase">
+                <Trophy className="size-5" /> New · Club Performance League
+              </p>
+              <h2 className="mt-3 text-2xl font-black tracking-tight text-white sm:text-3xl">
+                Your next personal best starts here.
+              </h2>
+              <p className="mt-3 text-sm text-[#dfc2a9]">
+                Submit verified results, explore private leaderboards and join club challenges.
+              </p>
+            </div>
+            <span className="relative z-10 inline-flex min-h-12 shrink-0 items-center gap-2 rounded-xl bg-gradient-to-r from-[#f9d696] to-[#f0923e] px-5 text-sm font-black text-[#291508]">
+              Enter the Arena <ArrowUpRight className="size-4" />
+            </span>
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -top-36 -right-20 size-80 rounded-full border-[50px] border-[#ffcf88]/10"
+            />
+          </Link>
           <div className="mt-5 grid gap-4 md:grid-cols-3">
             <Link
               href={base + "/my-attendance"}

@@ -12,13 +12,15 @@ import {
   Menu,
   Fingerprint,
   WalletCards,
+  Trophy,
 } from "lucide-react";
 import { requireSession } from "@/lib/required-session";
 import { prisma } from "@/lib/prisma";
 import { requireActiveClubMembership } from "@/lib/club-access";
 import { ClubThemeToggle } from "@/components/clubs/theme-toggle";
 
-type Active = "members" | "plans" | "renewals" | "overview" | "attendance" | "finance";
+type Active =
+  "members" | "plans" | "renewals" | "overview" | "attendance" | "finance" | "competition";
 export async function BusinessShell({
   clubId,
   clubName,
@@ -45,6 +47,7 @@ export async function BusinessShell({
     { key: "members", label: "Members", href: "/members", icon: UsersRound },
     { key: "plans", label: "Membership Plans", href: "/plans", icon: Layers3 },
     { key: "renewals", label: "Renewals", href: "/renewals", icon: CalendarClock },
+    { key: "competition", label: "Sports", href: "/competition", icon: Trophy },
     ...(context.role === "OWNER" || context.role === "MANAGER"
       ? [{ key: "finance", label: "Finance & dues", href: "/finance", icon: WalletCards }]
       : []),
@@ -159,7 +162,7 @@ export async function BusinessShell({
         {nav
           .filter(
             (x) =>
-              ["overview", "attendance", "members", "finance"].includes(x.key) ||
+              ["overview", "attendance", "members", "finance", "competition"].includes(x.key) ||
               (context.role === "STAFF" && x.key === "renewals")
           )
           .map(({ key, label, href, icon: Icon }) => (

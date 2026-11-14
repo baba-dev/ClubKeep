@@ -31,7 +31,7 @@ Last updated: 12 Nov 2026 (B4 external fee ledger implementation). **All club ve
 ## B3 / B4 implementation status
 
 - [x] **B3 Unified Club Experience, merged PR #20:** all five verticals, required setup for new clubs, Luxe navigation and opt-in, moderated public club profiles.
-- [ ] **B4 Finance and Receipts, PR #21:** externally received collections, member dues, printable immutable payment snapshots and owner financial views. See [B4 release contract](B4_CLUB_FINANCE.md). This is not gateway processing or statutory invoicing. CI and staging gates apply.
+- [x] **B4 Finance and Receipts, merged PR #21:** externally received collections, member dues, printable immutable payment snapshots and owner financial views. See [B4 release contract](B4_CLUB_FINANCE.md). This is not gateway processing or statutory invoicing. CI and staging gates apply.
 
 ## Month-1 build order
 
@@ -71,3 +71,8 @@ Cut from the bottom of this list first if time runs short (order of cuts: ID car
 - Five ID card layouts for club admins to choose from.
 - Yoga, dance and sports templates and their KPIs.
 - AI assistant over club data; progress charts and goals.
+
+## B5–B6 delivery update (14 Nov 2026)
+- [x] B5 Member Arena: merged PR #24, verified-member self-service, private receipts, member ID, renewal requests. Check production status separately.
+- [ ] B6 Club Performance League: eight-slice feature PR (season setup, nonclinical KPI library, opt-in private leaderboards, verified score approval, season challenges, engagement dashboard and native PG17/ARM64 CI). The production gate remains separate from GitHub merge.
+- [ ] B7 owner analytics and B8 subscription billing remain future, separately approved phases. Citywide and public leaderboards are **not** in B6.

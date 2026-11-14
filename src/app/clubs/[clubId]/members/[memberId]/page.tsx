@@ -14,6 +14,8 @@ import { RecordClubPaymentForm } from "@/components/clubs/record-club-payment-fo
 import { ReceiptText } from "lucide-react";
 import { MemberActions } from "@/components/clubs/member-actions";
 import { CancelTermButton } from "@/components/clubs/cancel-term-button";
+import { ScoreSubmitForm } from "@/components/clubs/score-submit-form";
+import { Trophy } from "lucide-react";
 
 export const metadata: Metadata = { title: "Member profile · ClubKeep", robots: { index: false } };
 type Props = { params: Promise<{ clubId: string; memberId: string }> };
@@ -73,6 +75,11 @@ async function MemberContent({ params }: Props) {
     }),
   ]);
   if (!member) notFound();
+  const nowCompetition = new Date();
+  const activeCompetition = await prisma.clubSeason.findFirst({
+    where: { clubId, startAt: { lte: nowCompetition }, endAt: { gt: nowCompetition } },
+    select: { metrics: { select: { id: true, metric: true } } },
+  });
   const financialTerms = await memberClubFinance(prisma, clubId, member.id);
   const recentVisits = await prisma.clubAttendance.findMany({
     where: { clubId, memberRecordId: member.id },
@@ -189,6 +196,13 @@ async function MemberContent({ params }: Props) {
           name: candidate.user.name,
         }))}
       />
+      {member.status === "ACTIVE" && activeCompetition?.metrics.length ? (
+        <section className="mt-7 rounded-3xl border border-[#f6dc9b]/15 bg-[#19110d] p-6 sm:p-8">
+          <h2 className="mb-3 flex items-center gap-2 text-xl font-black"><Trophy className="size-6 text-[#ffc07a]" /> Propose verified performance</h2>
+          <p className="mb-5 max-w-xl text-sm leading-7 text-[#bba18b]">Only enter a witnessed result. A separate owner or manager must independently approve it; a submitter cannot approve their own score.</p>
+          <ScoreSubmitForm clubId={clubId} metrics={activeCompetition.metrics} memberRecordId={member.id} />
+        </section>
+      ) : null}
       <RecordClubPaymentForm
         clubId={clubId}
         memberId={member.id}

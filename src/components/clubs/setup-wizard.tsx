@@ -2,6 +2,9 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { parseMinorMoney } from "@/lib/money-format";
+import { ClubKeepBrand, ThemeArtwork } from "@/components/human-motion/media-components";
+import { ClubThemeToggle } from "@/components/clubs/theme-toggle";
+import { HM_MEDIA, heroForVertical } from "@/components/human-motion/media";
 import {
   ArrowLeft,
   ArrowRight,
@@ -176,10 +179,8 @@ export function SetupWizard({
       setBusy(false);
     }
   }
-  const btn =
-    "min-h-12 rounded-xl border border-[#f6dc9b]/25 bg-[#1b130d] px-4 text-sm text-[#ffe4c0] outline-offset-4 focus-visible:outline-2 focus-visible:outline-orange-400";
-  const field =
-    "min-h-12 w-full rounded-xl border border-[#f6dc9b]/25 bg-[#0d0907] px-4 text-[#fff0dd] outline-offset-2 focus-visible:outline-2 focus-visible:outline-orange-400";
+  const btn = "hm-button hm-button-secondary disabled:opacity-50";
+  const field = "hm-setup-field";
   const labels = [
     "Your club",
     "Club details",
@@ -188,67 +189,57 @@ export function SetupWizard({
     "Ready to launch",
   ];
   return (
-    <div className="min-h-screen bg-[#0b0705] px-4 py-9 text-[#fff0df] sm:px-8">
-      <div className="mx-auto max-w-3xl">
-        <div className="flex items-center justify-between gap-4">
-          <a href="/home" className="text-sm text-[#d6a879]">
-            ClubKeep / Business
-          </a>
-          <span className="text-xs text-[#bca18c]">Step {stepIndex + 1} of 5</span>
+    <div className="hm-app hm-onboarding">
+      <div className="hm-setup-container">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <ClubKeepBrand />
+          <div className="flex items-center gap-3">
+            <span className="hm-small">Step {stepIndex + 1} of 5</span>
+            <ClubThemeToggle />
+          </div>
         </div>
-        <div className="mt-7 flex gap-2" aria-label="Setup progress">
+        <div className="hm-setup-progress mt-7" role="progressbar" aria-label="Club setup progress" aria-valuemin={1} aria-valuemax={5} aria-valuenow={stepIndex + 1}>
           {steps.map((s, i) => (
             <span
               key={s}
-              className={
-                "h-1.5 flex-1 rounded-full " + (i <= stepIndex ? "bg-[#f26b00]" : "bg-[#37261a]")
-              }
+              data-completed={i < stepIndex}
+              data-current={i === stepIndex}
             />
           ))}
         </div>
-        <p className="mt-10 text-xs font-semibold tracking-[.2em] text-[#ebbc76] uppercase">
-          {initial.club.name} · Required setup
-        </p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-5xl">
-          {labels[stepIndex]}
-        </h1>
-        <p className="mt-3 max-w-xl text-sm leading-7 text-[#bfa48d]">
-          Finish these essentials to open your club workspace. Your progress is saved after each
-          step.
-        </p>
+        <section className="hm-public-hero relative mt-9 overflow-hidden rounded-3xl border p-7 sm:p-10" style={{ borderColor: "var(--hm-line)", background: "var(--hm-raised)" }}>
+          <ThemeArtwork pair={HM_MEDIA.illustrations.botanical} className="hm-gallery-art pointer-events-none absolute inset-0 opacity-30" />
+          <div className="relative z-10 max-w-xl">
+            <p className="hm-kicker hm-page-eyebrow">{initial.club.name} · Guided setup</p>
+            <h1 className="hm-display mt-3 text-4xl sm:text-5xl">{labels[stepIndex]}</h1>
+            <p className="hm-small mt-4 max-w-lg">Five clear steps to build your club. Each completed step is saved securely to your existing setup record.</p>
+            <p className="hm-small mt-3">Next: {stepIndex < 4 ? labels[stepIndex + 1] : "Open your club workspace"}</p>
+          </div>
+        </section>
         <form
           onSubmit={onNext}
-          className="mt-8 space-y-5 rounded-3xl border border-[#f6dc9b]/20 bg-[#17100b] p-5 shadow-2xl sm:p-9"
+          className="hm-setup-form mt-7 space-y-5"
         >
           {initialStep === "type" && (
             <fieldset>
               <legend className="mb-4 font-semibold">What kind of club are you running?</legend>
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-2">
                 {categories.map((c) => (
-                  <label
-                    key={c.value}
-                    className={
-                      "flex cursor-pointer items-start gap-3 rounded-2xl border p-4 " +
-                      (vertical === c.value
-                        ? "border-[#f5ac54] bg-[#3c2415]"
-                        : "border-[#f6dc9b]/15 bg-[#251910]")
-                    }
-                  >
-                    <input
-                      type="radio"
-                      name="vertical"
-                      className="mt-1 accent-orange-500"
-                      value={c.value}
-                      checked={vertical === c.value}
-                      onChange={() => setVertical(c.value)}
-                    />
-                    <c.icon className="mt-0.5 size-5 shrink-0 text-[#ffbd78]" />
-                    <span>
-                      <span className="block font-semibold">{c.title}</span>
-                      <span className="mt-1 block text-xs leading-5 text-[#c3a790]">
-                        {c.description}
-                      </span>
-                    </span>
+                  <label key={c.value} className="hm-setup-category" data-selected={vertical === c.value}>
+                    {heroForVertical(c.value) ? (
+                      <ThemeArtwork pair={heroForVertical(c.value)!} className="hm-gallery-photo" />
+                    ) : (
+                      <ThemeArtwork pair={HM_MEDIA.illustrations.challengeLandscape} className="hm-gallery-art" />
+                    )}
+                    <div className="hm-setup-category-body">
+                      <div className="flex items-start justify-between gap-3">
+                        <span className="hm-category-icon"><c.icon className="size-5" aria-hidden="true" /></span>
+                        <input type="radio" name="vertical" value={c.value} checked={vertical === c.value}
+                          onChange={() => setVertical(c.value)} aria-label={c.title} />
+                      </div>
+                      <span className="mt-5 block font-semibold">{c.title}</span>
+                      <p className="mt-2 text-xs leading-5">{c.description}</p>
+                    </div>
                   </label>
                 ))}
               </div>
@@ -329,7 +320,7 @@ export function SetupWizard({
           )}
           {initialStep === "identity" && (
             <div className="space-y-4">
-              <p className="text-sm leading-7 text-[#c2a58b]">
+              <p className="text-sm leading-7 text-[var(--hm-muted)]">
                 ClubKeep will use a tasteful initials logo until you add your own. Public listings
                 are private until you request review.
               </p>
@@ -348,16 +339,16 @@ export function SetupWizard({
           {initialStep === "membership" && (
             <div className="space-y-4">
               {plans.length > 0 ? (
-                <div className="rounded-2xl border border-emerald-700/40 bg-emerald-950/25 p-5">
-                  <CheckCircle2 className="mb-2 size-6 text-[#86d69e]" />
+                <div className="hm-setup-note p-5">
+                  <CheckCircle2 className="mb-2 size-6 text-[var(--hm-sage-deep)]" />
                   <p className="font-semibold">Membership plan ready</p>
-                  <p className="mt-2 text-sm text-[#bfa990]">
+                  <p className="hm-small mt-2">
                     {plans.map((p) => p.name).join(", ")}
                   </p>
                 </div>
               ) : (
                 <>
-                  <p className="text-sm text-[#c6ac91]">
+                  <p className="text-sm text-[var(--hm-muted)]">
                     Create one plan to launch. You can add more later, including free memberships.
                   </p>
                   <label className="block text-sm">
@@ -414,13 +405,13 @@ export function SetupWizard({
           )}
           {initialStep === "review" && (
             <div className="space-y-4">
-              <CheckCircle2 className="size-10 text-[#f8b35d]" />
+              <CheckCircle2 className="size-10 text-[var(--hm-terracotta)]" />
               <h2 className="text-xl font-semibold">Almost there.</h2>
-              <p className="text-sm leading-7 text-[#c3a790]">
+              <p className="text-sm leading-7 text-[var(--hm-muted)]">
                 Your club is created, but operations remain locked until you launch. You can publish
                 a public profile separately after launch.
               </p>
-              <div className="rounded-xl bg-[#25180e] p-5 text-sm">
+              <div className="hm-setup-note p-5 text-sm">
                 <p>Club: {initial.club.name}</p>
                 <p className="mt-2">Type: {initial.club.vertical}</p>
                 <p className="mt-2">Membership plans: {plans.length}</p>
@@ -430,12 +421,12 @@ export function SetupWizard({
           {error && (
             <p
               role="alert"
-              className="rounded-xl border border-red-500/30 bg-red-950/30 p-3 text-sm text-[#ffb8a9]"
+              className="rounded-xl border border-red-500/30 bg-red-50 dark:bg-red-950/30 p-3 text-sm text-red-700 dark:text-red-200"
             >
               {error}
             </p>
           )}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#f6dc9b]/10 pt-5">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--hm-line)] pt-5">
             <button
               type="button"
               disabled={stepIndex === 0 || busy}
@@ -448,7 +439,7 @@ export function SetupWizard({
             <button
               type="submit"
               disabled={busy}
-              className="min-h-12 rounded-xl bg-gradient-to-r from-[#d5a74b] to-[#f26b00] px-6 font-bold text-[#291607] disabled:opacity-50"
+              className="hm-button hm-button-primary"
             >
               {busy ? "Saving…" : initialStep === "review" ? "Launch my club" : "Save & continue"}
               <ArrowRight className="ml-2 inline size-4" />

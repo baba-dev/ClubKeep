@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 800" width="1600" height="800" fill="none" aria-hidden="true" role="img">
+  <defs>
+        <radialGradient id="sunGlow" cx="74%" cy="27%" r="28%">
+          <stop offset="0%" stop-color="#F8D7B4" stop-opacity="0.95"/>
+          <stop offset="58%" stop-color="#EFB78D" stop-opacity="0.52"/>
+          <stop offset="100%" stop-color="#EFB78D" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="skyArcGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#F6E7DA" stop-opacity="0.55"/>
+          <stop offset="100%" stop-color="#DFA77E" stop-opacity="0.35"/>
+        </linearGradient>
+        <linearGradient id="distantGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#EDC7A7" stop-opacity="0.48"/>
+          <stop offset="100%" stop-color="#D38B63" stop-opacity="0.52"/>
+        </linearGradient>
+        <linearGradient id="midGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#D4845C" stop-opacity="0.54"/>
+          <stop offset="100%" stop-color="#C16643" stop-opacity="0.72"/>
+        </linearGradient>
+        <linearGradient id="frontGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#B96949" stop-opacity="0.62"/>
+          <stop offset="100%" stop-color="#9E553B" stop-opacity="0.84"/>
+        </linearGradient>
+        <linearGradient id="pathGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#F7E6D6" stop-opacity="0.75"/>
+          <stop offset="100%" stop-color="#E3B995" stop-opacity="0.42"/>
+        </linearGradient>
+        </defs>
+  
+<style>
+  .drift-a { animation: driftA 26s ease-in-out infinite alternate; }
+  .drift-b { animation: driftB 33s ease-in-out infinite alternate; }
+  .drift-c { animation: driftC 29s ease-in-out infinite alternate; }
+  .glow-a { animation: glowA 18s ease-in-out infinite alternate; }
+  @keyframes driftA { from { transform: translateY(0px); } to { transform: translateY(-4px); } }
+  @keyframes driftB { from { transform: translateY(0px); } to { transform: translateY(3px); } }
+  @keyframes driftC { from { transform: translateY(0px); } to { transform: translateY(-2px); } }
+  @keyframes glowA { from { opacity: 0.82; } to { opacity: 0.96; } }
+  @media (prefers-reduced-motion: reduce) {
+    .drift-a, .drift-b, .drift-c, .glow-a { animation: none !important; }
+  }
+</style>
+
+  <g class="glow-a">
+    <circle cx="1180" cy="220" r="160" fill="url(#sunGlow)"/>
+  </g>
+  <g class="drift-a">
+    <path d="M0 415 C 210 365, 345 332, 520 324 C 710 315, 900 372, 1110 352 C 1270 337, 1440 268, 1600 208 L1600 800 L0 800 Z" fill="url(#skyArcGrad)"/>
+    <path d="M1080 205 C1168 160, 1274 166, 1352 208" stroke="#E4B38F" stroke-opacity="0.22" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <g class="drift-b"><path d="M0 480 C 168 445, 275 392, 470 400 C 635 406, 740 476, 900 474 C 1080 471, 1230 385, 1390 393 C 1505 399, 1554 432, 1600 462 L1600 800 L0 800 Z" fill="url(#distantGrad)"/></g>
+  <g class="drift-a"><path d="M0 560 C 150 490, 275 518, 410 545 C 550 572, 680 567, 820 521 C 990 465, 1120 473, 1260 535 C 1388 591, 1495 598, 1600 571 L1600 800 L0 800 Z" fill="url(#midGrad)"/></g>
+  <g class="drift-c"><path d="M0 650 C 160 598, 325 628, 485 676 C 662 729, 830 726, 1002 670 C 1148 622, 1285 605, 1438 632 C 1510 644, 1562 665, 1600 685 L1600 800 L0 800 Z" fill="url(#frontGrad)"/></g>
+  <path d="M990 800 C 967 760, 931 709, 883 659 C 833 607, 746 566, 666 536 C 588 507, 536 481, 498 447 C 459 412, 408 392, 338 382 C 286 375, 244 381, 196 396 C 188 398, 184 406, 190 414 C 237 400, 278 397, 323 402 C 385 410, 433 430, 472 462 C 512 494, 568 523, 642 551 C 720 580, 804 620, 855 677 C 897 723, 926 760, 947 800 Z" fill="url(#pathGrad)"/>
+  <path d="M940 800 C 914 748, 887 708, 845 664 C 791 606, 704 571, 634 545 C 564 519, 529 489, 494 454 C 460 422, 418 402, 355 392 C 302 384, 260 388, 220 402" stroke="#F2D7C1" stroke-opacity="0.24" stroke-width="5" stroke-linecap="round"/>
+  <path d="M0 569 C 138 512, 275 521, 404 546 C 550 575, 676 567, 819 521 C 988 467, 1115 474, 1259 534 C 1380 585, 1492 598, 1600 575" stroke="#C36F4C" stroke-opacity="0.36" stroke-width="3" stroke-linecap="round"/>
+  <path d="M0 657 C 165 600, 328 628, 487 676 C 661 729, 829 726, 1000 671 C 1148 624, 1285 607, 1437 633 C 1507 645, 1560 665, 1600 685" stroke="#B86245" stroke-opacity="0.32" stroke-width="3" stroke-linecap="round"/>
+</svg>

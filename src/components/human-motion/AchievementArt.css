@@ -1,0 +1,102 @@
+/* ClubKeep Human Motion 2.0 — Achievement Art */
+.ck-achievement {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  position: relative;
+}
+.ck-achievement img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.ck-achievement--auto .ck-achievement__dark {
+  display: none;
+}
+.ck-achievement--auto .ck-achievement__light {
+  display: block;
+}
+:root.dark .ck-achievement--auto .ck-achievement__light,
+:root[data-theme="dark"] .ck-achievement--auto .ck-achievement__light {
+  display: none;
+}
+:root.dark .ck-achievement--auto .ck-achievement__dark,
+:root[data-theme="dark"] .ck-achievement--auto .ck-achievement__dark {
+  display: block;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.light):not(.dark):not([data-theme="light"]):not([data-theme="dark"])
+    .ck-achievement--auto
+    .ck-achievement__light {
+    display: none;
+  }
+  :root:not(.light):not(.dark):not([data-theme="light"]):not([data-theme="dark"])
+    .ck-achievement--auto
+    .ck-achievement__dark {
+    display: block;
+  }
+}
+.ck-achievement--animated {
+  animation: ck-achievement-float 8s ease-in-out infinite alternate;
+}
+@keyframes ck-achievement-float {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-2px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ck-achievement--animated {
+    animation: none !important;
+  }
+}
+.ck-achievement-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--ck-achievement-border, #e8d9c7);
+  background: var(--ck-achievement-surface, #fffaf4);
+  color: var(--ck-achievement-foreground, #49372c);
+  border-radius: 16px;
+}
+.ck-achievement-card--locked .ck-achievement {
+  opacity: 0.45;
+  filter: grayscale(1);
+}
+.ck-achievement-card__copy {
+  min-width: 0;
+}
+.ck-achievement-card__copy h3 {
+  font:
+    600 16px/1.25 Inter,
+    system-ui,
+    sans-serif;
+  margin: 0 0 5px;
+}
+.ck-achievement-card__copy p {
+  font:
+    400 13px/1.45 Inter,
+    system-ui,
+    sans-serif;
+  margin: 0 0 8px;
+  opacity: 0.78;
+}
+.ck-achievement-card__state {
+  font:
+    600 11px/1 Inter,
+    system-ui,
+    sans-serif;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+:root.dark .ck-achievement-card,
+:root[data-theme="dark"] .ck-achievement-card {
+  --ck-achievement-border: #60483a;
+  --ck-achievement-surface: #302522;
+  --ck-achievement-foreground: #f6eee4;
+}

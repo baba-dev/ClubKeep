@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 160" width="480" height="160" fill="none" role="img" aria-label="Soft rolling sage-green landscape waves, a decorative ClubKeep dashboard motif">
+  <defs>
+    <linearGradient id="rear" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#8FA58C" stop-opacity=".04"/>
+      <stop offset="100%" stop-color="#8FA58C" stop-opacity=".29"/>
+    </linearGradient>
+    <linearGradient id="mid" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#A9BCA0" stop-opacity=".13"/>
+      <stop offset="100%" stop-color="#A9BCA0" stop-opacity=".25"/>
+    </linearGradient>
+    <linearGradient id="front" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#8EAA86" stop-opacity=".08"/>
+      <stop offset="100%" stop-color="#8EAA86" stop-opacity=".20"/>
+    </linearGradient>
+    <linearGradient id="ridge" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#71896B" stop-opacity="0"/>
+      <stop offset="48%" stop-color="#71896B" stop-opacity=".34"/>
+      <stop offset="100%" stop-color="#71896B" stop-opacity=".48"/>
+    </linearGradient>
+  </defs>
+  <style>
+    .ck-mw-rear { animation: ck-mw-rise 24s ease-in-out infinite alternate; }
+    .ck-mw-mid { animation: ck-mw-settle 27s ease-in-out infinite alternate; }
+    @keyframes ck-mw-rise { from { transform: translateY(0); } to { transform: translateY(-1.5px); } }
+    @keyframes ck-mw-settle { from { transform: translateY(0); } to { transform: translateY(1px); } }
+    @media (prefers-reduced-motion: reduce) { .ck-mw-rear, .ck-mw-mid { animation: none; } }
+  </style>
+  <g class="ck-mw-rear"><path d="M0 158 C72 157 103 125 152 135 C200 145 232 104 284 105 C329 107 346 72 391 79 C428 86 447 47 480 44 L480 160 L0 160 Z" fill="url(#rear)"/></g>
+  <g class="ck-mw-mid"><path d="M0 159 C83 159 109 144 158 144 C212 144 241 134 279 140 C319 144 355 108 390 112 C430 117 451 90 480 85 L480 160 L0 160 Z" fill="url(#mid)"/></g>
+  <path d="M0 160 C96 157 130 159 179 158 C233 157 269 153 303 149 C341 144 365 134 404 137 C444 140 465 127 480 123 L480 160 L0 160 Z" fill="url(#front)"/>
+  <path d="M93 146 C113 139 135 130 152 135 C200 145 232 104 284 105 C329 107 346 72 391 79 C428 86 447 47 480 44" stroke="url(#ridge)" stroke-width="1.15" stroke-linecap="round"/>
+</svg>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter, Playfair_Display } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { ClubKeepThemeProvider } from "@/components/human-motion/theme-provider";
 import "./globals.css";
 import "./human-motion.css";
 
@@ -34,8 +35,10 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${hmInter.variable} ${hmPlayfair.variable} h-full antialiased`}
     >
       <body className="bg-background text-foreground flex min-h-full flex-col">
-        {children}
-        <Toaster />
+        <ClubKeepThemeProvider>
+          {children}
+          <Toaster />
+        </ClubKeepThemeProvider>
       </body>
     </html>
   );

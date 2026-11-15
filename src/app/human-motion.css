@@ -139,3 +139,8 @@ html.dark .hm-challenge { background-color: #49332a; }
 @media (prefers-reduced-motion: reduce) {
   .hm-app *, .hm-app *::before, .hm-app *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+
+.hm-brand-image { width: 170px; height: auto; max-height: 56px; object-fit: contain; }
+.hm-brand-image-dark { display: none; }
+html.dark .hm-brand-image-light { display: none; }
+html.dark .hm-brand-image-dark { display: block; }

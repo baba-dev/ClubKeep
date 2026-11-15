@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" fill="none" role="img" aria-hidden="true">
+<style>
+  .float-a { animation: floatA 8s ease-in-out infinite alternate; }
+  .float-b { animation: floatB 7s ease-in-out infinite alternate; }
+  .glow-a { animation: glowA 5s ease-in-out infinite alternate; }
+  @keyframes floatA { from { transform: translateY(0px); } to { transform: translateY(-2px); } }
+  @keyframes floatB { from { transform: translateY(0px); } to { transform: translateY(2px); } }
+  @keyframes glowA { from { opacity: .92; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    .float-a, .float-b, .glow-a { animation: none !important; }
+  }
+</style>
+
+    <defs>
+        <radialGradient id="ring" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#342925"/><stop offset="100%" stop-color="#251E1C"/></radialGradient>
+        <linearGradient id="fire" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#F0A26B"/><stop offset="55%" stop-color="#C46845"/><stop offset="100%" stop-color="#7D3E2F"/></linearGradient>
+        <linearGradient id="innerfire" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FDE2AD"/><stop offset="100%" stop-color="#DFA261"/></linearGradient>
+        </defs>
+    <ellipse cx="256" cy="434" rx="110" ry="18" fill="rgba(0,0,0,0.28)"/>
+    <g class="glow-a">
+      <circle cx="256" cy="256" r="146" fill="url(#ring)"/>
+      <circle cx="256" cy="256" r="132" stroke="#E2A071" stroke-width="10" stroke-opacity="0.28"/>
+      <path class="float-a" d="M256 123 C224 163 222 193 237 218 C187 213 168 262 188 298 C205 329 235 341 256 386 C277 341 309 326 326 294 C347 256 325 213 279 217 C292 193 289 162 256 123 Z" fill="url(#fire)"/>
+      <path d="M255 183 C238 206 236 226 244 241 C219 238 212 263 223 282 C232 297 245 308 255 331 C266 308 279 299 288 283 C299 262 291 240 268 241 C275 228 273 206 255 183 Z" fill="url(#innerfire)"/>
+      <text x="256" y="430" text-anchor="middle" font-size="22" letter-spacing="3" font-family="Arial, sans-serif" fill="#F4E7D8">21 DAY STREAK</text>
+    </g>
+    </svg>

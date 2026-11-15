@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400" role="img" aria-labelledby="landscape-title landscape-desc">
+  <title id="landscape-title">ClubKeep Human Motion landscape — dark mode</title>
+  <desc id="landscape-desc">Four gently overlapping, flowing hill silhouettes in a warm dark color palette. Transparent background with subtle reduced-motion-friendly drift.</desc>
+  <style>
+  /* Imperceptible 1–2px organic drift. No rotation, scale, layout shifts, or JS. */
+  @media (prefers-reduced-motion: no-preference) {
+    .hill-1 { animation: hm-hill-1 24s ease-in-out infinite alternate; }
+    .hill-2 { animation: hm-hill-2 21s ease-in-out infinite alternate; }
+    .hill-3 { animation: hm-hill-3 27s ease-in-out infinite alternate; }
+    .hill-4 { animation: hm-hill-4 25s ease-in-out infinite alternate; }
+  }
+  @keyframes hm-hill-1 { from { transform: translateY(0px); } to { transform: translateY(-2px); } }
+  @keyframes hm-hill-2 { from { transform: translateY(0px); } to { transform: translateY(1.5px); } }
+  @keyframes hm-hill-3 { from { transform: translateY(0px); } to { transform: translateY(-1px); } }
+  @keyframes hm-hill-4 { from { transform: translateY(0px); } to { transform: translateY(1px); } }
+  @media (prefers-reduced-motion: reduce) {
+    .hill-1, .hill-2, .hill-3, .hill-4 { animation: none !important; }
+  }
+</style>
+  <g class="hill-1">
+    <path d="M0 320 C120 264 178 285 272 323 C390 377 467 223 599 249 C681 264 743 306 800 247 L800 400 L0 400 Z" fill="#4F433A"/>
+    <path d="M0 320 C120 264 178 285 272 323 C390 377 467 223 599 249 C681 264 743 306 800 247" fill="none" stroke="#FFFFFF" stroke-opacity="0.13" stroke-width="1.1" vector-effect="non-scaling-stroke"/>
+  </g>
+  <g class="hill-2">
+    <path d="M0 360 C124 350 192 258 307 280 C437 311 463 355 600 295 C678 261 729 251 800 282 L800 400 L0 400 Z" fill="#556249"/>
+    <path d="M0 360 C124 350 192 258 307 280 C437 311 463 355 600 295 C678 261 729 251 800 282" fill="none" stroke="#FFFFFF" stroke-opacity="0.13" stroke-width="1.1" vector-effect="non-scaling-stroke"/>
+  </g>
+  <g class="hill-3">
+    <path d="M0 373 C129 311 203 353 306 350 C430 346 489 291 611 333 C684 357 741 319 800 302 L800 400 L0 400 Z" fill="#885845"/>
+    <path d="M0 373 C129 311 203 353 306 350 C430 346 489 291 611 333 C684 357 741 319 800 302" fill="none" stroke="#FFFFFF" stroke-opacity="0.13" stroke-width="1.1" vector-effect="non-scaling-stroke"/>
+  </g>
+  <g class="hill-4">
+    <path d="M0 394 C128 357 238 378 344 373 C458 366 527 348 641 368 C705 380 756 364 800 351 L800 400 L0 400 Z" fill="#653C32"/>
+    
+  </g>
+</svg>

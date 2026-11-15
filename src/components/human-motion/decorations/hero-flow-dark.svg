@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="2400" height="800" viewBox="0 0 2400 800" preserveAspectRatio="none" fill="none" role="img" aria-label="Decorative sweeping terracotta line">
+  <title>ClubKeep Human Motion 2.0 — Hero Flow</title>
+  <desc>Transparent editorial ornament; one thin terracotta curve flows across the panoramic hero, with a faint companion trace. No text or background.</desc>
+  <style>
+      .trail{stroke:#F0B49A;opacity:.84}
+      .echo{stroke:#C7816C;opacity:.29}
+      .accent{stroke:#F7B89C;opacity:.42}
+      @media (prefers-reduced-motion: no-preference) {
+        .trail{stroke-dasharray:2800;stroke-dashoffset:2800;animation:draw 1450ms cubic-bezier(.3,0,.2,1) both}
+        .echo{opacity:0;animation:echo-in 700ms ease 1050ms both}
+      }
+      @keyframes draw{to{stroke-dashoffset:0}}
+      @keyframes echo-in{to{opacity:.29}}
+    </style>
+  <g stroke-linecap="round" stroke-linejoin="round" fill="none" vector-effect="non-scaling-stroke">
+    <path class="echo" d="M -90 640 C 175 639, 321 656, 474 596 C 626 536, 656 435, 821 422 C 998 406, 1043 535, 1227 510 C 1415 481, 1542 308, 1719 326 C 1868 337, 1984 431, 2127 363 C 2257 307, 2335 274, 2490 295" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+    <path class="trail" d="M -90 618 C 170 617, 315 635, 465 576 C 615 516, 650 415, 810 402 C 988 387, 1033 515, 1217 490 C 1400 463, 1535 288, 1710 305 C 1851 318, 1973 408, 2115 345 C 2244 287, 2320 253, 2490 274" stroke-width="3.5" vector-effect="non-scaling-stroke" />
+  </g>
+</svg>

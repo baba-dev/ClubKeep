@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 160" width="480" height="160" fill="none" aria-hidden="true" role="img">
+  <defs>
+        <linearGradient id="rearGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#F4C6B2" stop-opacity="0.20"/>
+          <stop offset="100%" stop-color="#C16643" stop-opacity="0.34"/>
+        </linearGradient>
+        <linearGradient id="midGrad" x1="0" y1="0" x2="1" y2="0.8">
+          <stop offset="0%" stop-color="#E9A98B" stop-opacity="0.24"/>
+          <stop offset="100%" stop-color="#C16643" stop-opacity="0.42"/>
+        </linearGradient>
+        <linearGradient id="frontGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#EAA27D" stop-opacity="0.22"/>
+          <stop offset="100%" stop-color="#B45B3D" stop-opacity="0.56"/>
+        </linearGradient>
+        </defs>
+  
+<style>
+  .drift-a { animation: driftA 19s ease-in-out infinite alternate; }
+  .drift-b { animation: driftB 23s ease-in-out infinite alternate; }
+  .drift-c { animation: driftC 17s ease-in-out infinite alternate; }
+  @keyframes driftA { from { transform: translateY(0px); } to { transform: translateY(-1.6px); } }
+  @keyframes driftB { from { transform: translateY(0.8px); } to { transform: translateY(-0.8px); } }
+  @keyframes driftC { from { transform: translateY(0px); } to { transform: translateY(-1.1px); } }
+  @media (prefers-reduced-motion: reduce) {
+    .drift-a, .drift-b, .drift-c { animation: none !important; }
+  }
+</style>
+
+  <g class="drift-a"><path d="M0 112 C 42 103, 76 86, 112 90 C 152 95, 182 118, 224 120 C 269 121, 304 92, 344 82 C 388 71, 424 80, 480 92 L480 160 L0 160 Z" fill="url(#rearGrad)"/></g>
+  <g class="drift-b"><path d="M0 122 C 30 118, 58 105, 88 101 C 129 95, 160 110, 197 116 C 235 122, 275 118, 308 104 C 347 88, 391 85, 430 95 C 451 100, 466 105, 480 111 L480 160 L0 160 Z" fill="url(#midGrad)"/></g>
+  <g class="drift-c"><path d="M0 134 C 34 125, 63 118, 95 120 C 133 122, 163 136, 202 138 C 239 140, 271 131, 303 123 C 339 114, 370 110, 402 114 C 433 118, 455 126, 480 132 L480 160 L0 160 Z" fill="url(#frontGrad)"/></g>
+  <path d="M0 127 C 26 121, 57 109, 93 110 C 128 111, 159 125, 196 130 C 230 135, 264 132, 296 124 C 332 115, 368 111, 402 115 C 433 119, 456 125, 480 130" stroke="#B45B3D" stroke-opacity="0.62" stroke-width="2" stroke-linecap="round"/>
+</svg>

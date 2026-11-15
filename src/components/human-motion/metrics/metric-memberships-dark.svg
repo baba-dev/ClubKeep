@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 160" width="480" height="160" fill="none" aria-hidden="true">
+
+<style>
+  .ck-sand-rear { animation: ck-sand-rear-drift 24s ease-in-out infinite alternate; }
+  .ck-sand-mid { animation: ck-sand-mid-drift 27s ease-in-out infinite alternate; }
+  @keyframes ck-sand-rear-drift { from { transform: translateY(0); } to { transform: translateY(-1.4px); } }
+  @keyframes ck-sand-mid-drift { from { transform: translateY(0); } to { transform: translateY(1px); } }
+  @media (prefers-reduced-motion: reduce) {
+    .ck-sand-rear, .ck-sand-mid { animation: none !important; }
+  }
+</style>
+<defs><linearGradient id="dark-rear" x1="0%" y1="0%" x2="100%" y2="15%"><stop offset="0%" stop-color="#C1AA8B" stop-opacity=".03"/><stop offset="100%" stop-color="#C1AA8B" stop-opacity=".23"/></linearGradient>
+<linearGradient id="dark-mid" x1="0%" y1="0%" x2="100%" y2="15%"><stop offset="0%" stop-color="#967E64" stop-opacity=".03"/><stop offset="100%" stop-color="#967E64" stop-opacity=".24"/></linearGradient>
+<linearGradient id="dark-front" x1="0%" y1="0%" x2="100%" y2="15%"><stop offset="0%" stop-color="#AC9477" stop-opacity=".02"/><stop offset="100%" stop-color="#AC9477" stop-opacity=".19"/></linearGradient>
+<linearGradient id="dark-ridge" x1="0%" y1="0%" x2="100%" y2="15%"><stop offset="0%" stop-color="#D3BDA2" stop-opacity=".02"/><stop offset="100%" stop-color="#D3BDA2" stop-opacity=".46"/></linearGradient></defs>
+<g class="ck-sand-rear"><path d="M0 159 C72 159 112 144 165 137 C215 131 247 138 289 124 C333 110 351 90 398 93 C435 95 455 70 480 63 L480 160 L0 160 Z" fill="url(#dark-rear)"/></g>
+<g class="ck-sand-mid"><path d="M0 160 C94 159 127 155 184 153 C239 152 270 140 318 137 C366 133 392 111 431 109 C449 108 467 101 480 96 L480 160 L0 160 Z" fill="url(#dark-mid)"/></g>
+<path d="M0 160 C125 160 174 159 229 158 C282 158 326 153 365 147 C405 141 452 130 480 123 L480 160 L0 160 Z" fill="url(#dark-front)"/>
+<path d="M165 137 C215 131 247 138 289 124 C333 110 351 90 398 93 C435 95 455 70 480 63" fill="none" stroke="url(#dark-ridge)" stroke-width="1.2" stroke-linecap="round"/>
+</svg>

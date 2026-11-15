@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="160" viewBox="0 0 480 160" fill="none" aria-hidden="true">
+<style>
+  .ck-copper-rear { animation: ck-copper-up 23s ease-in-out infinite alternate; }
+  .ck-copper-mid { animation: ck-copper-rest 26s ease-in-out infinite alternate; }
+  @keyframes ck-copper-up { from { transform: translateY(0); } to { transform: translateY(-1.5px); } }
+  @keyframes ck-copper-rest { from { transform: translateY(0); } to { transform: translateY(1px); } }
+  @media (prefers-reduced-motion: reduce) {
+    .ck-copper-rear, .ck-copper-mid { animation: none !important; }
+  }
+</style>
+<defs><linearGradient id="light-rear" x1="0%" y1="0%" x2="100%" y2="16%"><stop offset="0%" stop-color="#E3B99E" stop-opacity=".05"/><stop offset="100%" stop-color="#E3B99E" stop-opacity=".32"/></linearGradient><linearGradient id="light-mid" x1="0%" y1="0%" x2="100%" y2="16%"><stop offset="0%" stop-color="#C98C6D" stop-opacity=".03"/><stop offset="100%" stop-color="#C98C6D" stop-opacity=".34"/></linearGradient><linearGradient id="light-front" x1="0%" y1="0%" x2="100%" y2="16%"><stop offset="0%" stop-color="#A96F58" stop-opacity=".03"/><stop offset="100%" stop-color="#A96F58" stop-opacity=".26"/></linearGradient><linearGradient id="light-line" x1="0%" y1="0%" x2="100%" y2="16%"><stop offset="0%" stop-color="#A66C54" stop-opacity=".05"/><stop offset="100%" stop-color="#A66C54" stop-opacity=".55"/></linearGradient></defs>
+<g class="ck-copper-rear"><path d="M0 159 C65 156 109 142 156 145 C200 148 222 143 257 130 C305 113 338 116 375 102 C418 86 445 70 480 47 L480 160 L0 160 Z" fill="url(#light-rear)"/></g>
+<g class="ck-copper-mid"><path d="M0 160 C88 159 127 152 171 153 C214 154 245 149 280 139 C319 127 346 128 385 117 C421 107 453 99 480 89 L480 160 L0 160 Z" fill="url(#light-mid)"/></g>
+<path d="M0 160 C121 160 184 160 240 158 C306 155 355 151 402 140 C435 133 463 133 480 128 L480 160 L0 160 Z" fill="url(#light-front)"/>
+<path d="M156 145 C200 148 222 143 257 130 C305 113 338 116 375 102 C418 86 445 70 480 47" fill="none" stroke="url(#light-line)" stroke-width="1.2" stroke-linecap="round"/>
+</svg>

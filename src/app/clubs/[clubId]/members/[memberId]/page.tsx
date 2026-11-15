@@ -23,7 +23,7 @@ export default function MemberPage(props: Props) {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-[#0b0705] p-8 text-[#fbf1e6]">
+        <main className="min-h-screen bg-[var(--hm-surface)] p-8 text-[var(--hm-text)]">
           Loading member details…
         </main>
       }
@@ -102,69 +102,73 @@ async function MemberContent({ params }: Props) {
     >
       <Link
         href={`/clubs/${clubId}/members`}
-        className="mt-7 inline-flex items-center gap-2 text-sm text-[#f1c388] underline underline-offset-4"
+        className="mt-7 inline-flex items-center gap-2 text-sm text-[var(--hm-terracotta)] underline underline-offset-4"
       >
         <ArrowLeft className="size-4" />
         All members
       </Link>
       <div className="mt-6 grid gap-4 lg:grid-cols-[1.15fr_1fr]">
-        <section className="rounded-3xl border border-[#f6dc9b]/20 bg-gradient-to-br from-[#2b1b11] to-[#130e09] p-6 sm:p-8">
+        <section className="rounded-3xl border border-[var(--hm-line)]/20 bg-gradient-to-br from-[var(--hm-raised)] to-[var(--hm-surface)] p-6 sm:p-8">
           <div className="flex items-center gap-4">
             <span className="flex size-14 items-center justify-center rounded-2xl bg-[#f26b00]/20">
-              <UserRound className="size-7 text-[#ffc381]" />
+              <UserRound className="size-7 text-[var(--hm-terracotta)]" />
             </span>
             <div>
               <h2 className="text-xl font-semibold">{member.displayName}</h2>
-              <p className="mt-1 text-sm text-[#bea48d]">
+              <p className="mt-1 text-sm text-[var(--hm-muted)]">
                 {member.membership ? "Verified club account linked" : "Walk-in member record"}
               </p>
             </div>
           </div>
           <dl className="mt-8 grid grid-cols-2 gap-5 text-sm">
             <div>
-              <dt className="text-[#a88e75]">Membership status</dt>
-              <dd className="mt-2 font-semibold text-[#ffcc89]">{status.toLowerCase()}</dd>
+              <dt className="text-[var(--hm-muted)]">Membership status</dt>
+              <dd className="mt-2 font-semibold text-[var(--hm-terracotta)]">
+                {status.toLowerCase()}
+              </dd>
             </div>
             <div>
-              <dt className="text-[#a88e75]">Member number</dt>
+              <dt className="text-[var(--hm-muted)]">Member number</dt>
               <dd className="mt-2 font-semibold">
                 #{String(member.memberNumber).padStart(4, "0")}
               </dd>
             </div>
             <div>
-              <dt className="text-[#a88e75]">Contact</dt>
+              <dt className="text-[var(--hm-muted)]">Contact</dt>
               <dd className="mt-2 font-semibold break-words">
                 {member.contacts[0]?.phoneE164 || "Not provided"}
               </dd>
             </div>
             <div>
-              <dt className="text-[#a88e75]">Club join date</dt>
+              <dt className="text-[var(--hm-muted)]">Club join date</dt>
               <dd className="mt-2 font-semibold">{member.joinedAt.toISOString().slice(0, 10)}</dd>
             </div>
           </dl>
-          <p className="mt-8 flex items-start gap-2 border-t border-[#f6dc9b]/10 pt-5 text-xs leading-6 text-[#bba089]">
-            <ShieldCheck className="mt-1 size-4 shrink-0 text-[#dda85d]" />
+          <p className="mt-8 flex items-start gap-2 border-t border-[var(--hm-line)]/10 pt-5 text-xs leading-6 text-[var(--hm-muted)]">
+            <ShieldCheck className="mt-1 size-4 shrink-0 text-[var(--hm-terracotta)]" />
             Contacts are unverified and not used to create, recover or merge identities.
           </p>
         </section>
-        <section className="rounded-3xl border border-[#f6dc9b]/20 bg-[#19110d] p-6 sm:p-8">
-          <CalendarDays className="size-6 text-[#ffb56e]" />
-          <p className="mt-4 text-xs tracking-widest text-[#dcb67c] uppercase">Latest membership</p>
+        <section className="rounded-3xl border border-[var(--hm-line)]/20 bg-[var(--hm-surface)] p-6 sm:p-8">
+          <CalendarDays className="size-6 text-[var(--hm-terracotta)]" />
+          <p className="mt-4 text-xs tracking-widest text-[var(--hm-terracotta)] uppercase">
+            Latest membership
+          </p>
           {lastTerm ? (
             <>
               <h2 className="mt-3 text-2xl font-semibold">{lastTerm.planName}</h2>
-              <p className="mt-2 text-3xl font-semibold text-[#f9c376]">
+              <p className="mt-2 text-3xl font-semibold text-[var(--hm-terracotta)]">
                 {formatMinorMoney(lastTerm.priceMinor, lastTerm.currency)}
               </p>
               <div className="mt-6 grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-[#a9907a]">Starts</p>
+                  <p className="text-[var(--hm-muted)]">Starts</p>
                   <p className="mt-2 font-semibold">
                     {lastTerm.startAt.toISOString().slice(0, 10)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[#a9907a]">Valid until (exclusive)</p>
+                  <p className="text-[var(--hm-muted)]">Valid until (exclusive)</p>
                   <p className="mt-2 font-semibold">{lastTerm.endAt.toISOString().slice(0, 10)}</p>
                 </div>
               </div>
@@ -172,7 +176,7 @@ async function MemberContent({ params }: Props) {
           ) : (
             <>
               <h2 className="mt-3 text-2xl font-semibold">No plan assigned yet</h2>
-              <p className="mt-3 text-sm leading-6 text-[#baa18b]">
+              <p className="mt-3 text-sm leading-6 text-[var(--hm-muted)]">
                 Choose a plan below to begin this member’s access. Payment recording is a separate
                 feature.
               </p>
@@ -197,11 +201,11 @@ async function MemberContent({ params }: Props) {
         }))}
       />
       {member.status === "ACTIVE" && activeCompetition?.metrics.length ? (
-        <section className="mt-7 rounded-3xl border border-[#f6dc9b]/15 bg-[#19110d] p-6 sm:p-8">
+        <section className="mt-7 rounded-3xl border border-[var(--hm-line)]/15 bg-[var(--hm-surface)] p-6 sm:p-8">
           <h2 className="mb-3 flex items-center gap-2 text-xl font-black">
-            <Trophy className="size-6 text-[#ffc07a]" /> Propose verified performance
+            <Trophy className="size-6 text-[var(--hm-terracotta)]" /> Propose verified performance
           </h2>
-          <p className="mb-5 max-w-xl text-sm leading-7 text-[#bba18b]">
+          <p className="mb-5 max-w-xl text-sm leading-7 text-[var(--hm-muted)]">
             Only enter a witnessed result. A separate owner or manager must independently approve
             it; a submitter cannot approve their own score.
           </p>
@@ -224,31 +228,33 @@ async function MemberContent({ params }: Props) {
             dueMinor: t.dueMinor,
           }))}
       />
-      <section className="mt-7 rounded-3xl border border-[#f6dc9b]/15 bg-[#19110d] p-6">
+      <section className="mt-7 rounded-3xl border border-[var(--hm-line)]/15 bg-[var(--hm-surface)] p-6">
         <h2 className="flex items-center gap-2 text-lg font-semibold">
-          <ReceiptText className="size-5 text-[#efb96e]" /> Membership dues & receipts
+          <ReceiptText className="size-5 text-[var(--hm-terracotta)]" /> Membership dues & receipts
         </h2>
         {financialTerms.length === 0 ? (
-          <p className="mt-4 text-sm text-[#bda48d]">No membership term or fee history yet.</p>
+          <p className="mt-4 text-sm text-[var(--hm-muted)]">
+            No membership term or fee history yet.
+          </p>
         ) : (
           <div className="mt-5 space-y-3">
             {financialTerms.slice(0, 10).map((term) => (
               <div
                 key={term.id}
-                className="rounded-2xl border border-[#f6dc9b]/10 bg-[#261910] p-4"
+                className="rounded-2xl border border-[var(--hm-line)]/10 bg-[var(--hm-raised)] p-4"
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p className="font-semibold">{term.planName}</p>
-                    <p className="mt-1 text-xs text-[#ae9780]">
+                    <p className="mt-1 text-xs text-[var(--hm-muted)]">
                       {term.cancelledAt ? "Canceled term" : "Membership term"} · {term.currency}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-[#f3bd7b]">
+                    <p className="font-semibold text-[var(--hm-terracotta)]">
                       {formatMinorMoney(term.dueMinor, term.currency)} due
                     </p>
-                    <p className="mt-1 text-xs text-[#baa28a]">
+                    <p className="mt-1 text-xs text-[var(--hm-muted)]">
                       {formatMinorMoney(term.paidMinor, term.currency)} recorded paid
                     </p>
                   </div>
@@ -256,14 +262,20 @@ async function MemberContent({ params }: Props) {
                 {term.payments.slice(0, 4).map((p) => (
                   <div
                     key={p.id}
-                    className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-[#f6dc9b]/10 pt-3 text-xs"
+                    className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--hm-line)]/10 pt-3 text-xs"
                   >
-                    <span className={p.reversal ? "text-[#aa917d] line-through" : "text-[#d3b99f]"}>
+                    <span
+                      className={
+                        p.reversal
+                          ? "text-[var(--hm-muted)] line-through"
+                          : "text-[var(--hm-terracotta)]"
+                      }
+                    >
                       {formatMinorMoney(p.amountMinor, term.currency)} · {p.method}{" "}
                       {p.reversal ? "· VOID" : ""}
                     </span>
                     <Link
-                      className="text-[#f2bd7a] underline underline-offset-4"
+                      className="text-[var(--hm-terracotta)] underline underline-offset-4"
                       href={"/clubs/" + clubId + "/finance/receipts/" + p.id}
                     >
                       Receipt #{p.receiptNo}
@@ -275,21 +287,21 @@ async function MemberContent({ params }: Props) {
           </div>
         )}
       </section>
-      <section className="mt-7 rounded-3xl border border-[#f6dc9b]/15 bg-[#1d140e] p-6">
+      <section className="mt-7 rounded-3xl border border-[var(--hm-line)]/15 bg-[var(--hm-surface)] p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="flex items-center gap-2 text-lg font-semibold">
-            <CalendarDays className="size-5 text-[#f3b86a]" />
+            <CalendarDays className="size-5 text-[var(--hm-terracotta)]" />
             Recent check-ins
           </h2>
           <Link
             href={`/clubs/${clubId}/attendance/history?memberId=${member.id}`}
-            className="text-xs font-semibold text-[#f5c489] hover:underline"
+            className="text-xs font-semibold text-[var(--hm-terracotta)] hover:underline"
           >
             Full attendance history →
           </Link>
         </div>
         {recentVisits.length === 0 ? (
-          <p className="mt-4 text-sm text-[#b8a08c]">
+          <p className="mt-4 text-sm text-[var(--hm-muted)]">
             No check-ins recorded yet. Scan the member’s live QR or check them in from reception.
           </p>
         ) : (
@@ -297,10 +309,10 @@ async function MemberContent({ params }: Props) {
             {recentVisits.map((visit) => (
               <li
                 key={visit.id}
-                className="rounded-2xl border border-[#f6dc9b]/10 bg-[#281a10] px-4 py-3"
+                className="rounded-2xl border border-[var(--hm-line)]/10 bg-[var(--hm-raised)] px-4 py-3"
               >
                 <p className="font-semibold">{visit.localDate}</p>
-                <p className="mt-1 text-xs text-[#b6a087]">
+                <p className="mt-1 text-xs text-[var(--hm-muted)]">
                   {visit.method === "QR" ? "QR scan" : "Manual reception entry"}
                 </p>
               </li>
@@ -309,28 +321,28 @@ async function MemberContent({ params }: Props) {
         )}
       </section>
       <section className="mt-7 grid gap-5 xl:grid-cols-2">
-        <div className="rounded-3xl border border-[#f6dc9b]/15 bg-[#17100b] p-6">
+        <div className="rounded-3xl border border-[var(--hm-line)]/15 bg-[var(--hm-surface)] p-6">
           <h2 className="flex items-center gap-2 text-lg font-semibold">
-            <Clock4 className="size-5 text-[#f3b86a]" />
+            <Clock4 className="size-5 text-[var(--hm-terracotta)]" />
             Membership history
           </h2>
           {member.subscriptions.length === 0 ? (
-            <p className="mt-5 text-sm text-[#b8a08c]">No membership terms yet.</p>
+            <p className="mt-5 text-sm text-[var(--hm-muted)]">No membership terms yet.</p>
           ) : (
             <div className="mt-5 space-y-3">
               {member.subscriptions.map((term) => (
                 <div
                   key={term.id}
-                  className="rounded-2xl border border-[#f6dc9b]/10 bg-[#261910] p-4"
+                  className="rounded-2xl border border-[var(--hm-line)]/10 bg-[var(--hm-raised)] p-4"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div>
                       <p className="font-semibold">{term.planName}</p>
-                      <p className="mt-1 text-xs text-[#a9907a]">
+                      <p className="mt-1 text-xs text-[var(--hm-muted)]">
                         {term.startAt.toISOString().slice(0, 10)} —{" "}
                         {term.endAt.toISOString().slice(0, 10)} (exclusive)
                       </p>
-                      <p className="mt-2 text-sm text-[#f7c681]">
+                      <p className="mt-2 text-sm text-[var(--hm-terracotta)]">
                         {formatMinorMoney(term.priceMinor, term.currency)} ·{" "}
                         {term.cancelledAt ? "Cancelled" : "Recorded"}
                       </p>
@@ -348,21 +360,21 @@ async function MemberContent({ params }: Props) {
             </div>
           )}
         </div>
-        <div className="rounded-3xl border border-[#f6dc9b]/15 bg-[#17100b] p-6">
+        <div className="rounded-3xl border border-[var(--hm-line)]/15 bg-[var(--hm-surface)] p-6">
           <h2 className="flex items-center gap-2 text-lg font-semibold">
-            <History className="size-5 text-[#f3b86a]" />
+            <History className="size-5 text-[var(--hm-terracotta)]" />
             Activity timeline
           </h2>
           {member.events.length === 0 ? (
-            <p className="mt-5 text-sm text-[#b8a08c]">No actions recorded yet.</p>
+            <p className="mt-5 text-sm text-[var(--hm-muted)]">No actions recorded yet.</p>
           ) : (
             <ol className="mt-5 space-y-3">
               {member.events.map((event) => (
-                <li key={event.id} className="border-l-2 border-[#c38e48]/40 py-1 pl-4">
+                <li key={event.id} className="border-l-2 border-[var(--hm-line)]/40 py-1 pl-4">
                   <p className="text-sm font-semibold">
                     {event.eventType.replaceAll("_", " ").toLowerCase()}
                   </p>
-                  <p className="mt-1 text-xs text-[#aa927b]">
+                  <p className="mt-1 text-xs text-[var(--hm-muted)]">
                     {event.createdAt.toISOString().slice(0, 16).replace("T", " ")} UTC ·{" "}
                     {event.actor.name}
                   </p>

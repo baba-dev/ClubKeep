@@ -15,7 +15,9 @@ type Props = { params: Promise<{ clubId: string }>; searchParams: Promise<{ curs
 export default function Ledger(props: Props) {
   return (
     <Suspense
-      fallback={<main className="min-h-screen bg-[#0b0705] p-9 text-white">Loading ledger…</main>}
+      fallback={
+        <main className="min-h-screen bg-[var(--hm-surface)] p-9 text-white">Loading ledger…</main>
+      }
     >
       <LedgerContent {...props} />
     </Suspense>
@@ -42,12 +44,12 @@ async function LedgerContent({ params, searchParams }: Props) {
       title="Every entry has a story."
       description="Review recorded cash, UPI, card and other offline collections. Corrections create a reversal and never erase the original receipt."
     >
-      <section className="mt-8 overflow-hidden rounded-3xl border border-[#f6dc9b]/15 bg-[#19110b]">
+      <section className="mt-8 overflow-hidden rounded-3xl border border-[var(--hm-line)]/15 bg-[var(--hm-surface)]">
         {page.length === 0 ? (
           <div className="p-10 text-center">
-            <History className="mx-auto size-8 text-[#eab878]" />
+            <History className="mx-auto size-8 text-[var(--hm-terracotta)]" />
             <p className="mt-4 font-semibold">Your payment ledger is empty</p>
-            <p className="mt-2 text-sm text-[#bca28b]">
+            <p className="mt-2 text-sm text-[var(--hm-muted)]">
               Open a member profile to record a first collection.
             </p>
           </div>
@@ -58,27 +60,29 @@ async function LedgerContent({ params, searchParams }: Props) {
                 <div className="min-w-0">
                   <Link
                     href={"/clubs/" + clubId + "/finance/receipts/" + p.id}
-                    className="font-semibold text-[#f6c58f] hover:underline"
+                    className="font-semibold text-[var(--hm-terracotta)] hover:underline"
                   >
                     {receiptNumber(p.receiptNo)}
                   </Link>
                   <p className="mt-1 text-sm">
                     {p.memberName} · {p.planName}
                   </p>
-                  <p className="mt-1 text-xs text-[#b6a08b]">
+                  <p className="mt-1 text-xs text-[var(--hm-muted)]">
                     {p.method} · {p.receivedAt.toISOString().slice(0, 16).replace("T", " ")} UTC
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
                   <span
                     className={
-                      p.reversal ? "text-[#a38e7b] line-through" : "font-semibold text-[#f9ce9a]"
+                      p.reversal
+                        ? "text-[var(--hm-muted)] line-through"
+                        : "font-semibold text-[var(--hm-terracotta)]"
                     }
                   >
                     {formatMinorMoney(p.amountMinor, p.currency)}
                   </span>
                   {p.reversal ? (
-                    <span className="rounded-xl bg-[#44211d] px-3 py-2 text-xs text-[#f9b4a3]">
+                    <span className="rounded-xl bg-[var(--hm-raised)] px-3 py-2 text-xs text-[var(--hm-terracotta)]">
                       VOID
                     </span>
                   ) : (
@@ -92,7 +96,7 @@ async function LedgerContent({ params, searchParams }: Props) {
       </section>
       {rows.length > 50 && page.at(-1) && (
         <Link
-          className="mt-5 inline-flex min-h-11 items-center rounded-xl border border-[#f6dc9b]/20 px-4 text-sm text-[#f6bf86]"
+          className="mt-5 inline-flex min-h-11 items-center rounded-xl border border-[var(--hm-line)]/20 px-4 text-sm text-[var(--hm-terracotta)]"
           href={
             "/clubs/" + clubId + "/finance/payments?cursor=" + encodeURIComponent(page.at(-1)!.id)
           }

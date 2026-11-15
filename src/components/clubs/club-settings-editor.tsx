@@ -24,7 +24,7 @@ export function ClubSettingsEditor({
   const [busy, setBusy] = useState(false),
     [message, setMessage] = useState("");
   const field =
-    "mt-2 min-h-12 w-full rounded-xl border border-[#f6dc9b]/25 bg-[#0b0705] px-4 text-[#fff0df] outline-offset-2 focus-visible:outline-2 focus-visible:outline-orange-400";
+    "mt-2 min-h-12 w-full rounded-xl border border-[var(--hm-line)] bg-[var(--hm-surface)] px-4 text-[var(--hm-text)] outline-offset-2 focus-visible:outline-2 focus-visible:outline-[var(--hm-terracotta)]";
   async function submit(e: FormEvent) {
     e.preventDefault();
     if (busy) return;
@@ -52,10 +52,10 @@ export function ClubSettingsEditor({
     }
   }
   return (
-    <form onSubmit={submit} className="rounded-3xl border border-[#f6dc9b]/20 bg-[#1c130d] p-7">
-      <Building2 className="size-7 text-[#f0b875]" />
+    <form onSubmit={submit} className="hm-ops-section hm-ops-form mt-0">
+      <Building2 className="size-7 text-[var(--hm-sage-deep)]" />
       <h2 className="mt-3 text-xl font-semibold">Club category and location</h2>
-      <p className="mt-2 text-sm leading-7 text-[#bca48c]">
+      <p className="hm-small mt-2">
         Adjust your club type without rewriting historical attendance, plans or membership records.
       </p>
       <div className="mt-6 space-y-4">
@@ -97,14 +97,11 @@ export function ClubSettingsEditor({
         </label>
       </div>
       {message && (
-        <p role="status" className="mt-4 text-sm text-[#f3ca91]">
+        <p role="status" className="mt-4 text-sm text-[var(--hm-terracotta)]">
           {message}
         </p>
       )}
-      <button
-        disabled={busy}
-        className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-xl bg-gradient-to-r from-[#f0bf6d] to-[#f26b00] px-6 font-bold text-[#261607] disabled:opacity-50"
-      >
+      <button disabled={busy} className="hm-button hm-button-primary mt-6 disabled:opacity-50">
         <Save className="size-4" />
         {busy ? "Saving…" : "Save club settings"}
       </button>

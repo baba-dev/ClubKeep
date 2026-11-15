@@ -11,7 +11,7 @@ export default function NewMemberPage({ params }: { params: Promise<{ clubId: st
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-[#0b0705] p-8 text-[#fbf1e6]">
+        <main className="min-h-screen bg-[var(--hm-surface)] p-8 text-[var(--hm-text)]">
           Preparing registration…
         </main>
       }

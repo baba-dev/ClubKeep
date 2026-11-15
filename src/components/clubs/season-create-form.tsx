@@ -44,7 +44,7 @@ export function SeasonCreateForm({
   }
   return (
     <form onSubmit={submit} className="mt-5 space-y-4">
-      <label className="block text-xs font-bold text-[#f5d5aa]">
+      <label className="block text-xs font-bold text-[var(--hm-terracotta)]">
         Season starts · first of month (UTC)
         <input
           required
@@ -55,12 +55,14 @@ export function SeasonCreateForm({
         />
       </label>
       <fieldset>
-        <legend className="mb-3 text-xs font-bold text-[#f5d5aa]">Enabled disciplines</legend>
+        <legend className="mb-3 text-xs font-bold text-[var(--hm-terracotta)]">
+          Enabled disciplines
+        </legend>
         <div className="grid gap-2">
           {available.map((key) => (
             <label
               key={key}
-              className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-white/10 bg-[#271c14] px-4 text-sm text-[#f4d5b4]"
+              className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-white/10 bg-[#271c14] px-4 text-sm text-[var(--hm-terracotta)]"
             >
               <input
                 type="checkbox"
@@ -73,14 +75,14 @@ export function SeasonCreateForm({
                 className="size-4 accent-[#ed8a35]"
               />
               {METRICS[key].label}{" "}
-              <span className="ml-auto text-xs text-[#ae967c]">{METRICS[key].unit}</span>
+              <span className="ml-auto text-xs text-[var(--hm-muted)]">{METRICS[key].unit}</span>
             </label>
           ))}
         </div>
       </fieldset>
       <button
         disabled={busy || metrics.length === 0}
-        className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-gradient-to-r from-[#ffd18c] to-[#ed7524] px-5 text-sm font-black text-[#2c170b] disabled:opacity-45"
+        className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-[var(--hm-action)] px-5 text-sm font-black text-[#2c170b] disabled:opacity-45"
       >
         <CalendarDays className="size-4" /> {busy ? "Creating…" : "Create three-month season"}
       </button>
@@ -89,7 +91,7 @@ export function SeasonCreateForm({
           {error}
         </p>
       )}
-      <p className="text-xs leading-6 text-[#af9983]">
+      <p className="text-xs leading-6 text-[var(--hm-muted)]">
         Seasons never overlap. The club chooses its first month rather than following an assumed
         universal sports calendar.
       </p>

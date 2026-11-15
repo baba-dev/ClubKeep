@@ -14,7 +14,9 @@ export default function OwnerPublicProfile({ params }: { params: Promise<{ clubI
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-[#0b0705] p-8 text-[#fbf1e6]">Loading ClubKeep…</main>
+        <main className="min-h-screen bg-[var(--hm-surface)] p-8 text-[var(--hm-text)]">
+          Loading ClubKeep…
+        </main>
       }
     >
       <OwnerPublicProfileContent params={params} />

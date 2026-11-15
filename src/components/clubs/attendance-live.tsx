@@ -27,7 +27,7 @@ export function AttendanceLive() {
         type="button"
         onClick={refresh}
         aria-label="Refresh attendance summary"
-        className="inline-flex min-h-9 items-center gap-2 rounded-full border border-[#e0ad6e]/20 px-3 text-xs text-[#e2be95] hover:bg-[#352219]"
+        className="inline-flex min-h-9 items-center gap-2 rounded-full border border-[#e0ad6e]/20 px-3 text-xs text-[var(--hm-terracotta)] hover:bg-[#352219]"
       >
         <RefreshCw className={`size-3.5 ${refreshing ? "animate-spin" : ""}`} />
         Refresh now

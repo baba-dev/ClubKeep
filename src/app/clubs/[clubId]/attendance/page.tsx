@@ -1,19 +1,13 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
-import {
-  ArrowRight,
-  CalendarCheck2,
-  Clock3,
-  ScanLine,
-  ShieldCheck,
-  UsersRound,
-} from "lucide-react";
+import { ArrowRight, CalendarCheck2, Clock3, ScanLine, UsersRound } from "lucide-react";
 import { requireSession } from "@/lib/required-session";
 import { requireClubActive } from "@/lib/member-service";
 import { clubLocalDate, clockForClub } from "@/lib/attendance-calendar";
 import { prisma } from "@/lib/prisma";
 import { BusinessShell } from "@/components/clubs/business-shell";
+import { OperationsStat, OperationsSafetyNote } from "@/components/human-motion/operations-ui";
 import { AttendanceLive } from "@/components/clubs/attendance-live";
 import { AttendanceScanner } from "@/components/clubs/attendance-scanner";
 import { ManualCheckIn } from "@/components/clubs/manual-checkin";
@@ -83,32 +77,44 @@ async function AttendanceContent({ params }: { params: Promise<{ clubId: string 
         </p>
         <AttendanceLive />
       </div>
-      <div className="mt-5 grid gap-3 sm:grid-cols-3">
-        <div className="relative overflow-hidden rounded-[1.5rem] border border-[#ffc57d]/25 bg-gradient-to-br from-[#352011] via-[#281910] to-[#15100b] p-6">
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute -top-12 -right-12 size-36 rounded-full bg-[#f18626]/15 blur-2xl"
-          />
-          <CalendarCheck2 className="size-6 text-[#f8c37e]" aria-hidden="true" />
-          <p className="mt-4 text-4xl font-semibold tracking-tight text-[#fff0dc]">{count}</p>
-          <p className="mt-1 text-sm font-medium text-[#d3b79b]">Arrivals today</p>
-          <p className="mt-2 text-xs text-[#a98e76]">One per member per club day</p>
+      <section aria-label="QR member scanner" className="mt-5">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="hm-section-title">Your live reception desk</h2>
+            <p className="hm-small mt-1">
+              The scanner comes first. Manual check-in is always available below.
+            </p>
+          </div>
+          <span className="hm-ops-pill hm-ops-pill--active">Verified member QR</span>
         </div>
-        <div className="rounded-[1.5rem] border border-[#f6dc9b]/15 bg-[#1d140e] p-6">
-          <ScanLine className="size-6 text-[#ebbd83]" />
-          <p className="mt-4 text-4xl font-semibold">{qrCount}</p>
-          <p className="mt-1 text-sm font-medium text-[#d3b79b]">QR arrivals</p>
-          <p className="mt-2 text-xs text-[#a98e76]">Signed, short-lived codes</p>
+        <div className="hm-ops-qr-primary">
+          <AttendanceScanner clubId={clubId} />
         </div>
-        <div className="rounded-[1.5rem] border border-[#f6dc9b]/15 bg-[#1d140e] p-6">
-          <UsersRound className="size-6 text-[#ebbd83]" />
-          <p className="mt-4 text-4xl font-semibold">{count - qrCount}</p>
-          <p className="mt-1 text-sm font-medium text-[#d3b79b]">Staff-assisted</p>
-          <p className="mt-2 text-xs text-[#a98e76]">{exceptions} documented exceptions</p>
-        </div>
+      </section>
+      <div className="hm-ops-stats" aria-label="Today's attendance summary">
+        <OperationsStat
+          icon={CalendarCheck2}
+          tone="sage"
+          label="Arrivals today"
+          value={count}
+          detail="One per member per club day"
+        />
+        <OperationsStat
+          icon={ScanLine}
+          tone="terracotta"
+          label="QR arrivals"
+          value={qrCount}
+          detail="Signed, short-lived codes"
+        />
+        <OperationsStat
+          icon={UsersRound}
+          tone="cocoa"
+          label="Staff-assisted"
+          value={count - qrCount}
+          detail={exceptions + " documented exceptions"}
+        />
       </div>
       <div className="mt-7 grid gap-6">
-        <AttendanceScanner clubId={clubId} />
         <div className="grid gap-6 xl:grid-cols-[.95fr_1.05fr]">
           <ManualCheckIn
             clubId={clubId}
@@ -134,19 +140,16 @@ async function AttendanceContent({ params }: { params: Promise<{ clubId: string 
       {access.role === "OWNER" && (
         <AttendanceTimeZoneSetting clubId={clubId} timeZone={club.timeZone} />
       )}
-      <div className="mt-7 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#f6dc9b]/15 bg-[#1b130d] p-5 sm:p-7">
-        <p className="flex items-start gap-2 text-sm leading-6 text-[#bb9e83]">
-          <ShieldCheck className="mt-1 size-4 shrink-0 text-[#f5c485]" />
-          No payment is collected during check-in. Medical and Personal records remain separate and
-          private.
-        </p>
+      <OperationsSafetyNote>
+        No payment is collected during check-in. Medical and Personal records remain separate and
+        private.
         <Link
-          href={`/clubs/${clubId}/attendance/history`}
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#eab572]/25 px-4 text-sm font-semibold text-[#f6c284] hover:bg-[#382519]"
+          href={`/clubs/${encodeURIComponent(clubId)}/attendance/history`}
+          className="ml-2 inline-flex items-center gap-1 font-semibold underline"
         >
-          View history <ArrowRight className="size-4" />
+          View history <ArrowRight className="size-3.5" aria-hidden="true" />
         </Link>
-      </div>
+      </OperationsSafetyNote>
     </BusinessShell>
   );
 }

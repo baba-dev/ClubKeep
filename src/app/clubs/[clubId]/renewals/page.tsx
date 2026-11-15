@@ -7,6 +7,11 @@ import { requireClubActive } from "@/lib/member-service";
 import { prisma } from "@/lib/prisma";
 import { statusForTerm } from "@/lib/membership-dates";
 import { BusinessShell } from "@/components/clubs/business-shell";
+import {
+  OperationsBanner,
+  OperationsStat,
+  OperationsEmpty,
+} from "@/components/human-motion/operations-ui";
 
 export const metadata: Metadata = {
   title: "Membership renewals · ClubKeep",
@@ -60,6 +65,13 @@ async function RenewalsContent({ params }: Props) {
     .filter((member) => ["EXPIRING", "EXPIRED", "NONE"].includes(member.status));
   const countExpiring = expiring.filter((member) => member.status === "EXPIRING").length;
   const expired = expiring.filter((member) => member.status !== "EXPIRING").length;
+  const attention = [...expiring].sort((a, b) => {
+    const weight = (status: string) => (status === "EXPIRING" ? 0 : status === "EXPIRED" ? 1 : 2);
+    return (
+      weight(a.status) - weight(b.status) ||
+      (a.term?.endAt.getTime() ?? 0) - (b.term?.endAt.getTime() ?? 0)
+    );
+  });
   return (
     <BusinessShell
       clubId={clubId}
@@ -69,76 +81,88 @@ async function RenewalsContent({ params }: Props) {
       title="Every renewal matters."
       description="See who is approaching expiry, follow up with care and renew membership terms in a few taps. No payment is processed here."
     >
+      <OperationsBanner
+        eyebrow="Stay connected"
+        title="Renewals should feel like a welcome back."
+        description="A clear, gentle way to spot upcoming expiries and care for the members who make your club."
+        art="botanical"
+        compact
+      />
       {access.role !== "STAFF" && (
         <Link
           href={"/clubs/" + encodeURIComponent(clubId) + "/renewal-requests"}
-          className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-xl border border-[#ffc17b]/35 bg-[#352316] px-5 text-sm font-bold text-[#ffc780]"
+          className="hm-button hm-button-secondary mt-5"
         >
           Open member renewal request inbox <ArrowRight className="size-4" />
         </Link>
       )}
-      <div className="mt-8 grid gap-4 sm:grid-cols-3">
-        <div className="rounded-2xl border border-[#f6dc9b]/20 bg-[#21160e] p-6">
-          <CalendarClock className="size-6 text-amber-300" />
-          <p className="mt-4 text-3xl font-semibold">{countExpiring}</p>
-          <p className="mt-2 text-sm text-[#b8a08c]">Expiring within seven days</p>
-        </div>
-        <div className="rounded-2xl border border-[#f6dc9b]/20 bg-[#21160e] p-6">
-          <Clock4 className="size-6 text-orange-300" />
-          <p className="mt-4 text-3xl font-semibold">{expired}</p>
-          <p className="mt-2 text-sm text-[#b8a08c]">Expired or unassigned</p>
-        </div>
-        <div className="rounded-2xl border border-[#f6dc9b]/20 bg-[#21160e] p-6">
-          <UsersRound className="size-6 text-[#f2c486]" />
-          <p className="mt-4 text-3xl font-semibold">{records.length}</p>
-          <p className="mt-2 text-sm text-[#b8a08c]">Members checked (max 300)</p>
-        </div>
+      <div className="hm-ops-stats">
+        <OperationsStat
+          icon={CalendarClock}
+          tone="amber"
+          label="Expiring within seven days"
+          value={countExpiring}
+          detail="Prioritize upcoming renewals"
+        />
+        <OperationsStat
+          icon={Clock4}
+          tone="terracotta"
+          label="Expired or unassigned"
+          value={expired}
+          detail="Members who may need attention"
+        />
+        <OperationsStat
+          icon={UsersRound}
+          tone="sage"
+          label="Roster checked"
+          value={records.length}
+          detail="Up to 300 member records"
+        />
       </div>
-      <section className="mt-6 overflow-hidden rounded-3xl border border-[#f6dc9b]/15 bg-[#17100b] p-5 sm:p-7">
-        <h2 className="text-xl font-semibold">Needs attention</h2>
+      <section className="hm-ops-section" aria-label="Renewals requiring attention">
+        <h2 className="hm-section-title">Renewals timeline</h2>
         <p className="mt-2 text-sm text-[#b8a08c]">
-          Sorted by earliest expiry. Open a member profile to renew safely.
+          Upcoming expiries appear first, followed by expired and unassigned members. Open a profile
+          to take action.
         </p>
         {expiring.length === 0 ? (
-          <div className="mt-6 rounded-2xl border border-dashed border-[#f6dc9b]/20 p-9 text-center">
-            <CalendarClock className="mx-auto size-9 text-[#e1b26b]" />
-            <p className="mt-4 font-semibold">All caught up</p>
-            <p className="mt-2 text-sm text-[#b8a08c]">
-              No renewals need attention in the current roster.
-            </p>
-          </div>
+          <OperationsEmpty
+            icon={CalendarClock}
+            title="All caught up"
+            detail="No renewals need attention in the current roster."
+          />
         ) : (
-          <div className="mt-6 space-y-3">
-            {expiring
-              .sort((a, b) => (a.term?.endAt.getTime() ?? 0) - (b.term?.endAt.getTime() ?? 0))
-              .map((member) => (
-                <Link
-                  key={member.id}
-                  href={`/clubs/${clubId}/members/${member.id}`}
-                  className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#f6dc9b]/10 bg-[#251911] px-5 py-4 hover:border-[#f3b869]/50"
-                >
-                  <div>
-                    <p className="font-semibold">{member.displayName}</p>
-                    <p className="mt-1 text-xs text-[#a9907a]">
-                      #{String(member.memberNumber).padStart(4, "0")} ·{" "}
-                      {member.term?.planName ?? "No plan"}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <p className="text-right text-xs text-[#f2c18b]">
-                      {member.status === "EXPIRING"
-                        ? "Expiring soon"
-                        : member.status === "NONE"
-                          ? "Not assigned"
-                          : "Expired"}
-                      <span className="mt-1 block text-[#ae9984]">
-                        {member.term?.endAt.toISOString().slice(0, 10) ?? "—"}
-                      </span>
-                    </p>
-                    <ArrowRight className="size-4 text-[#ffc27d]" />
-                  </div>
-                </Link>
-              ))}
+          <div className="hm-ops-timeline mt-6 space-y-3">
+            {attention.map((member) => (
+              <Link
+                key={member.id}
+                href={`/clubs/${clubId}/members/${member.id}`}
+                className="hm-ops-row"
+              >
+                <div className="min-w-0">
+                  <p className="font-semibold">{member.displayName}</p>
+                  <p className="mt-1 text-xs text-[#a9907a]">
+                    #{String(member.memberNumber).padStart(4, "0")} ·{" "}
+                    {member.term?.planName ?? "No plan"}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <p
+                    className={`hm-ops-pill ${member.status === "EXPIRING" ? "hm-ops-pill--urgent" : "hm-ops-pill--expired"}`}
+                  >
+                    {member.status === "EXPIRING"
+                      ? "Expiring soon"
+                      : member.status === "NONE"
+                        ? "Not assigned"
+                        : "Expired"}
+                    <span className="hm-muted mt-1 block">
+                      {member.term?.endAt.toISOString().slice(0, 10) ?? "—"}
+                    </span>
+                  </p>
+                  <ArrowRight className="size-4 text-[var(--hm-terracotta)]" />
+                </div>
+              </Link>
+            ))}
           </div>
         )}
         {records.length === 300 && (

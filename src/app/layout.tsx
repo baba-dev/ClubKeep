@@ -17,7 +17,11 @@ const geistMono = Geist_Mono({
 });
 
 const hmInter = Inter({ variable: "--font-hm-inter", subsets: ["latin"], display: "swap" });
-const hmPlayfair = Playfair_Display({ variable: "--font-hm-playfair", subsets: ["latin"], display: "swap" });
+const hmPlayfair = Playfair_Display({
+  variable: "--font-hm-playfair",
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "ClubKeep — Business & Personal",

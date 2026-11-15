@@ -195,7 +195,8 @@ export function ClubManager({
             >
               <div>
                 <p className="flex items-center gap-2 font-medium">
-                  <Link2 className="size-4 text-[var(--hm-terracotta)]" /> Invitation {invite.id.slice(-7)}
+                  <Link2 className="size-4 text-[var(--hm-terracotta)]" /> Invitation{" "}
+                  {invite.id.slice(-7)}
                 </p>
                 <p className="mt-1 text-xs text-[var(--hm-muted)]">
                   {invite.claimedAt
@@ -224,7 +225,9 @@ export function ClubManager({
         </div>
       </section>
       <section className="rounded-3xl border border-[var(--hm-line)] bg-[var(--hm-surface)] p-6 sm:p-8">
-        <p className="text-xs font-semibold tracking-widest text-[var(--hm-sage-deep)] uppercase">Membership</p>
+        <p className="text-xs font-semibold tracking-widest text-[var(--hm-sage-deep)] uppercase">
+          Membership
+        </p>
         <h2 className="mt-2 text-2xl font-semibold">People in your club</h2>
         <div className="mt-6 space-y-2">
           {members.map((member) => (

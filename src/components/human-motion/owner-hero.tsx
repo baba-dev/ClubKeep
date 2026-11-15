@@ -55,21 +55,33 @@ export function OwnerHero({
       )}
       <ThemeArtwork pair={HM_MEDIA.illustrations.heroFlow} className="hm-hero-flow" />
       <div className="hm-owner-hero-content">
-        <p className="hm-kicker" style={{color: "#f4d5bc", margin: 0}}>
-          <Sparkles className="mr-2 inline size-4" aria-hidden="true" />{copy.kicker}
+        <p className="hm-kicker" style={{ color: "#f4d5bc", margin: 0 }}>
+          <Sparkles className="mr-2 inline size-4" aria-hidden="true" />
+          {copy.kicker}
         </p>
-        <h2 id="hm-hero-heading" className="hm-display mt-5">{copy.heading}</h2>
+        <h2 id="hm-hero-heading" className="hm-display mt-5">
+          {copy.heading}
+        </h2>
         <p>{copy.body}</p>
-        <p className="hm-kicker mt-5" style={{fontSize: ".62rem", color: "#f2dbc4"}}>
+        <p className="hm-kicker mt-5" style={{ fontSize: ".62rem", color: "#f2dbc4" }}>
           {clubName}
         </p>
         <div className="hm-hero-actions">
           {canInvite && (
-            <Link href="#hm-operations" className="hm-button hm-button-primary" style={{background: "#e1e7d5", color: "#2e4937"}}>
-              <UsersRound className="size-4" aria-hidden="true" /> Invite members <ArrowUpRight className="size-4" aria-hidden="true" />
+            <Link
+              href="#hm-operations"
+              className="hm-button hm-button-primary"
+              style={{ background: "#e1e7d5", color: "#2e4937" }}
+            >
+              <UsersRound className="size-4" aria-hidden="true" /> Invite members{" "}
+              <ArrowUpRight className="size-4" aria-hidden="true" />
             </Link>
           )}
-          <Link href={base + "/attendance"} className="hm-button" style={{border: "1px solid #ffffff8c", color: "#fffaf0", background: "#241d1960"}}>
+          <Link
+            href={base + "/attendance"}
+            className="hm-button"
+            style={{ border: "1px solid #ffffff8c", color: "#fffaf0", background: "#241d1960" }}
+          >
             <ScanLine className="size-4" aria-hidden="true" /> Open check-in
           </Link>
         </div>

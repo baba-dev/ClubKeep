@@ -20,6 +20,8 @@ export async function ownerOverviewSnapshot(
   const monthPart = monthParts.find((part) => part.type === "month")?.value;
   if (!year || !monthPart) throw new Error("Cannot resolve club-local month");
   const month = year + "-" + monthPart;
+  // The club/date index bounds the candidate set before club-local timezone filtering.
+  const revenueIndexCutoff = new Date(now.getTime() - 35 * 86_400_000);
   const [memberCount, attendanceToday, activeTerms, revenue, recentMembers, challenges] =
     await Promise.all([
       db.clubMemberRecord.count({ where: { clubId, status: "ACTIVE" } }),
@@ -36,6 +38,7 @@ export async function ownerOverviewSnapshot(
             SELECT p."currency", SUM(p."amountMinor")::bigint AS "amount"
             FROM "ClubPayment" p
             WHERE p."clubId" = ${clubId}
+              AND p."receivedAt" >= ${revenueIndexCutoff} AND p."receivedAt" <= ${now}
               AND to_char(p."receivedAt" AT TIME ZONE ${timeZone}, 'YYYY-MM') = ${month}
               AND NOT EXISTS (
                 SELECT 1 FROM "ClubPaymentReversal" r
@@ -61,7 +64,7 @@ export async function ownerOverviewSnapshot(
   return {
     members: memberCount,
     attendanceToday,
-    activeMemberships: Number(activeTerms[0]?.total ?? 0n),
+    activeMemberships: Number(activeTerms[0]?.total ?? BigInt(0)),
     revenue: revenue.map((row) => ({
       currency: row.currency,
       // Avoid number-precision loss on unusually large payment ledgers.

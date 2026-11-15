@@ -24,7 +24,14 @@ export function ClubKeepBrand({ compact = false }: { compact?: boolean }) {
   return (
     <Link href="/home" aria-label="ClubKeep home" className="hm-brand">
       {compact ? (
-        <Image src={HM_MEDIA.branding.icon} alt="" width={43} height={43} unoptimized className="hm-brand-icon" />
+        <Image
+          src={HM_MEDIA.branding.icon}
+          alt=""
+          width={43}
+          height={43}
+          unoptimized
+          className="hm-brand-icon"
+        />
       ) : (
         <>
           <Image

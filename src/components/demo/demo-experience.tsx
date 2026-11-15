@@ -163,7 +163,7 @@ const hero: Record<DemoView, [string, string]> = {
     "Review a fictional club directory submission from the platform side.",
   ],
 };
-const cardClass = "hm-demo-card p-5 sm:p-7";
+const cardClass = "hm-demo-card hm-demo-panel p-5 sm:p-7";
 const fieldClass = "hm-demo-field mt-2 min-h-12 w-full text-sm";
 const mainButton = "hm-button hm-button-primary disabled:opacity-40";
 const secondaryButton = "hm-button hm-button-secondary disabled:opacity-40";
@@ -182,7 +182,7 @@ function Panel({
   return (
     <section className={cardClass}>
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <h2 className="flex items-center gap-3 text-lg font-black tracking-tight sm:text-xl">
+        <h2 className="flex items-center gap-3 text-lg font-semibold tracking-tight sm:text-xl">
           {Icon && <Icon className="size-6 text-[var(--hm-terracotta)]" aria-hidden="true" />}
           {title}
         </h2>
@@ -204,7 +204,16 @@ function Metric({
   note?: string;
 }) {
   return (
-    <div className="hm-ops-stat">
+    <div className="hm-ops-stat hm-demo-metric">
+      <ThemeArtwork
+        pair={
+          label === "Active roster" ? HM_MEDIA.illustrations.metrics.members :
+          label === "Today's check-ins" ? HM_MEDIA.illustrations.metrics.attendance :
+          label === "Outstanding dues" ? HM_MEDIA.illustrations.metrics.revenue :
+          HM_MEDIA.illustrations.metrics.memberships
+        }
+        className="hm-demo-metric-wave hm-gallery-art"
+      />
       <Icon className="size-6 text-[var(--hm-sage-deep)]" aria-hidden="true" />
       <p className="hm-ops-stat-value tabular-nums sm:text-4xl">{value}</p>
       <p className="hm-ops-stat-label">{label}</p>
@@ -218,8 +227,8 @@ function DemoPill({ children, emphasis = false }: { children: ReactNode; emphasi
       className={
         "inline-flex items-center rounded-full border px-3 py-1.5 text-[11px] font-bold " +
         (emphasis
-          ? "border-[#edbd7b]/40 bg-[#f4b261]/10 text-[#ffd3a1]"
-          : "border-white/15 bg-white/5 text-[#c5b6a9]")
+          ? "hm-demo-pill-emphasis"
+          : "hm-demo-pill")
       }
     >
       {children}
@@ -503,16 +512,8 @@ export function DemoExperience({
 
   return (
     <div className="hm-app hm-demo">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none fixed inset-0 opacity-25"
-        style={{
-          backgroundImage:
-            "linear-gradient(#dbab6c0e 1px,transparent 1px),linear-gradient(90deg,#dbab6c0e 1px,transparent 1px)",
-          backgroundSize: "56px 56px",
-        }}
-      />
-      <header className="relative z-20 border-b border-[var(--hm-line)] bg-[var(--hm-surface)] backdrop-blur-xl">
+      <div aria-hidden="true" className="hm-demo-texture" />
+      <header className="hm-demo-topbar">
         <div className="mx-auto flex max-w-[1560px] flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-7">
           <div className="flex items-center gap-3">
             <ClubKeepBrand />
@@ -532,10 +533,10 @@ export function DemoExperience({
           </div>
         </div>
       </header>
-      <div className="relative mx-auto grid min-h-[calc(100vh-75px)] max-w-[1560px] lg:grid-cols-[260px_minmax(0,1fr)]">
-        <aside className="border-b border-[var(--hm-line)] bg-[var(--hm-surface)] lg:border-r lg:border-b-0">
-          <div className="sticky top-0 max-h-[100dvh] overflow-y-auto p-4 sm:p-6">
-            <div className="hm-demo-card p-4">
+      <div className="hm-demo-stage">
+        <aside className="hm-demo-sidebar">
+          <div className="hm-demo-sidebar-inner">
+            <div className="hm-demo-persona hm-demo-card p-4">
               <p className="hm-kicker hm-page-eyebrow">Perspective switcher</p>
               <label htmlFor="demo-persona" className="hm-small mt-3 block">
                 Explore as
@@ -581,7 +582,7 @@ export function DemoExperience({
             </div>
             <label
               htmlFor="demo-feature-mobile"
-              className="mt-4 block text-xs font-semibold text-[#e7cba9] lg:hidden"
+              className="hm-small mt-4 block font-semibold lg:hidden"
             >
               Explore a feature
               <select
@@ -600,7 +601,7 @@ export function DemoExperience({
             <nav aria-label="Demo features" className="mt-5 hidden space-y-5 lg:block">
               {Object.entries(contents).map(([section, views]) => (
                 <div key={section}>
-                  <h2 className="mb-2 px-2 text-[10px] font-black tracking-[.18em] text-[#ac998b] uppercase">
+                  <h2 className="hm-demo-nav-heading">
                     {section}
                   </h2>
                   <div className="grid grid-cols-2 gap-1 sm:grid-cols-3 lg:grid-cols-1">
@@ -629,9 +630,12 @@ export function DemoExperience({
                 </div>
               ))}
             </nav>
+            <div className="hm-demo-sidebar-art" aria-hidden="true">
+              <ThemeArtwork pair={HM_MEDIA.illustrations.sidebarLandscape} className="hm-gallery-art" />
+            </div>
           </div>
         </aside>
-        <main className="min-w-0 px-4 pt-8 pb-24 sm:px-8 sm:pt-12 xl:px-12">
+        <main className="hm-demo-content">
           <div className="mx-auto max-w-6xl">
             <div className="hm-kicker hm-page-eyebrow flex flex-wrap items-center gap-2">
               <Zap className="size-4" /> Full product preview{" "}
@@ -641,10 +645,10 @@ export function DemoExperience({
             </div>
             <div className="mt-5 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
               <div>
-                <h1 className="hm-display max-w-3xl text-4xl sm:text-6xl">{hero[view][0]}</h1>
+                <h1 className="hm-display hm-demo-page-title max-w-3xl text-4xl sm:text-6xl">{hero[view][0]}</h1>
                 <p className="hm-small mt-4 max-w-2xl sm:text-base">{hero[view][1]}</p>
               </div>
-              <span className="hm-ops-pill self-start">
+              <span className="hm-ops-pill hm-demo-review-tag self-start">
                 <Eye className="size-4" /> Browser & AI-ready preview
               </span>
             </div>
@@ -660,7 +664,7 @@ export function DemoExperience({
               <div
                 role="status"
                 aria-live="polite"
-                className="mt-4 flex items-start gap-2 rounded-2xl border border-[#bce3c2]/20 bg-[#234031]/40 p-4 text-sm text-[#dbf4db]"
+                className="hm-demo-notice mt-4 flex items-start gap-2 rounded-2xl border p-4 text-sm"
               >
                 <Check className="mt-0.5 size-4 shrink-0" />
                 {notice}
@@ -669,7 +673,7 @@ export function DemoExperience({
             <div className="mt-7 space-y-6">
               {view === "overview" && (
                 <>
-                  <section className="hm-demo-hero p-7 sm:p-10">
+                  <section className="hm-demo-hero hm-demo-overview-hero p-7 sm:p-10">
                     <ThemeArtwork
                       pair={
                         heroForVertical(presetVertical) ?? HM_MEDIA.illustrations.challengeLandscape
@@ -746,7 +750,7 @@ export function DemoExperience({
                           <button
                             key={v}
                             onClick={() => jump(v)}
-                            className="flex min-h-12 w-full items-center justify-between rounded-xl border border-[var(--hm-line)] px-4 text-left text-sm font-bold text-[#efd2b4] hover:border-[#f4bb79]/50"
+                            className="hm-demo-action-row"
                           >
                             {label}
                             <ChevronRight className="size-4" />
@@ -755,7 +759,7 @@ export function DemoExperience({
                       </div>
                     </Panel>
                     <Panel title="Member Arena preview" icon={IdCard}>
-                      <p className="text-sm leading-7 text-[#c9b5a2]">
+                      <p className="hm-small text-sm leading-7">
                         Explore the same club as a fictional athlete: digital ID, attendance
                         history, fees, membership renewals, opt-in competition, personal bests and
                         challenges.
@@ -833,7 +837,7 @@ export function DemoExperience({
                     </form>
                   </Panel>
                   <Panel title="Owner access" icon={ShieldCheck}>
-                    <p className="text-sm leading-7 text-[#c7b4a5]">
+                    <p className="text-sm leading-7 text-[var(--hm-muted)]">
                       Creating a real club grants its creator the club OWNER role. Platform
                       administration alone does not authorize another club&apos;s private resources.
                     </p>
@@ -911,7 +915,7 @@ export function DemoExperience({
                           required
                         />
                       </label>
-                      <p className="text-sm leading-7 text-[#b4a598]">
+                      <p className="text-sm leading-7 text-[var(--hm-muted)]">
                         A separate real workflow links a verified account; a phone number never
                         proves identity.
                       </p>
@@ -1010,7 +1014,7 @@ export function DemoExperience({
                         ))}
                       </select>
                     </label>
-                    <div className="mt-7 rounded-2xl border border-[#e7ad66]/25 bg-[#2c211a] p-6 text-center">
+                    <div className="mt-7 rounded-2xl border border-[#e7ad66]/25 bg-[var(--hm-raised)] p-6 text-center">
                       <ScanLine className="mx-auto size-14 text-[#ffcd8e]" />
                       <h3 className="mt-4 text-xl font-black">Front-desk entry</h3>
                       <p className="mt-2 text-sm text-[#d0b8a5]">
@@ -1026,7 +1030,7 @@ export function DemoExperience({
                     </div>
                   </Panel>
                   <Panel title="Signed QR admissions" icon={ShieldCheck}>
-                    <p className="text-sm leading-7 text-[#cab4a0]">
+                    <p className="text-sm leading-7 text-[var(--hm-muted)]">
                       In the real application, members display a short-lived, club-bound rotating
                       QR. Staff validate it against active membership, club identity and the
                       club&apos;s local calendar day. A printed ID is never an entry token.
@@ -1058,7 +1062,7 @@ export function DemoExperience({
                         </DemoPill>
                       }
                     />
-                    <p className="my-4 text-sm leading-7 text-[#bca999]">
+                    <p className="my-4 text-sm leading-7 text-[var(--hm-muted)]">
                       Renewals remain manual; ClubKeep does not automatically collect or extend
                       payments.
                     </p>
@@ -1069,7 +1073,7 @@ export function DemoExperience({
                     )}
                   </Panel>
                   <Panel title="Member perspective" icon={UserRound}>
-                    <p className="text-sm leading-7 text-[#c6b3a3]">
+                    <p className="text-sm leading-7 text-[var(--hm-muted)]">
                       Open the member persona to submit a request. The owner then reviews it in this
                       inbox.
                     </p>
@@ -1160,7 +1164,7 @@ export function DemoExperience({
                         <button className={mainButton} disabled={member.due === 0}>
                           Record demo payment <ArrowRight className="size-4" />
                         </button>
-                        <p className="text-xs text-[#bba795]">
+                        <p className="text-xs text-[var(--hm-muted)]">
                           No payment is processed, verified or bank-settled in this preview.
                         </p>
                       </form>
@@ -1170,11 +1174,11 @@ export function DemoExperience({
               )}
               {view === "competition" && (
                 <div className="space-y-5">
-                  <section className="relative overflow-hidden rounded-[2rem] border border-[#f5b967]/30 bg-gradient-to-r from-[#553016] via-[#291c17] to-[#13151b] p-7 sm:p-10">
+                  <section className="hm-demo-competition-banner p-7 sm:p-10">
                     <DemoPill emphasis>
                       <Trophy className="mr-1 size-3.5" /> SEASON LEAGUE
                     </DemoPill>
-                    <h2 className="mt-5 text-3xl font-black sm:text-5xl">
+                    <h2 className="hm-display mt-5 text-3xl sm:text-5xl">
                       Stand taller. Go further.
                     </h2>
                     <p className="mt-3 text-[#dfbea3]">
@@ -1193,7 +1197,7 @@ export function DemoExperience({
                   <div className="grid gap-5 lg:grid-cols-[1.2fr_1fr]">
                     <Panel title="Independent verification queue" icon={ClipboardCheck}>
                       {!pending.length ? (
-                        <p className="text-sm text-[#bda99c]">Every score has been reviewed.</p>
+                        <p className="text-sm text-[var(--hm-muted)]">Every score has been reviewed.</p>
                       ) : (
                         pending.map((s) => (
                           <DemoRow
@@ -1255,7 +1259,7 @@ export function DemoExperience({
                         <button className={mainButton}>
                           Submit demo result <ArrowRight className="size-4" />
                         </button>
-                        <p className="text-xs leading-6 text-[#bba795]">
+                        <p className="text-xs leading-6 text-[var(--hm-muted)]">
                           In production, the club checks witness evidence, and a submitter cannot
                           approve their own result. This fictional preview shows both actions for
                           testing.
@@ -1303,7 +1307,7 @@ export function DemoExperience({
                     )}
                   </Panel>
                   <Panel title="Consent & fairness" icon={ShieldCheck}>
-                    <p className="text-sm leading-7 text-[#c6b5a4]">
+                    <p className="text-sm leading-7 text-[var(--hm-muted)]">
                       Member visibility is strictly optional. Only active, explicitly linked members
                       can participate, and the league never combines unrelated sporting units.
                     </p>
@@ -1458,10 +1462,10 @@ export function DemoExperience({
                 <div className="grid gap-5 lg:grid-cols-2">
                   <Panel title="Public club listing" icon={Building2}>
                     <h3 className="text-3xl font-black">{data.clubName}</h3>
-                    <p className="mt-3 text-sm text-[#c4ab96]">
+                    <p className="mt-3 text-sm text-[var(--hm-muted)]">
                       {data.city} · {data.vertical.toLowerCase()} club
                     </p>
-                    <p className="mt-4 text-sm leading-7 text-[#cebba6]">
+                    <p className="mt-4 text-sm leading-7 text-[var(--hm-muted)]">
                       A welcoming athletic community focused on movement, personal progress and
                       showing up together.
                     </p>
@@ -1684,7 +1688,7 @@ export function DemoExperience({
                       <Plus className="size-4" /> Generate sample invitation
                     </button>
                     {invitesCreated > 0 && (
-                      <div className="mt-6 rounded-2xl border border-[#ffc47e]/25 bg-[#2b2018] p-5">
+                      <div className="mt-6 rounded-2xl border border-[#ffc47e]/25 bg-[var(--hm-raised)] p-5">
                         <p className="text-xs font-black tracking-widest text-[#ffcd91] uppercase">
                           Preview · Invitation #{invitesCreated}
                         </p>

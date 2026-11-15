@@ -134,10 +134,12 @@ export function PlanStudio({
       setBusy(false);
     }
   }
+  const activePlans = plans.filter((plan) => !plan.archivedAt);
+  const archivedPlans = plans.filter((plan) => Boolean(plan.archivedAt));
   return (
-    <div className="mt-8">
+    <div className="mt-6 hm-ops-form">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <p className="text-sm text-[#b8a08c]">
+        <p className="text-sm text-[var(--hm-muted)]">
           {plans.filter((plan) => !plan.archivedAt).length} available plans · {plans.length} total
         </p>
         {canManage && (
@@ -148,7 +150,7 @@ export function PlanStudio({
               setOpen(true);
               setNotice("");
             }}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-gradient-to-r from-[#e5b45a] to-[#f26b00] px-5 py-3 text-sm font-semibold text-[#261607] hover:brightness-110"
+            className="hm-button hm-button-primary"
           >
             <Plus className="size-4" />
             Create a plan
@@ -174,11 +176,11 @@ export function PlanStudio({
       {open && (
         <form
           onSubmit={save}
-          className="mt-6 rounded-3xl border border-[#f1b65d]/30 bg-gradient-to-br from-[#2d2013] to-[#15100b] p-6 shadow-2xl sm:p-8"
+          className="hm-ops-section hm-ops-form mt-6"
         >
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-xs font-semibold tracking-widest text-[#deb77d] uppercase">
+              <p className="text-xs font-semibold tracking-widest text-[var(--hm-terracotta)] uppercase">
                 Plan studio
               </p>
               <h2 className="mt-2 text-2xl font-semibold">
@@ -189,13 +191,13 @@ export function PlanStudio({
               type="button"
               onClick={reset}
               aria-label="Close plan editor"
-              className="flex size-10 items-center justify-center rounded-xl border border-[#f6dc9b]/20 text-[#debea1] hover:bg-[#49301f]"
+              className="flex size-10 items-center justify-center rounded-xl border border-[var(--hm-line)] text-[#debea1] hover:bg-[#49301f]"
             >
               <X className="size-4" />
             </button>
           </div>
           <div className="mt-6 grid gap-5 sm:grid-cols-2">
-            <label className="block text-sm text-[#f7dcb2] sm:col-span-2">
+            <label className="block text-sm text-[var(--hm-text)] sm:col-span-2">
               Plan name
               <input
                 required
@@ -204,21 +206,21 @@ export function PlanStudio({
                 placeholder="Monthly Gym Access"
                 value={form.name}
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                className="mt-2 min-h-12 w-full rounded-xl border border-[#f6dc9b]/20 bg-[#0b0806] px-4 text-[#fbf1e6] outline-none focus:border-[#ffbc68]"
+                className="mt-2 min-h-12 w-full rounded-xl border border-[var(--hm-line)] bg-[var(--hm-surface)] px-4 text-[var(--hm-text)] outline-none focus:border-[var(--hm-terracotta)]"
               />
             </label>
-            <label className="block text-sm text-[#f7dcb2] sm:col-span-2">
-              Description <span className="text-xs text-[#ac947d]">(optional)</span>
+            <label className="block text-sm text-[var(--hm-text)] sm:col-span-2">
+              Description <span className="text-xs text-[var(--hm-muted)]">(optional)</span>
               <textarea
                 rows={2}
                 maxLength={500}
                 value={form.description}
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                 placeholder="Unlimited gym floor access…"
-                className="mt-2 w-full resize-y rounded-xl border border-[#f6dc9b]/20 bg-[#0b0806] p-4 text-[#fbf1e6] outline-none focus:border-[#ffbc68]"
+                className="mt-2 w-full resize-y rounded-xl border border-[var(--hm-line)] bg-[var(--hm-surface)] p-4 text-[var(--hm-text)] outline-none focus:border-[var(--hm-terracotta)]"
               />
             </label>
-            <label className="block text-sm text-[#f7dcb2]">
+            <label className="block text-sm text-[var(--hm-text)]">
               Duration
               <input
                 required
@@ -228,10 +230,10 @@ export function PlanStudio({
                 step={1}
                 value={form.durationCount}
                 onChange={(e) => setForm((f) => ({ ...f, durationCount: e.target.value }))}
-                className="mt-2 min-h-12 w-full rounded-xl border border-[#f6dc9b]/20 bg-[#0b0806] px-4 text-[#fbf1e6] outline-none focus:border-[#ffbc68]"
+                className="mt-2 min-h-12 w-full rounded-xl border border-[var(--hm-line)] bg-[var(--hm-surface)] px-4 text-[var(--hm-text)] outline-none focus:border-[var(--hm-terracotta)]"
               />
             </label>
-            <label className="block text-sm text-[#f7dcb2]">
+            <label className="block text-sm text-[var(--hm-text)]">
               Duration unit
               <select
                 value={form.durationUnit}
@@ -241,14 +243,14 @@ export function PlanStudio({
                     durationUnit: e.target.value as PlanRow["durationUnit"],
                   }))
                 }
-                className="mt-2 min-h-12 w-full rounded-xl border border-[#f6dc9b]/20 bg-[#0b0806] px-4 text-[#fbf1e6] outline-none focus:border-[#ffbc68]"
+                className="mt-2 min-h-12 w-full rounded-xl border border-[var(--hm-line)] bg-[var(--hm-surface)] px-4 text-[var(--hm-text)] outline-none focus:border-[var(--hm-terracotta)]"
               >
                 <option value="DAYS">Days</option>
                 <option value="WEEKS">Weeks</option>
                 <option value="MONTHS">Calendar months</option>
               </select>
             </label>
-            <label className="block text-sm text-[#f7dcb2]">
+            <label className="block text-sm text-[var(--hm-text)]">
               Price
               <input
                 required
@@ -256,15 +258,15 @@ export function PlanStudio({
                 placeholder="999.00"
                 value={form.price}
                 onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
-                className="mt-2 min-h-12 w-full rounded-xl border border-[#f6dc9b]/20 bg-[#0b0806] px-4 text-[#fbf1e6] outline-none focus:border-[#ffbc68]"
+                className="mt-2 min-h-12 w-full rounded-xl border border-[var(--hm-line)] bg-[var(--hm-surface)] px-4 text-[var(--hm-text)] outline-none focus:border-[var(--hm-terracotta)]"
               />
             </label>
-            <label className="block text-sm text-[#f7dcb2]">
+            <label className="block text-sm text-[var(--hm-text)]">
               Currency
               <select
                 value={form.currency}
                 onChange={(e) => setForm((f) => ({ ...f, currency: e.target.value, price: "" }))}
-                className="mt-2 min-h-12 w-full rounded-xl border border-[#f6dc9b]/20 bg-[#0b0806] px-4 text-[#fbf1e6] outline-none focus:border-[#ffbc68]"
+                className="mt-2 min-h-12 w-full rounded-xl border border-[var(--hm-line)] bg-[var(--hm-surface)] px-4 text-[var(--hm-text)] outline-none focus:border-[var(--hm-terracotta)]"
               >
                 <option value="INR">INR — India</option>
                 <option value="USD">USD — International</option>
@@ -285,53 +287,58 @@ export function PlanStudio({
             <button
               type="submit"
               disabled={busy}
-              className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-gradient-to-r from-[#f0b65d] to-[#f26b00] px-6 py-3 font-bold text-[#291809] disabled:opacity-50"
+              className="hm-button hm-button-primary disabled:opacity-50"
             >
               {busy ? "Saving…" : "Save membership plan"}
               <Check className="size-4" />
             </button>
-            <p className="flex items-center gap-2 text-xs text-[#bea58d]">
+            <p className="flex items-center gap-2 text-xs text-[var(--hm-muted)]">
               <ShieldCheck className="size-4" />
               Previous membership pricing is immutable.
             </p>
           </div>
         </form>
       )}
-      <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {plans.length === 0 && (
-          <div className="rounded-3xl border border-dashed border-[#f6dc9b]/20 bg-[#19120d] p-8 md:col-span-2">
+      <section className="mt-8" aria-labelledby="hm-current-plans">
+        <div className="flex items-center justify-between gap-3">
+          <h2 id="hm-current-plans" className="hm-section-title">Available plans</h2>
+          <span className="hm-ops-pill">{activePlans.length} current</span>
+        </div>
+      <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {activePlans.length === 0 && (
+          <div className="hm-ops-empty md:col-span-2">
             <Layers3 className="size-8 text-[#ecb873]" />
             <h3 className="mt-5 text-xl font-semibold">Your first plan starts here</h3>
-            <p className="mt-3 text-sm text-[#b8a08c]">
+            <p className="mt-3 text-sm text-[var(--hm-muted)]">
               Set up monthly, quarterly or annual memberships with flexible durations. Your price is
               always your decision.
             </p>
           </div>
         )}
-        {plans.map((plan) => (
+        {activePlans.map((plan) => (
           <article
             key={plan.id}
-            className={`relative flex min-h-64 flex-col overflow-hidden rounded-3xl border p-6 ${plan.archivedAt ? "border-[#f6dc9b]/10 bg-[#130e0a] opacity-70" : "border-[#f6dc9b]/20 bg-gradient-to-br from-[#2e1d11] to-[#140e0a]"}`}
+            className="hm-ops-plan-card"
           >
             <div className="absolute -top-14 -right-14 size-36 rounded-full bg-[#f26b00]/10 blur-3xl" />
-            <p className="text-xs font-semibold tracking-[.18em] text-[#edbb80] uppercase">
+            <p className="text-xs font-semibold tracking-[.18em] text-[var(--hm-terracotta)] uppercase">
               {plan.archivedAt
                 ? "Archived plan"
                 : `${plan.durationCount} ${plan.durationUnit.toLowerCase()}`}
             </p>
             <h3 className="relative mt-4 text-xl font-semibold">{plan.name}</h3>
-            <p className="mt-3 text-3xl font-semibold tracking-tight text-[#ffcd83]">
+            <p className="hm-ops-plan-price mt-3">
               {formatMinorMoney(plan.priceMinor, plan.currency)}
             </p>
-            <p className="mt-3 flex-1 text-sm leading-6 text-[#bda58f]">
+            <p className="mt-3 flex-1 text-sm leading-6 text-[var(--hm-muted)]">
               {plan.description || "A flexible membership for your club."}
             </p>
             {canManage && !plan.archivedAt && (
-              <div className="mt-5 flex flex-wrap gap-2 border-t border-[#f6dc9b]/10 pt-4">
+              <div className="mt-5 flex flex-wrap gap-2 border-t border-[var(--hm-line)] pt-4">
                 <button
                   type="button"
                   onClick={() => edit(plan)}
-                  className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[#f6dc9b]/25 px-4 text-xs text-[#f5c989] hover:bg-[#3a281a]"
+                  className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[var(--hm-line)] px-4 text-xs text-[#f5c989] hover:bg-[var(--hm-raised)]"
                 >
                   <Pencil className="size-3.5" />
                   Edit
@@ -340,7 +347,7 @@ export function PlanStudio({
                   type="button"
                   disabled={busy}
                   onClick={() => void archive(plan.id)}
-                  className="inline-flex min-h-10 items-center gap-2 rounded-xl px-4 text-xs text-[#dfb6a4] hover:bg-[#3a231a] disabled:opacity-50"
+                  className="inline-flex min-h-10 items-center gap-2 rounded-xl px-4 text-xs text-[#dfb6a4] hover:bg-[var(--hm-raised)] disabled:opacity-50"
                 >
                   <Archive className="size-3.5" />
                   Archive
@@ -349,7 +356,27 @@ export function PlanStudio({
             )}
           </article>
         ))}
-      </div>
+      </div>      </section>
+      {archivedPlans.length > 0 && (
+        <details className="hm-ops-section mt-6">
+          <summary className="flex cursor-pointer items-center justify-between gap-3">
+            <span className="font-semibold">Archived plans <span className="hm-ops-pill ml-2">{archivedPlans.length}</span></span>
+            <span className="hm-small">Show historical offers</span>
+          </summary>
+          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {archivedPlans.map((plan) => (
+              <article key={plan.id} className="hm-ops-plan-card hm-ops-plan-card--archived">
+                <span className="hm-ops-pill">Archived</span>
+                <h3 className="mt-5 text-lg font-semibold">{plan.name}</h3>
+                <p className="hm-ops-plan-price mt-4">{formatMinorMoney(plan.priceMinor, plan.currency)}</p>
+                <p className="hm-small mt-3">{plan.durationCount} {plan.durationUnit.toLowerCase()}</p>
+                <p className="hm-small mt-3">{plan.description || "A previous membership offer."}</p>
+              </article>
+            ))}
+          </div>
+        </details>
+      )}
+
     </div>
   );
 }

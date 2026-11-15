@@ -1175,6 +1175,8 @@ export function DemoExperience({
               {view === "competition" && (
                 <div className="space-y-5">
                   <section className="hm-demo-competition-banner p-7 sm:p-10">
+                    <ThemeArtwork pair={HM_MEDIA.photography.challenge} className="hm-gallery-photo" />
+                    <ThemeArtwork pair={HM_MEDIA.illustrations.challengeLandscape} className="hm-gallery-art" />
                     <DemoPill emphasis>
                       <Trophy className="mr-1 size-3.5" /> SEASON LEAGUE
                     </DemoPill>

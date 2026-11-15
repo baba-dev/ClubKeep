@@ -144,3 +144,15 @@ html.dark .hm-challenge { background-color: #49332a; }
 .hm-brand-image-dark { display: none; }
 html.dark .hm-brand-image-light { display: none; }
 html.dark .hm-brand-image-dark { display: block; }
+
+.hm-botanical-corner {
+  left: auto !important;
+  top: auto !important;
+  right: -34px !important;
+  bottom: -15px !important;
+  width: 315px;
+  height: 260px;
+  opacity: .6;
+}
+.hm-activity-card .hm-activity-row:hover .hm-avatar { background: #c6d7bf; }
+.hm-activity-card .hm-activity-row { transition: background-color .2s ease; }

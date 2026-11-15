@@ -10,6 +10,7 @@ import { ClubManager } from "@/components/clubs/club-manager";
 import { BusinessShell } from "@/components/clubs/business-shell";
 import { OwnerHero } from "@/components/human-motion/owner-hero";
 import { OwnerMetrics } from "@/components/human-motion/owner-metrics";
+import { OwnerEditorial } from "@/components/human-motion/owner-editorial";
 import { ownerOverviewSnapshot } from "@/lib/owner-dashboard";
 
 export const metadata: Metadata = { title: "Your club · ClubKeep", robots: { index: false } };
@@ -60,6 +61,7 @@ async function ClubContent({ params }: { params: Promise<{ clubId: string }> }) 
       title={club.name} description="Your community and its everyday operations, together in one place.">
       <OwnerHero clubId={clubId} clubName={club.name} vertical={club.vertical} canInvite={canInvite} />
       <OwnerMetrics clubId={clubId} snapshot={snapshot} showFinance={canSeeFinance} />
+      <OwnerEditorial clubId={clubId} snapshot={snapshot} canInvite={canInvite} />
       {club.setupStatus === "LEGACY_ACTIVE" && context.role === "OWNER" && (
         <p className="mt-5 flex items-center gap-2 rounded-2xl border p-4 text-sm" style={{borderColor: "var(--hm-terracotta)"}}>
           <ShieldCheck className="size-4" aria-hidden="true" />

@@ -26,9 +26,10 @@ export async function ownerOverviewSnapshot(
       db.clubAttendance.count({ where: { clubId, localDate: clubLocalDate(now, timeZone) } }),
       db.$queryRaw<Array<{ total: bigint }>>`
         SELECT COUNT(DISTINCT "memberRecordId")::bigint AS "total"
-        FROM "MemberSubscription"
-        WHERE "clubId" = ${clubId}
-          AND "cancelledAt" IS NULL AND "startAt" <= ${now} AND "endAt" > ${now}
+        FROM "MemberSubscription" t
+        INNER JOIN "ClubMemberRecord" m ON m."id" = t."memberRecordId" AND m."clubId" = t."clubId"
+        WHERE t."clubId" = ${clubId} AND m."status" = 'ACTIVE'
+          AND t."cancelledAt" IS NULL AND t."startAt" <= ${now} AND t."endAt" > ${now}
       `,
       canSeeFinance
         ? db.$queryRaw<Array<{ currency: string; amount: bigint }>>`

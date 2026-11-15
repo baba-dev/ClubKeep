@@ -120,14 +120,14 @@ export function ClubManager({
 
   return (
     <div className="mt-8 space-y-6">
-      <section className="rounded-3xl border border-[#f6dc9b]/20 bg-[#17100b] p-6 sm:p-8">
+      <section className="rounded-3xl border border-[var(--hm-line)] bg-[var(--hm-surface)] p-6 sm:p-8">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold tracking-widest text-[#f1d58b] uppercase">
+            <p className="text-xs font-semibold tracking-widest text-[var(--hm-sage-deep)] uppercase">
               Private invitations
             </p>
             <h2 className="mt-2 text-2xl font-semibold">Bring your members in.</h2>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-[#b8a08c]">
+            <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--hm-muted)]">
               Each invitation works once, expires after seven days and grants member access only.
             </p>
           </div>
@@ -135,24 +135,24 @@ export function ClubManager({
             type="button"
             onClick={createInvite}
             disabled={busy}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#f26b00] px-5 py-3 text-sm font-semibold text-[#231207] hover:brightness-110 disabled:opacity-50"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--hm-action)] px-5 py-3 text-sm font-semibold text-[var(--hm-action-text)] hover:brightness-110 disabled:opacity-50"
           >
             <Plus className="size-4" /> New invitation
           </button>
         </div>
         {error && (
-          <p role="alert" className="mt-5 text-sm text-[#ffb985]">
+          <p role="alert" className="mt-5 text-sm text-[var(--hm-terracotta)]">
             {error}
           </p>
         )}
         {issued && (
-          <div className="mt-7 grid items-center gap-6 rounded-2xl border border-[#f1d58b]/30 bg-[#26190e] p-5 sm:grid-cols-[auto_1fr]">
+          <div className="mt-7 grid items-center gap-6 rounded-2xl border border-[var(--hm-line)] bg-[var(--hm-raised)] p-5 sm:grid-cols-[auto_1fr]">
             <InviteQr url={issued.url} />
             <div className="min-w-0">
-              <p className="flex items-center gap-2 text-sm font-semibold text-[#f1d58b]">
+              <p className="flex items-center gap-2 text-sm font-semibold text-[var(--hm-sage-deep)]">
                 <ShieldCheck className="size-4" /> Share this private invite now
               </p>
-              <p className="mt-2 text-xs leading-5 text-[#b8a08c]">
+              <p className="mt-2 text-xs leading-5 text-[var(--hm-muted)]">
                 The link and QR are generated locally and shown only once. They cannot be recovered
                 from the server.
               </p>
@@ -161,7 +161,7 @@ export function ClubManager({
                 aria-label="Single-use invitation link"
                 value={issued.url}
                 onFocus={(event) => event.currentTarget.select()}
-                className="mt-4 w-full rounded-xl border border-[#f6dc9b]/20 bg-[#0b0705] px-3 py-3 text-xs"
+                className="mt-4 w-full rounded-xl border border-[var(--hm-line)] bg-[var(--hm-bg)] px-3 py-3 text-xs"
               />
               <button
                 type="button"
@@ -171,12 +171,12 @@ export function ClubManager({
                     () => setError("Copy unavailable; select the link above.")
                   );
                 }}
-                className="mt-3 inline-flex items-center gap-2 rounded-xl border border-[#f6dc9b]/25 px-4 py-2 text-sm text-[#ffa451]"
+                className="mt-3 inline-flex items-center gap-2 rounded-xl border border-[var(--hm-line)] px-4 py-2 text-sm text-[var(--hm-terracotta)]"
               >
                 {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
                 {copied ? "Copied" : "Copy link"}
               </button>
-              <p className="mt-3 text-xs text-[#b8a08c]">
+              <p className="mt-3 text-xs text-[var(--hm-muted)]">
                 Expires {new Date(issued.expiresAt).toLocaleString()}
               </p>
             </div>
@@ -184,20 +184,20 @@ export function ClubManager({
         )}
         <div className="mt-6 space-y-2">
           {invites.length === 0 && (
-            <p className="rounded-xl border border-dashed border-[#f6dc9b]/20 p-5 text-sm text-[#b8a08c]">
+            <p className="rounded-xl border border-dashed border-[var(--hm-line)] p-5 text-sm text-[var(--hm-muted)]">
               No invitations yet. Create one to invite your first member.
             </p>
           )}
           {invites.map((invite) => (
             <div
               key={invite.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#f6dc9b]/10 px-4 py-3 text-sm"
+              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--hm-line)] px-4 py-3 text-sm"
             >
               <div>
                 <p className="flex items-center gap-2 font-medium">
-                  <Link2 className="size-4 text-[#ffa451]" /> Invitation {invite.id.slice(-7)}
+                  <Link2 className="size-4 text-[var(--hm-terracotta)]" /> Invitation {invite.id.slice(-7)}
                 </p>
-                <p className="mt-1 text-xs text-[#b8a08c]">
+                <p className="mt-1 text-xs text-[var(--hm-muted)]">
                   {invite.claimedAt
                     ? `Claimed by ${invite.claimedBy || "a member"}`
                     : invite.revokedAt
@@ -214,7 +214,7 @@ export function ClubManager({
                   type="button"
                   disabled={busy}
                   onClick={() => revokeInvite(invite.id)}
-                  className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-[#ffc391] hover:bg-[#2a1b12] disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-[var(--hm-terracotta)] hover:bg-[var(--hm-raised)] disabled:opacity-50"
                 >
                   <XCircle className="size-4" /> Revoke
                 </button>
@@ -223,18 +223,18 @@ export function ClubManager({
           ))}
         </div>
       </section>
-      <section className="rounded-3xl border border-[#f6dc9b]/20 bg-[#17100b] p-6 sm:p-8">
-        <p className="text-xs font-semibold tracking-widest text-[#f1d58b] uppercase">Membership</p>
+      <section className="rounded-3xl border border-[var(--hm-line)] bg-[var(--hm-surface)] p-6 sm:p-8">
+        <p className="text-xs font-semibold tracking-widest text-[var(--hm-sage-deep)] uppercase">Membership</p>
         <h2 className="mt-2 text-2xl font-semibold">People in your club</h2>
         <div className="mt-6 space-y-2">
           {members.map((member) => (
             <div
               key={member.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-[#25180f] px-4 py-4"
+              className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-[var(--hm-raised)] px-4 py-4"
             >
               <div>
                 <p className="font-medium">{member.name}</p>
-                <p className="mt-1 text-xs text-[#b8a08c]">
+                <p className="mt-1 text-xs text-[var(--hm-muted)]">
                   {member.role.toLowerCase()} · Joined{" "}
                   {new Date(member.joinedAt).toLocaleDateString()}
                 </p>
@@ -244,7 +244,7 @@ export function ClubManager({
                   type="button"
                   disabled={busy}
                   onClick={() => revokeMember(member.id)}
-                  className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-[#ffba91] hover:bg-[#382014] disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-[var(--hm-terracotta)] hover:bg-[var(--hm-raised)] disabled:opacity-50"
                 >
                   <UserMinus className="size-4" /> Remove member
                 </button>

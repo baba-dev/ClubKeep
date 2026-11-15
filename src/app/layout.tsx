@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ClubKeepThemeProvider } from "@/components/human-motion/theme-provider";
 import "./globals.css";
 import "./human-motion.css";
+import "./human-motion-motion.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

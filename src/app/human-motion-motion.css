@@ -1,0 +1,29 @@
+/* Purposeful movement: the artwork retains its own reduced-motion-aware SVG animation. */
+@keyframes hm-enter {
+  from { opacity: 0; transform: translateY(11px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes hm-ambient {
+  from { transform: translateY(0); }
+  to { transform: translateY(-2px); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hm-owner-hero-content { animation: hm-enter .66s cubic-bezier(.18,.82,.27,1) both; }
+  .hm-metrics .hm-metric { animation: hm-enter .47s ease both; }
+  .hm-metrics .hm-metric:nth-child(2) { animation-delay: .07s; }
+  .hm-metrics .hm-metric:nth-child(3) { animation-delay: .13s; }
+  .hm-metrics .hm-metric:nth-child(4) { animation-delay: .19s; }
+  .hm-dashboard-grid, .hm-bottom-grid { animation: hm-enter .48s ease both; }
+  .hm-sidebar .hm-scene-art { animation: hm-ambient 21s ease-in-out infinite alternate; }
+  .hm-editorial-card .hm-gallery-photo { transition: transform .7s ease; }
+  .hm-editorial-card:hover .hm-gallery-photo { transform: scale(1.025); }
+}
+.hm-nav-link:focus-visible, .hm-mobile-nav a:focus-visible { outline: 3px solid var(--hm-terracotta); outline-offset: 2px; }
+.hm-app a, .hm-app button { -webkit-tap-highlight-color: transparent; }
+.hm-app button:disabled, .hm-app [aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
+.hm-app .hm-operations-content > div > section { background: var(--hm-surface); border: 1px solid var(--hm-line); box-shadow: none; }
+.hm-app .hm-operations-content > div { color: var(--hm-text); }
+.hm-app .hm-operations-content input { color: var(--hm-text); }
+@media (prefers-reduced-motion: reduce) {
+  .hm-app * { animation: none !important; transition: none !important; }
+}

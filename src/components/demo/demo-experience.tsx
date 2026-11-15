@@ -207,10 +207,13 @@ function Metric({
     <div className="hm-ops-stat hm-demo-metric">
       <ThemeArtwork
         pair={
-          label === "Active roster" ? HM_MEDIA.illustrations.metrics.members :
-          label === "Today's check-ins" ? HM_MEDIA.illustrations.metrics.attendance :
-          label === "Outstanding dues" ? HM_MEDIA.illustrations.metrics.revenue :
-          HM_MEDIA.illustrations.metrics.memberships
+          label === "Active roster"
+            ? HM_MEDIA.illustrations.metrics.members
+            : label === "Today's check-ins"
+              ? HM_MEDIA.illustrations.metrics.attendance
+              : label === "Outstanding dues"
+                ? HM_MEDIA.illustrations.metrics.revenue
+                : HM_MEDIA.illustrations.metrics.memberships
         }
         className="hm-demo-metric-wave hm-gallery-art"
       />
@@ -226,9 +229,7 @@ function DemoPill({ children, emphasis = false }: { children: ReactNode; emphasi
     <span
       className={
         "inline-flex items-center rounded-full border px-3 py-1.5 text-[11px] font-bold " +
-        (emphasis
-          ? "hm-demo-pill-emphasis"
-          : "hm-demo-pill")
+        (emphasis ? "hm-demo-pill-emphasis" : "hm-demo-pill")
       }
     >
       {children}
@@ -601,9 +602,7 @@ export function DemoExperience({
             <nav aria-label="Demo features" className="mt-5 hidden space-y-5 lg:block">
               {Object.entries(contents).map(([section, views]) => (
                 <div key={section}>
-                  <h2 className="hm-demo-nav-heading">
-                    {section}
-                  </h2>
+                  <h2 className="hm-demo-nav-heading">{section}</h2>
                   <div className="grid grid-cols-2 gap-1 sm:grid-cols-3 lg:grid-cols-1">
                     {views.map((v) => {
                       const Icon = tabIcons[v];
@@ -631,7 +630,10 @@ export function DemoExperience({
               ))}
             </nav>
             <div className="hm-demo-sidebar-art" aria-hidden="true">
-              <ThemeArtwork pair={HM_MEDIA.illustrations.sidebarLandscape} className="hm-gallery-art" />
+              <ThemeArtwork
+                pair={HM_MEDIA.illustrations.sidebarLandscape}
+                className="hm-gallery-art"
+              />
             </div>
           </div>
         </aside>
@@ -645,7 +647,9 @@ export function DemoExperience({
             </div>
             <div className="mt-5 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
               <div>
-                <h1 className="hm-display hm-demo-page-title max-w-3xl text-4xl sm:text-6xl">{hero[view][0]}</h1>
+                <h1 className="hm-display hm-demo-page-title max-w-3xl text-4xl sm:text-6xl">
+                  {hero[view][0]}
+                </h1>
                 <p className="hm-small mt-4 max-w-2xl sm:text-base">{hero[view][1]}</p>
               </div>
               <span className="hm-ops-pill hm-demo-review-tag self-start">
@@ -747,11 +751,7 @@ export function DemoExperience({
                             ["renewals", "Review renewals"],
                           ] as [DemoView, string][]
                         ).map(([v, label]) => (
-                          <button
-                            key={v}
-                            onClick={() => jump(v)}
-                            className="hm-demo-action-row"
-                          >
+                          <button key={v} onClick={() => jump(v)} className="hm-demo-action-row">
                             {label}
                             <ChevronRight className="size-4" />
                           </button>
@@ -1175,8 +1175,14 @@ export function DemoExperience({
               {view === "competition" && (
                 <div className="space-y-5">
                   <section className="hm-demo-competition-banner p-7 sm:p-10">
-                    <ThemeArtwork pair={HM_MEDIA.photography.challenge} className="hm-gallery-photo" />
-                    <ThemeArtwork pair={HM_MEDIA.illustrations.challengeLandscape} className="hm-gallery-art" />
+                    <ThemeArtwork
+                      pair={HM_MEDIA.photography.challenge}
+                      className="hm-gallery-photo"
+                    />
+                    <ThemeArtwork
+                      pair={HM_MEDIA.illustrations.challengeLandscape}
+                      className="hm-gallery-art"
+                    />
                     <DemoPill emphasis>
                       <Trophy className="mr-1 size-3.5" /> SEASON LEAGUE
                     </DemoPill>
@@ -1199,7 +1205,9 @@ export function DemoExperience({
                   <div className="grid gap-5 lg:grid-cols-[1.2fr_1fr]">
                     <Panel title="Independent verification queue" icon={ClipboardCheck}>
                       {!pending.length ? (
-                        <p className="text-sm text-[var(--hm-muted)]">Every score has been reviewed.</p>
+                        <p className="text-sm text-[var(--hm-muted)]">
+                          Every score has been reviewed.
+                        </p>
                       ) : (
                         pending.map((s) => (
                           <DemoRow

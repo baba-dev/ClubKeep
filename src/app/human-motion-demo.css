@@ -9,8 +9,16 @@
   z-index: -1;
   pointer-events: none;
   background-image:
-    radial-gradient(circle at 78% 9%, color-mix(in srgb, var(--hm-sage) 16%, transparent), transparent 32%),
-    radial-gradient(circle at 8% 72%, color-mix(in srgb, var(--hm-terracotta) 10%, transparent), transparent 45%);
+    radial-gradient(
+      circle at 78% 9%,
+      color-mix(in srgb, var(--hm-sage) 16%, transparent),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 8% 72%,
+      color-mix(in srgb, var(--hm-terracotta) 10%, transparent),
+      transparent 45%
+    );
 }
 .hm-demo-topbar {
   position: sticky;
@@ -80,7 +88,9 @@
   font-size: 0.79rem;
   font-weight: 630;
   text-align: left;
-  transition: background 0.16s ease, color 0.16s ease;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease;
 }
 .hm-demo .hm-demo-nav-link:hover {
   background: var(--hm-raised);
@@ -177,7 +187,9 @@
   font-size: 0.81rem;
   font-weight: 690;
   text-align: left;
-  transition: background 0.17s ease, border-color 0.17s ease;
+  transition:
+    background 0.17s ease,
+    border-color 0.17s ease;
 }
 .hm-demo-action-row:hover {
   background: var(--hm-raised);
@@ -207,7 +219,12 @@
   position: absolute;
   z-index: -1;
   inset: 0;
-  background: linear-gradient(90deg, rgba(29, 25, 21, 0.88), rgba(29, 25, 21, 0.72) 52%, rgba(29, 25, 21, 0.08));
+  background: linear-gradient(
+    90deg,
+    rgba(29, 25, 21, 0.88),
+    rgba(29, 25, 21, 0.72) 52%,
+    rgba(29, 25, 21, 0.08)
+  );
 }
 .hm-demo .hm-demo-competition-banner .hm-ops-stat {
   background: rgba(25, 29, 25, 0.6);
@@ -255,7 +272,12 @@
     background-position: 65% center;
   }
   .hm-demo .hm-demo-hero::before {
-    background: linear-gradient(90deg, rgba(19, 22, 19, 0.91), rgba(19, 22, 19, 0.72) 67%, rgba(19, 22, 19, 0.26));
+    background: linear-gradient(
+      90deg,
+      rgba(19, 22, 19, 0.91),
+      rgba(19, 22, 19, 0.72) 67%,
+      rgba(19, 22, 19, 0.26)
+    );
   }
   .hm-demo-content {
     padding-bottom: 65px;

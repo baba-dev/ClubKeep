@@ -109,6 +109,7 @@ jobs:
           npm run build
           bash infra/deploy/smoke-standalone.sh
           bash infra/deploy/package-release.sh "$TARGET_SHA"
+          bash infra/deploy/smoke-lean-release.sh "clubkeep-$TARGET_SHA-linux-arm64.tar.gz" "$TARGET_SHA"
 
       - name: Confirm revision remains current before deploy
         run: |
@@ -158,6 +159,13 @@ jobs:
             -o BatchMode=yes -o StrictHostKeyChecking=yes
             -o UserKnownHostsFile="$HOME/.ssh/known_hosts"
             -o ConnectTimeout=12 -o ServerAliveInterval=15 -o ServerAliveCountMax=4)
+          # Fail before uploading anything when the root-owned VPS helper is still v1.
+          ssh "${ssh_opts[@]}" -p "$VPS_PORT" "clubkeep-deploy@$VPS_HOST" \
+            "sudo -n /usr/local/sbin/clubkeep-release --capabilities" |
+            grep -Fxq 'clubkeep-release-formats: 1,2' || {
+              echo "::error::Install the reviewed v2-compatible root helper before lean deployments."
+              exit 1
+            }
           scp "${ssh_opts[@]}" -P "$VPS_PORT" "$archive" \
             "clubkeep-deploy@$VPS_HOST:/var/lib/clubkeep/incoming/$archive"
           ssh "${ssh_opts[@]}" -p "$VPS_PORT" "clubkeep-deploy@$VPS_HOST" \

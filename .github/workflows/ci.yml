@@ -34,6 +34,9 @@ jobs:
           set -Eeuo pipefail
           bash -n infra/deploy/clubkeep-release.sh
           bash -n infra/deploy/package-release.sh
+          bash -n infra/deploy/smoke-lean-release.sh
+          node --check infra/deploy/build-migration-kit.mjs
+          node --check infra/deploy/verify-lean-release.mjs
           bash -n infra/deploy/clubkeep-cleanup.sh
           # Non-root runners must not be permitted to prune production paths.
           if bash infra/deploy/clubkeep-cleanup.sh --apply > /dev/null 2>&1; then
@@ -139,6 +142,16 @@ jobs:
       - name: Smoke test actual ARM64 standalone runtime
         run: bash infra/deploy/smoke-standalone.sh
 
+      - name: Build and smoke the exact ARM64 lean release artifact
+        run: |
+          set -Eeuo pipefail
+          archive="clubkeep-$GITHUB_SHA-linux-arm64.tar.gz"
+          bash infra/deploy/package-release.sh "$GITHUB_SHA"
+          bash infra/deploy/smoke-lean-release.sh "$archive" "$GITHUB_SHA"
+          echo "## ClubKeep lean archive" >> "$GITHUB_STEP_SUMMARY"
+          echo "Archive: $(du -h "$archive" | cut -f1)" >> "$GITHUB_STEP_SUMMARY"
+          echo "Prisma migration kit and standalone server verified in isolation." >> "$GITHUB_STEP_SUMMARY"
+
   migrations:
     name: PostgreSQL 17 baseline and identity migrations (native)
     runs-on: ubuntu-24.04
@@ -196,6 +209,22 @@ jobs:
           npm run db:deploy
           npx prisma migrate status
           npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code
+      - name: Verify standalone Prisma migration kit against fresh PostgreSQL 17
+        run: |
+          set -Eeuo pipefail
+          scratch="$(mktemp -d)"
+          trap 'rm -rf -- "$scratch"' EXIT
+          node infra/deploy/build-migration-kit.mjs "$scratch/migrate"
+          sudo -u postgres createdb -p "$PG17_PORT" -O clubkeep_ci clubkeep_lean_ci
+          export DATABASE_URL="postgresql://clubkeep_ci:ci-only-synthetic@127.0.0.1:$PG17_PORT/clubkeep_lean_ci?schema=public"
+          (
+            cd "$scratch/migrate"
+            env -u NODE_PATH node node_modules/prisma/build/index.js validate
+            env -u NODE_PATH node node_modules/prisma/build/index.js migrate deploy
+            env -u NODE_PATH node node_modules/prisma/build/index.js migrate deploy
+            env -u NODE_PATH node node_modules/prisma/build/index.js migrate status
+          )
+          test "$(sudo -u postgres psql -p "$PG17_PORT" -d clubkeep_lean_ci -Atqc 'SELECT count(*) FROM "_prisma_migrations" WHERE finished_at IS NOT NULL')" -gt 0
       - name: Validate constraints with real PostgreSQL 17
         run: npm run test:identity
       - name: Concurrent one-time club invitation redemption on PostgreSQL 17

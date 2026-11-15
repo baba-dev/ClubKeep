@@ -13,17 +13,17 @@
 </style>
 
     <defs>
-        <linearGradient id="rib1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#D68D66"/><stop offset="100%" stop-color="#B86446"/></linearGradient>
-        <linearGradient id="rib2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#9DA787"/><stop offset="100%" stop-color="#788465"/></linearGradient>
-        <radialGradient id="medal" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#F4D8AF"/><stop offset="60%" stop-color="#E1B777"/><stop offset="100%" stop-color="#BE8848"/></radialGradient>
-        <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FFF3D9"/><stop offset="100%" stop-color="#C98A45"/></linearGradient>
+        <linearGradient id="ck-art-0-rib1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#D68D66"/><stop offset="100%" stop-color="#B86446"/></linearGradient>
+        <linearGradient id="ck-art-0-rib2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#9DA787"/><stop offset="100%" stop-color="#788465"/></linearGradient>
+        <radialGradient id="ck-art-0-medal" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#F4D8AF"/><stop offset="60%" stop-color="#E1B777"/><stop offset="100%" stop-color="#BE8848"/></radialGradient>
+        <linearGradient id="ck-art-0-ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FFF3D9"/><stop offset="100%" stop-color="#C98A45"/></linearGradient>
         </defs>
     <ellipse cx="256" cy="434" rx="122" ry="20" fill="rgba(150,111,83,0.18)"/>
     <g class="float-a">
-      <path d="M176 60 L250 60 L226 188 L154 188 Z" fill="url(#rib1)"/>
-      <path d="M262 60 L336 60 L358 188 L286 188 Z" fill="url(#rib2)"/>
-      <circle cx="256" cy="286" r="126" fill="url(#medal)"/>
-      <circle cx="256" cy="286" r="110" stroke="url(#ring)" stroke-width="12"/>
+      <path d="M176 60 L250 60 L226 188 L154 188 Z" fill="url(#ck-art-0-rib1)"/>
+      <path d="M262 60 L336 60 L358 188 L286 188 Z" fill="url(#ck-art-0-rib2)"/>
+      <circle cx="256" cy="286" r="126" fill="url(#ck-art-0-medal)"/>
+      <circle cx="256" cy="286" r="110" stroke="url(#ck-art-0-ring)" stroke-width="12"/>
       <path d="M256 220 L274 258 L316 263 L285 291 L292 332 L256 311 L220 332 L227 291 L196 263 L238 258 Z" fill="#FFF2DA" opacity="0.95"/>
       <circle cx="256" cy="286" r="126" stroke="#7A523A" stroke-opacity="0.15" stroke-width="4"/>
       <path d="M209 147 C235 162 276 162 303 147" stroke="#7A523A" stroke-opacity="0.15" stroke-width="8" stroke-linecap="round"/>
@@ -45,15 +45,15 @@
 </style>
 
     <defs>
-        <linearGradient id="outer" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#D78862"/><stop offset="100%" stop-color="#B36447"/></linearGradient>
-        <linearGradient id="inner" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#F8EFE2"/><stop offset="100%" stop-color="#EADCC8"/></linearGradient>
-        <linearGradient id="ribbon" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#98A382"/><stop offset="100%" stop-color="#768161"/></linearGradient>
+        <linearGradient id="ck-art-1-outer" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#D78862"/><stop offset="100%" stop-color="#B36447"/></linearGradient>
+        <linearGradient id="ck-art-1-inner" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#F8EFE2"/><stop offset="100%" stop-color="#EADCC8"/></linearGradient>
+        <linearGradient id="ck-art-1-ribbon" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#98A382"/><stop offset="100%" stop-color="#768161"/></linearGradient>
         </defs>
     <ellipse cx="256" cy="430" rx="124" ry="20" fill="rgba(160,120,88,0.18)"/>
     <g class="float-b">
-      <path d="M176 318 L214 392 L256 354 L298 392 L336 318" fill="url(#ribbon)"/>
-      <path d="M256 78 L297 100 L344 98 L366 140 L408 164 L406 212 L432 251 L406 290 L408 338 L366 362 L344 404 L297 402 L256 424 L215 402 L168 404 L146 362 L104 338 L106 290 L80 251 L106 212 L104 164 L146 140 L168 98 L215 100 Z" fill="url(#outer)"/>
-      <path d="M256 122 L287 139 L323 137 L340 169 L372 187 L370 224 L390 254 L370 284 L372 321 L340 339 L323 371 L287 369 L256 386 L225 369 L189 371 L172 339 L140 321 L142 284 L122 254 L142 224 L140 187 L172 169 L189 137 L225 139 Z" fill="url(#inner)" stroke="#EDD9C6" stroke-width="3"/>
+      <path d="M176 318 L214 392 L256 354 L298 392 L336 318" fill="url(#ck-art-1-ribbon)"/>
+      <path d="M256 78 L297 100 L344 98 L366 140 L408 164 L406 212 L432 251 L406 290 L408 338 L366 362 L344 404 L297 402 L256 424 L215 402 L168 404 L146 362 L104 338 L106 290 L80 251 L106 212 L104 164 L146 140 L168 98 L215 100 Z" fill="url(#ck-art-1-outer)"/>
+      <path d="M256 122 L287 139 L323 137 L340 169 L372 187 L370 224 L390 254 L370 284 L372 321 L340 339 L323 371 L287 369 L256 386 L225 369 L189 371 L172 339 L140 321 L142 284 L122 254 L142 224 L140 187 L172 169 L189 137 L225 139 Z" fill="url(#ck-art-1-inner)" stroke="#EDD9C6" stroke-width="3"/>
       <circle cx="256" cy="254" r="78" stroke="#C16A49" stroke-opacity="0.24" stroke-width="3" stroke-dasharray="2 10"/>
       <text x="256" y="236" text-anchor="middle" font-size="34" font-family="Georgia, serif" fill="#6A4B3A" opacity="0.8">MILESTONE</text>
       <text x="256" y="286" text-anchor="middle" font-size="66" font-weight="700" font-family="Arial, sans-serif" fill="#6A4B3A">100</text>
@@ -74,18 +74,18 @@
 </style>
 
     <defs>
-        <linearGradient id="cup" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#F4D4A4"/><stop offset="100%" stop-color="#C48A44"/></linearGradient>
-        <linearGradient id="stem" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#D3815E"/><stop offset="100%" stop-color="#B56448"/></linearGradient>
-        <linearGradient id="laurel" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#99A584"/><stop offset="100%" stop-color="#73805E"/></linearGradient>
+        <linearGradient id="ck-art-2-cup" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#F4D4A4"/><stop offset="100%" stop-color="#C48A44"/></linearGradient>
+        <linearGradient id="ck-art-2-stem" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#D3815E"/><stop offset="100%" stop-color="#B56448"/></linearGradient>
+        <linearGradient id="ck-art-2-laurel" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#99A584"/><stop offset="100%" stop-color="#73805E"/></linearGradient>
         </defs>
     <ellipse cx="256" cy="434" rx="116" ry="18" fill="rgba(147,109,83,0.18)"/>
-    <g class="float-a"><ellipse cx="142" cy="256" rx="14" ry="28" transform="rotate(-42 142 256)" fill="url(#laurel)"/><ellipse cx="130" cy="223" rx="14" ry="28" transform="rotate(-26 130 223)" fill="url(#laurel)"/><ellipse cx="128" cy="189" rx="14" ry="28" transform="rotate(-10 128 189)" fill="url(#laurel)"/><ellipse cx="135" cy="156" rx="14" ry="28" transform="rotate(5 135 156)" fill="url(#laurel)"/><ellipse cx="151" cy="126" rx="14" ry="28" transform="rotate(20 151 126)" fill="url(#laurel)"/><ellipse cx="175" cy="102" rx="14" ry="28" transform="rotate(36 175 102)" fill="url(#laurel)"/><ellipse cx="370" cy="256" rx="14" ry="28" transform="rotate(42 370 256)" fill="url(#laurel)"/><ellipse cx="382" cy="223" rx="14" ry="28" transform="rotate(26 382 223)" fill="url(#laurel)"/><ellipse cx="384" cy="189" rx="14" ry="28" transform="rotate(10 384 189)" fill="url(#laurel)"/><ellipse cx="377" cy="156" rx="14" ry="28" transform="rotate(-5 377 156)" fill="url(#laurel)"/><ellipse cx="361" cy="126" rx="14" ry="28" transform="rotate(-20 361 126)" fill="url(#laurel)"/><ellipse cx="337" cy="102" rx="14" ry="28" transform="rotate(-36 337 102)" fill="url(#laurel)"/>
-      <path d="M171 104 H341 V150 C341 219 299 270 256 288 C213 270 171 219 171 150 Z" fill="url(#cup)"/>
-      <path d="M171 124 C141 126 124 148 124 176 C124 208 146 230 180 230" stroke="url(#cup)" stroke-width="18" stroke-linecap="round" fill="none"/>
-      <path d="M341 124 C371 126 388 148 388 176 C388 208 366 230 332 230" stroke="url(#cup)" stroke-width="18" stroke-linecap="round" fill="none"/>
-      <path d="M230 292 H282 V340 H230 Z" fill="url(#stem)"/>
-      <path d="M198 340 H314 C314 372 288 397 256 397 C224 397 198 372 198 340 Z" fill="url(#stem)"/>
-      <path d="M180 397 H332 V424 H180 Z" rx="8" fill="url(#cup)"/>
+    <g class="float-a"><ellipse cx="142" cy="256" rx="14" ry="28" transform="rotate(-42 142 256)" fill="url(#ck-art-2-laurel)"/><ellipse cx="130" cy="223" rx="14" ry="28" transform="rotate(-26 130 223)" fill="url(#ck-art-2-laurel)"/><ellipse cx="128" cy="189" rx="14" ry="28" transform="rotate(-10 128 189)" fill="url(#ck-art-2-laurel)"/><ellipse cx="135" cy="156" rx="14" ry="28" transform="rotate(5 135 156)" fill="url(#ck-art-2-laurel)"/><ellipse cx="151" cy="126" rx="14" ry="28" transform="rotate(20 151 126)" fill="url(#ck-art-2-laurel)"/><ellipse cx="175" cy="102" rx="14" ry="28" transform="rotate(36 175 102)" fill="url(#ck-art-2-laurel)"/><ellipse cx="370" cy="256" rx="14" ry="28" transform="rotate(42 370 256)" fill="url(#ck-art-2-laurel)"/><ellipse cx="382" cy="223" rx="14" ry="28" transform="rotate(26 382 223)" fill="url(#ck-art-2-laurel)"/><ellipse cx="384" cy="189" rx="14" ry="28" transform="rotate(10 384 189)" fill="url(#ck-art-2-laurel)"/><ellipse cx="377" cy="156" rx="14" ry="28" transform="rotate(-5 377 156)" fill="url(#ck-art-2-laurel)"/><ellipse cx="361" cy="126" rx="14" ry="28" transform="rotate(-20 361 126)" fill="url(#ck-art-2-laurel)"/><ellipse cx="337" cy="102" rx="14" ry="28" transform="rotate(-36 337 102)" fill="url(#ck-art-2-laurel)"/>
+      <path d="M171 104 H341 V150 C341 219 299 270 256 288 C213 270 171 219 171 150 Z" fill="url(#ck-art-2-cup)"/>
+      <path d="M171 124 C141 126 124 148 124 176 C124 208 146 230 180 230" stroke="url(#ck-art-2-cup)" stroke-width="18" stroke-linecap="round" fill="none"/>
+      <path d="M341 124 C371 126 388 148 388 176 C388 208 366 230 332 230" stroke="url(#ck-art-2-cup)" stroke-width="18" stroke-linecap="round" fill="none"/>
+      <path d="M230 292 H282 V340 H230 Z" fill="url(#ck-art-2-stem)"/>
+      <path d="M198 340 H314 C314 372 288 397 256 397 C224 397 198 372 198 340 Z" fill="url(#ck-art-2-stem)"/>
+      <path d="M180 397 H332 V424 H180 Z" rx="8" fill="url(#ck-art-2-cup)"/>
       <text x="256" y="188" text-anchor="middle" font-size="64" font-family="Georgia, serif" fill="#FFF4E5">1</text>
       <path d="M215 79 C231 90 240 98 256 112 C272 98 281 90 297 79" stroke="#6C4D3A" stroke-opacity="0.22" stroke-width="6" stroke-linecap="round"/>
       <text x="256" y="470" text-anchor="middle" font-size="22" font-family="Arial, sans-serif" fill="#6B4C3A" letter-spacing="2">CHALLENGE WINNER</text>
@@ -105,16 +105,16 @@
 </style>
 
     <defs>
-        <radialGradient id="ring" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#F7E7D4"/><stop offset="100%" stop-color="#E2C6A3"/></radialGradient>
-        <linearGradient id="fire" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#E9A16F"/><stop offset="55%" stop-color="#CC744E"/><stop offset="100%" stop-color="#9F5039"/></linearGradient>
-        <linearGradient id="innerfire" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FFE8C0"/><stop offset="100%" stop-color="#F0B266"/></linearGradient>
+        <radialGradient id="ck-art-3-ring" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#F7E7D4"/><stop offset="100%" stop-color="#E2C6A3"/></radialGradient>
+        <linearGradient id="ck-art-3-fire" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#E9A16F"/><stop offset="55%" stop-color="#CC744E"/><stop offset="100%" stop-color="#9F5039"/></linearGradient>
+        <linearGradient id="ck-art-3-innerfire" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FFE8C0"/><stop offset="100%" stop-color="#F0B266"/></linearGradient>
         </defs>
     <ellipse cx="256" cy="434" rx="110" ry="18" fill="rgba(155,112,84,0.18)"/>
     <g class="glow-a">
-      <circle cx="256" cy="256" r="146" fill="url(#ring)"/>
+      <circle cx="256" cy="256" r="146" fill="url(#ck-art-3-ring)"/>
       <circle cx="256" cy="256" r="132" stroke="#B56648" stroke-width="10" stroke-opacity="0.28"/>
-      <path class="float-a" d="M256 123 C224 163 222 193 237 218 C187 213 168 262 188 298 C205 329 235 341 256 386 C277 341 309 326 326 294 C347 256 325 213 279 217 C292 193 289 162 256 123 Z" fill="url(#fire)"/>
-      <path d="M255 183 C238 206 236 226 244 241 C219 238 212 263 223 282 C232 297 245 308 255 331 C266 308 279 299 288 283 C299 262 291 240 268 241 C275 228 273 206 255 183 Z" fill="url(#innerfire)"/>
+      <path class="float-a" d="M256 123 C224 163 222 193 237 218 C187 213 168 262 188 298 C205 329 235 341 256 386 C277 341 309 326 326 294 C347 256 325 213 279 217 C292 193 289 162 256 123 Z" fill="url(#ck-art-3-fire)"/>
+      <path d="M255 183 C238 206 236 226 244 241 C219 238 212 263 223 282 C232 297 245 308 255 331 C266 308 279 299 288 283 C299 262 291 240 268 241 C275 228 273 206 255 183 Z" fill="url(#ck-art-3-innerfire)"/>
       <text x="256" y="430" text-anchor="middle" font-size="22" letter-spacing="3" font-family="Arial, sans-serif" fill="#6D4D3B">21 DAY STREAK</text>
     </g>
     </svg>
@@ -132,17 +132,17 @@
 </style>
 
     <defs>
-        <linearGradient id="rib1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#C97858"/><stop offset="100%" stop-color="#8D4E39"/></linearGradient>
-        <linearGradient id="rib2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6E7B61"/><stop offset="100%" stop-color="#485240"/></linearGradient>
-        <radialGradient id="medal" cx="50%" cy="40%" r="62%"><stop offset="0%" stop-color="#F1C68C"/><stop offset="60%" stop-color="#C88F52"/><stop offset="100%" stop-color="#8D5B2E"/></radialGradient>
-        <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#F9E5BF"/><stop offset="100%" stop-color="#A66A31"/></linearGradient>
+        <linearGradient id="ck-art-4-rib1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#C97858"/><stop offset="100%" stop-color="#8D4E39"/></linearGradient>
+        <linearGradient id="ck-art-4-rib2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6E7B61"/><stop offset="100%" stop-color="#485240"/></linearGradient>
+        <radialGradient id="ck-art-4-medal" cx="50%" cy="40%" r="62%"><stop offset="0%" stop-color="#F1C68C"/><stop offset="60%" stop-color="#C88F52"/><stop offset="100%" stop-color="#8D5B2E"/></radialGradient>
+        <linearGradient id="ck-art-4-ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#F9E5BF"/><stop offset="100%" stop-color="#A66A31"/></linearGradient>
         </defs>
     <ellipse cx="256" cy="434" rx="122" ry="20" fill="rgba(0,0,0,0.28)"/>
     <g class="float-a">
-      <path d="M176 60 L250 60 L226 188 L154 188 Z" fill="url(#rib1)"/>
-      <path d="M262 60 L336 60 L358 188 L286 188 Z" fill="url(#rib2)"/>
-      <circle cx="256" cy="286" r="126" fill="url(#medal)"/>
-      <circle cx="256" cy="286" r="110" stroke="url(#ring)" stroke-width="12"/>
+      <path d="M176 60 L250 60 L226 188 L154 188 Z" fill="url(#ck-art-4-rib1)"/>
+      <path d="M262 60 L336 60 L358 188 L286 188 Z" fill="url(#ck-art-4-rib2)"/>
+      <circle cx="256" cy="286" r="126" fill="url(#ck-art-4-medal)"/>
+      <circle cx="256" cy="286" r="110" stroke="url(#ck-art-4-ring)" stroke-width="12"/>
       <path d="M256 220 L274 258 L316 263 L285 291 L292 332 L256 311 L220 332 L227 291 L196 263 L238 258 Z" fill="#FFF2DA" opacity="0.95"/>
       <circle cx="256" cy="286" r="126" stroke="#F2DAB8" stroke-opacity="0.15" stroke-width="4"/>
       <path d="M209 147 C235 162 276 162 303 147" stroke="#F2DAB8" stroke-opacity="0.15" stroke-width="8" stroke-linecap="round"/>
@@ -164,15 +164,15 @@
 </style>
 
     <defs>
-        <linearGradient id="outer" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#C47758"/><stop offset="100%" stop-color="#874A37"/></linearGradient>
-        <linearGradient id="inner" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3D2E2A"/><stop offset="100%" stop-color="#2A211F"/></linearGradient>
-        <linearGradient id="ribbon" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6F7C61"/><stop offset="100%" stop-color="#475040"/></linearGradient>
+        <linearGradient id="ck-art-5-outer" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#C47758"/><stop offset="100%" stop-color="#874A37"/></linearGradient>
+        <linearGradient id="ck-art-5-inner" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3D2E2A"/><stop offset="100%" stop-color="#2A211F"/></linearGradient>
+        <linearGradient id="ck-art-5-ribbon" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6F7C61"/><stop offset="100%" stop-color="#475040"/></linearGradient>
         </defs>
     <ellipse cx="256" cy="430" rx="124" ry="20" fill="rgba(0,0,0,0.28)"/>
     <g class="float-b">
-      <path d="M176 318 L214 392 L256 354 L298 392 L336 318" fill="url(#ribbon)"/>
-      <path d="M256 78 L297 100 L344 98 L366 140 L408 164 L406 212 L432 251 L406 290 L408 338 L366 362 L344 404 L297 402 L256 424 L215 402 L168 404 L146 362 L104 338 L106 290 L80 251 L106 212 L104 164 L146 140 L168 98 L215 100 Z" fill="url(#outer)"/>
-      <path d="M256 122 L287 139 L323 137 L340 169 L372 187 L370 224 L390 254 L370 284 L372 321 L340 339 L323 371 L287 369 L256 386 L225 369 L189 371 L172 339 L140 321 L142 284 L122 254 L142 224 L140 187 L172 169 L189 137 L225 139 Z" fill="url(#inner)" stroke="#A96A4E" stroke-width="3"/>
+      <path d="M176 318 L214 392 L256 354 L298 392 L336 318" fill="url(#ck-art-5-ribbon)"/>
+      <path d="M256 78 L297 100 L344 98 L366 140 L408 164 L406 212 L432 251 L406 290 L408 338 L366 362 L344 404 L297 402 L256 424 L215 402 L168 404 L146 362 L104 338 L106 290 L80 251 L106 212 L104 164 L146 140 L168 98 L215 100 Z" fill="url(#ck-art-5-outer)"/>
+      <path d="M256 122 L287 139 L323 137 L340 169 L372 187 L370 224 L390 254 L370 284 L372 321 L340 339 L323 371 L287 369 L256 386 L225 369 L189 371 L172 339 L140 321 L142 284 L122 254 L142 224 L140 187 L172 169 L189 137 L225 139 Z" fill="url(#ck-art-5-inner)" stroke="#A96A4E" stroke-width="3"/>
       <circle cx="256" cy="254" r="78" stroke="#E29A70" stroke-opacity="0.24" stroke-width="3" stroke-dasharray="2 10"/>
       <text x="256" y="236" text-anchor="middle" font-size="34" font-family="Georgia, serif" fill="#F4E8D8" opacity="0.8">MILESTONE</text>
       <text x="256" y="286" text-anchor="middle" font-size="66" font-weight="700" font-family="Arial, sans-serif" fill="#F4E8D8">100</text>
@@ -193,18 +193,18 @@
 </style>
 
     <defs>
-        <linearGradient id="cup" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#E7BF85"/><stop offset="100%" stop-color="#9B6631"/></linearGradient>
-        <linearGradient id="stem" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#BB7154"/><stop offset="100%" stop-color="#7C4737"/></linearGradient>
-        <linearGradient id="laurel" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6F7B63"/><stop offset="100%" stop-color="#455040"/></linearGradient>
+        <linearGradient id="ck-art-6-cup" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#E7BF85"/><stop offset="100%" stop-color="#9B6631"/></linearGradient>
+        <linearGradient id="ck-art-6-stem" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#BB7154"/><stop offset="100%" stop-color="#7C4737"/></linearGradient>
+        <linearGradient id="ck-art-6-laurel" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6F7B63"/><stop offset="100%" stop-color="#455040"/></linearGradient>
         </defs>
     <ellipse cx="256" cy="434" rx="116" ry="18" fill="rgba(0,0,0,0.28)"/>
-    <g class="float-a"><ellipse cx="142" cy="256" rx="14" ry="28" transform="rotate(-42 142 256)" fill="url(#laurel)"/><ellipse cx="130" cy="223" rx="14" ry="28" transform="rotate(-26 130 223)" fill="url(#laurel)"/><ellipse cx="128" cy="189" rx="14" ry="28" transform="rotate(-10 128 189)" fill="url(#laurel)"/><ellipse cx="135" cy="156" rx="14" ry="28" transform="rotate(5 135 156)" fill="url(#laurel)"/><ellipse cx="151" cy="126" rx="14" ry="28" transform="rotate(20 151 126)" fill="url(#laurel)"/><ellipse cx="175" cy="102" rx="14" ry="28" transform="rotate(36 175 102)" fill="url(#laurel)"/><ellipse cx="370" cy="256" rx="14" ry="28" transform="rotate(42 370 256)" fill="url(#laurel)"/><ellipse cx="382" cy="223" rx="14" ry="28" transform="rotate(26 382 223)" fill="url(#laurel)"/><ellipse cx="384" cy="189" rx="14" ry="28" transform="rotate(10 384 189)" fill="url(#laurel)"/><ellipse cx="377" cy="156" rx="14" ry="28" transform="rotate(-5 377 156)" fill="url(#laurel)"/><ellipse cx="361" cy="126" rx="14" ry="28" transform="rotate(-20 361 126)" fill="url(#laurel)"/><ellipse cx="337" cy="102" rx="14" ry="28" transform="rotate(-36 337 102)" fill="url(#laurel)"/>
-      <path d="M171 104 H341 V150 C341 219 299 270 256 288 C213 270 171 219 171 150 Z" fill="url(#cup)"/>
-      <path d="M171 124 C141 126 124 148 124 176 C124 208 146 230 180 230" stroke="url(#cup)" stroke-width="18" stroke-linecap="round" fill="none"/>
-      <path d="M341 124 C371 126 388 148 388 176 C388 208 366 230 332 230" stroke="url(#cup)" stroke-width="18" stroke-linecap="round" fill="none"/>
-      <path d="M230 292 H282 V340 H230 Z" fill="url(#stem)"/>
-      <path d="M198 340 H314 C314 372 288 397 256 397 C224 397 198 372 198 340 Z" fill="url(#stem)"/>
-      <path d="M180 397 H332 V424 H180 Z" rx="8" fill="url(#cup)"/>
+    <g class="float-a"><ellipse cx="142" cy="256" rx="14" ry="28" transform="rotate(-42 142 256)" fill="url(#ck-art-6-laurel)"/><ellipse cx="130" cy="223" rx="14" ry="28" transform="rotate(-26 130 223)" fill="url(#ck-art-6-laurel)"/><ellipse cx="128" cy="189" rx="14" ry="28" transform="rotate(-10 128 189)" fill="url(#ck-art-6-laurel)"/><ellipse cx="135" cy="156" rx="14" ry="28" transform="rotate(5 135 156)" fill="url(#ck-art-6-laurel)"/><ellipse cx="151" cy="126" rx="14" ry="28" transform="rotate(20 151 126)" fill="url(#ck-art-6-laurel)"/><ellipse cx="175" cy="102" rx="14" ry="28" transform="rotate(36 175 102)" fill="url(#ck-art-6-laurel)"/><ellipse cx="370" cy="256" rx="14" ry="28" transform="rotate(42 370 256)" fill="url(#ck-art-6-laurel)"/><ellipse cx="382" cy="223" rx="14" ry="28" transform="rotate(26 382 223)" fill="url(#ck-art-6-laurel)"/><ellipse cx="384" cy="189" rx="14" ry="28" transform="rotate(10 384 189)" fill="url(#ck-art-6-laurel)"/><ellipse cx="377" cy="156" rx="14" ry="28" transform="rotate(-5 377 156)" fill="url(#ck-art-6-laurel)"/><ellipse cx="361" cy="126" rx="14" ry="28" transform="rotate(-20 361 126)" fill="url(#ck-art-6-laurel)"/><ellipse cx="337" cy="102" rx="14" ry="28" transform="rotate(-36 337 102)" fill="url(#ck-art-6-laurel)"/>
+      <path d="M171 104 H341 V150 C341 219 299 270 256 288 C213 270 171 219 171 150 Z" fill="url(#ck-art-6-cup)"/>
+      <path d="M171 124 C141 126 124 148 124 176 C124 208 146 230 180 230" stroke="url(#ck-art-6-cup)" stroke-width="18" stroke-linecap="round" fill="none"/>
+      <path d="M341 124 C371 126 388 148 388 176 C388 208 366 230 332 230" stroke="url(#ck-art-6-cup)" stroke-width="18" stroke-linecap="round" fill="none"/>
+      <path d="M230 292 H282 V340 H230 Z" fill="url(#ck-art-6-stem)"/>
+      <path d="M198 340 H314 C314 372 288 397 256 397 C224 397 198 372 198 340 Z" fill="url(#ck-art-6-stem)"/>
+      <path d="M180 397 H332 V424 H180 Z" rx="8" fill="url(#ck-art-6-cup)"/>
       <text x="256" y="188" text-anchor="middle" font-size="64" font-family="Georgia, serif" fill="#FFF4E5">1</text>
       <path d="M215 79 C231 90 240 98 256 112 C272 98 281 90 297 79" stroke="#F2DAB8" stroke-opacity="0.22" stroke-width="6" stroke-linecap="round"/>
       <text x="256" y="470" text-anchor="middle" font-size="22" font-family="Arial, sans-serif" fill="#F5E8D7" letter-spacing="2">CHALLENGE WINNER</text>
@@ -224,16 +224,16 @@
 </style>
 
     <defs>
-        <radialGradient id="ring" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#342925"/><stop offset="100%" stop-color="#251E1C"/></radialGradient>
-        <linearGradient id="fire" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#F0A26B"/><stop offset="55%" stop-color="#C46845"/><stop offset="100%" stop-color="#7D3E2F"/></linearGradient>
-        <linearGradient id="innerfire" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FDE2AD"/><stop offset="100%" stop-color="#DFA261"/></linearGradient>
+        <radialGradient id="ck-art-7-ring" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#342925"/><stop offset="100%" stop-color="#251E1C"/></radialGradient>
+        <linearGradient id="ck-art-7-fire" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#F0A26B"/><stop offset="55%" stop-color="#C46845"/><stop offset="100%" stop-color="#7D3E2F"/></linearGradient>
+        <linearGradient id="ck-art-7-innerfire" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FDE2AD"/><stop offset="100%" stop-color="#DFA261"/></linearGradient>
         </defs>
     <ellipse cx="256" cy="434" rx="110" ry="18" fill="rgba(0,0,0,0.28)"/>
     <g class="glow-a">
-      <circle cx="256" cy="256" r="146" fill="url(#ring)"/>
+      <circle cx="256" cy="256" r="146" fill="url(#ck-art-7-ring)"/>
       <circle cx="256" cy="256" r="132" stroke="#E2A071" stroke-width="10" stroke-opacity="0.28"/>
-      <path class="float-a" d="M256 123 C224 163 222 193 237 218 C187 213 168 262 188 298 C205 329 235 341 256 386 C277 341 309 326 326 294 C347 256 325 213 279 217 C292 193 289 162 256 123 Z" fill="url(#fire)"/>
-      <path d="M255 183 C238 206 236 226 244 241 C219 238 212 263 223 282 C232 297 245 308 255 331 C266 308 279 299 288 283 C299 262 291 240 268 241 C275 228 273 206 255 183 Z" fill="url(#innerfire)"/>
+      <path class="float-a" d="M256 123 C224 163 222 193 237 218 C187 213 168 262 188 298 C205 329 235 341 256 386 C277 341 309 326 326 294 C347 256 325 213 279 217 C292 193 289 162 256 123 Z" fill="url(#ck-art-7-fire)"/>
+      <path d="M255 183 C238 206 236 226 244 241 C219 238 212 263 223 282 C232 297 245 308 255 331 C266 308 279 299 288 283 C299 262 291 240 268 241 C275 228 273 206 255 183 Z" fill="url(#ck-art-7-innerfire)"/>
       <text x="256" y="430" text-anchor="middle" font-size="22" letter-spacing="3" font-family="Arial, sans-serif" fill="#F4E7D8">21 DAY STREAK</text>
     </g>
     </svg>

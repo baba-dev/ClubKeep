@@ -1,53 +1,45 @@
-# ClubKeep — Human Motion 2.0 Phase 1 Media Upload Guide
+# Human Motion 2.0 — Media Phase 1 Audit & Upload Map
 
-**Repository:** `baba-dev/ClubKeep`  
-**Upload root:** `public/media/human-motion/`  
-**Current PR branch:** `chore/human-motion-2-media-phase1-scaffold`
+**Repository:** `baba-dev/ClubKeep` — **PR #28 branch:** `chore/human-motion-2-media-phase1-scaffold`
 
-This PR establishes the directories without changing UI, authentication, databases, routes, or build dependencies. Add the approved media files in a separate upload commit (on this branch while the PR is open, or on a follow-up branch after merge).
+## Corrections applied
 
-## Procedure
+1. Moved all downloaded media from `src/components/human-motion/` to `public/media/human-motion/`. SVG and WebP content was moved by Git blob identity, not re-encoded.
+2. Saved all seven UI screenshot mockups under `docs/design/human-motion/references/` (design references are **not** runtime public assets).
+3. Preserved four reusable React kit files directly under `src/components/human-motion/`.
+4. Deleted exact duplicate medal SVGs and the redundant `achievements/individual/achievement-sprite.svg`.
+5. Corrected unique SVG gradient IDs in the remaining `achievements/achievement-sprite.svg` atlas, avoiding conflicting paint-server names.
+6. Moved the ClubKeep app icon out of the metrics folder; removed obsolete `.gitkeep` placeholders from populated directories.
 
-1. Open the branch in GitHub, then browse to `public/media/human-motion/`. Each leaf directory has a `.gitkeep` so it appears even before media arrives.
-2. Upload extracted assets into their matching category subdirectories. Keep both light and dark variations, and use consistent `-light`/`-dark` suffixes.
-3. Prefer Git for bulk uploads:
-   ```bash
-   git clone https://github.com/baba-dev/ClubKeep.git
-   cd ClubKeep
-   git fetch origin
-   git switch chore/human-motion-2-media-phase1-scaffold
-   # Copy your approved files into the appropriate folders.
-   git add public/media/human-motion src/components/human-motion
-   git status --short
-   git commit -m "assets: add Human Motion 2.0 phase 1 media"
-   git push origin chore/human-motion-2-media-phase1-scaffold
-   ```
-4. Or in GitHub's repository browser use **Add file → Upload files** from the correct folder. Avoid committing ZIP archives in place of extracted assets.
+## File mapping
 
-## Phase 1 file routing
+| Source upload | Correct destination |
+| --- | --- |
+| `branding/ClubKeep-Logo.svg` | `public/media/human-motion/brand/logos/clubkeep-logo-light.svg` |
+| `branding/ClubKeep-Logo-dark.svg` | `public/media/human-motion/brand/logos/clubkeep-logo-dark.svg` |
+| `branding/ClubKeep-Stacked-Web*.svg` | `public/media/human-motion/brand/logos/clubkeep-stacked-{light,dark}.svg` |
+| `branding/ClubKeep-Mono-*.svg` | `public/media/human-motion/brand/logos/clubkeep-mono-{cocoa,ivory}.svg` |
+| `metrics/ClubKeep-App-Icon.svg` | `public/media/human-motion/brand/icons/clubkeep-app-icon.svg` |
+| `models/Hero-*.webp` | `public/media/human-motion/photography/heroes/{yoga,gym,dance}/owner-*-{light,dark}.webp` |
+| `models/Community-*.webp` | `public/media/human-motion/photography/community/community-spotlight-{light,dark}.webp` |
+| `models/Fitness-Challenge-*.webp` | `public/media/human-motion/photography/challenges/challenge-banner-{light,dark}.webp` |
+| `models/additional-*.webp` | `public/media/human-motion/photography/lifestyle/studio-conversation-{light,dark}.webp` |
+| `decorations/*.svg` | `public/media/human-motion/illustrations/{botanical-detail,hero-flow,landscape-layers,challenge-landscape}/` |
+| `metrics/metric-*.svg` | `public/media/human-motion/illustrations/metric-waves/` |
+| `medals/*.svg` | `public/media/human-motion/achievements/individual/` |
+| `concepts/*.png` | `docs/design/human-motion/references/` |
+| React achievement files | `src/components/human-motion/` |
 
-- Approved Concept 1 logos and icon → `brand/logos/`, `brand/icons/`
-- Yoga/Gym/Dance hero photos, including dark variants → `photography/heroes/yoga/`, `photography/heroes/gym/`, `photography/heroes/dance/`
-- Community portraits → `photography/community/`
-- Club Challenge photographic banner → `photography/challenges/`
-- Two-woman studio conversation → `photography/lifestyle/`
-- Classes/avatars → `photography/classes/`, `photography/avatars/`
-- Hero flow, landscape layers, KPI metric waves, challenge landscape, botanical artwork → five matching `illustrations/` directories
-- Achievement SVG originals → `achievements/individual/`; consolidated SVG atlas → `achievements/achievement-sprite.svg`
-- Companion React source files → `src/components/human-motion/`
+## Audited formats and limitations
 
-## Quality gates
+- Six owner-hero images: **2172 × 724 px** each, light/dark matched. These were originally requested at 2400 × 800, but they preserve the exact 3:1 ratio; do not enlarge without purpose.
+- Community pair: **1659 × 948**; Club Challenge pair: **1774 × 887**; studio lifestyle pair: **1586 × 992**. All have valid RIFF / WEBP / VP8X signatures.
+- All 18 illustration SVGs are valid structured SVG text with matching mode viewBoxes, resolved local paint references, no script / foreignObject, and reduced-motion styles.
+- The seven logo/app icon files have valid SVG containers but **contain embedded raster imagery**. They are not master vectors. Some contain baked backgrounds. Treat them as approved display artwork until exact native-vector source is made.
+- Missing from this Phase 1 upload: three planned class thumbnails, eight demo profile photos, and future motion clips. Their folders are intentionally empty.
+- Use the four original achievement badges only with truthful earned-status data. Some contain static labels like 100 sessions or a 21-day streak.
+- The atlas now has unique paint-server IDs; React should continue using the standalone SVG versions because external SVG sprite rendering is inconsistent in Chromium.
 
-- Only approved designs. Do not substitute earlier rejected ClubKeep logo concepts.
-- Check that both modes use the same intended subject/crop, geometry, and correct design tokens.
-- SVGs should contain trusted vector paths, not raster images embedded as base64. Review for script/event handlers or external references.
-- Preserve `prefers-reduced-motion`; decorative illustrations must not obscure functional UI.
-- Convert or optimize photographs to WebP/AVIF and remove EXIF/geolocation metadata; supply desktop/mobile art-directed crops as needed.
-- Never commit private photos, identification documents, access credentials, or source files not licensed for distribution.
-- The source achievement art contains fixed artwork labels such as "100 SESSIONS" and "21 DAY STREAK"; display them only when that achievement is actually earned.
-- The achievement React kit deliberately loads individual SVG files instead of external `<use>` references because gradient paint servers rendered black in Chromium tests. The unified SVG atlas is for design/export.
-- Inspect actual UI rendering at mobile/tablet/desktop and in both themes **before** a later dashboard integration PR.
+## Verification
 
-**Public URL example:** `/media/human-motion/photography/heroes/gym/owner-gym-light.webp`. The `public/` path prefix is not part of the URL.
-
-No media is uploaded in this scaffold PR. The artwork/React kit is available as a separate downloadable package for placement into the reserved directories.
+Run `npm test` (includes `tests/unit/human-motion-media.test.mjs`) and inspect real browser screenshots on light, dark, mobile and desktop prior to merging. No original application routes, data models, or authentication flows are changed in this media PR.

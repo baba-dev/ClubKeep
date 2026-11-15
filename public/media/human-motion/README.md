@@ -1,35 +1,27 @@
-# ClubKeep Human Motion 2.0 — Asset Upload Root
+# ClubKeep Human Motion 2.0 — Phase 1 Media Library
 
-This is the permanent public asset directory for the approved **Human Motion 2.0** design. This PR contains placeholders, not finished media. Copy approved light/dark originals into the matching subdirectories; do not upload ZIP files in place of extracted media.
+The approved media assets live at `public/media/human-motion/`. Next.js serves them at URLs beginning with `/media/human-motion/`. The former `src/components/human-motion/{models,branding,decorations,metrics,medals,concepts}` paths were incorrect for public media; the content has been relocated without recompression.
 
-## Destinations
-| Media family | Subdirectory | File examples |
-| --- | --- | --- |
-| Logos and wordmarks (Concept 1) | `brand/logos/` | `clubkeep-wordmark-light.svg`, `clubkeep-wordmark-dark.svg` |
-| App icon/favicon | `brand/icons/` | `clubkeep-icon.svg` |
-| Yoga hero | `photography/heroes/yoga/` | `owner-yoga-light.webp`, `owner-yoga-dark.webp` |
-| Gym hero | `photography/heroes/gym/` | `owner-gym-light.webp`, `owner-gym-dark.webp` |
-| Dance hero | `photography/heroes/dance/` | `owner-dance-light.webp`, `owner-dance-dark.webp` |
-| Three-woman community portraits | `photography/community/` | `community-spotlight-light.webp`, `community-spotlight-dark.webp` |
-| Club Challenge photos | `photography/challenges/` | `challenge-banner-light.webp`, `challenge-banner-dark.webp` |
-| Two-person studio lifestyle | `photography/lifestyle/` | `studio-conversation-light.webp`, `studio-conversation-dark.webp` |
-| Classes and demo avatars | `photography/classes/`, `photography/avatars/` | `vinyasa-flow.webp`, `demo-person-01.webp` |
-| Hero flow SVG | `illustrations/hero-flow/` | `hero-flow-light.svg`, `hero-flow-dark.svg` |
-| Sidebar landscape SVG | `illustrations/landscape-layers/` | `landscape-layers-light.svg`, `landscape-layers-dark.svg` |
-| All KPI waves | `illustrations/metric-waves/` | `metric-members-light.svg`, `metric-attendance-dark.svg`, `metric-memberships-light.svg`, `metric-revenue-dark.svg` |
-| Challenge background SVG | `illustrations/challenge-landscape/` | `challenge-landscape-light.svg`, `challenge-landscape-dark.svg` |
-| Botanical accents | `illustrations/botanical-detail/` | `botanical-detail-light.svg`, `botanical-detail-corner-dark.svg` |
-| Eight original achievement SVGs | `achievements/individual/` | `achievement-medal-light.svg`, `streak-badge-dark.svg` |
-| Achievement SVG atlas | `achievements/` | `achievement-sprite.svg` |
-| Other optional web motion files | `motion/` | optimized `.webm` or SVG |
+| Media | Directory | Uploaded |
+| --- | --- | ---: |
+| Logos (light, dark, stacked, monochrome) | `brand/logos/` | 6 |
+| App icon | `brand/icons/` | 1 |
+| Yoga, Gym, Dance heroes | `photography/heroes/{yoga,gym,dance}/` | 6 |
+| Community, Challenge, Lifestyle photos | `photography/{community,challenges,lifestyle}/` | 6 |
+| Hero flow, landscape, botanical, challenge illustrations | `illustrations/` | 10 |
+| Four KPI waves, light and dark | `illustrations/metric-waves/` | 8 |
+| Individual achievement art | `achievements/individual/` | 8 |
+| Unified achievement atlas | `achievements/achievement-sprite.svg` | 1 |
 
-React kit destination: `src/components/human-motion/`.
+**Total: 46 public media assets.** Seven screenshot mockups are archived under `docs/design/human-motion/references/` so they are not downloadable as part of the production website. The React kit remains at `src/components/human-motion/`.
 
-## URL mapping
-A file committed at `public/media/human-motion/photography/heroes/gym/owner-gym-light.webp` is served at `/media/human-motion/photography/heroes/gym/owner-gym-light.webp`.
+Empty placeholders are intentionally reserved for `photography/classes/`, `photography/avatars/`, and `motion/`. These assets have not been included in the upload yet.
 
-Use lowercase hyphenated names and `-light`/`-dark` siblings. Preserve SVG viewBoxes and reduced-motion behavior. WebP/AVIF for photography, actual SVG vectors for illustrations, no embedded UI text/metrics in photography. Do not commit raw unoptimized masters, unlicensed or private photos, EXIF location data, or sensitive customer information.
+### Important usage rules
 
-These assets are **publicly accessible**. The scaffold introduces no runtime imports or route changes, so empty placeholders cannot break the existing application.
+- The achievement React component loads the individual SVGs; external symbol `<use>` caused black gradient rendering in Chromium. The atlas is for export/inspection only and now uses unique gradient IDs.
+- Source logo/icon SVGs contain embedded raster pixels, **not editable vector paths**. Some include nontransparent baked backgrounds; preserve the approved visuals and replace only with an accurately redrawn vector master.
+- Use explicit `-light`/`-dark` file swaps for ClubKeep's manual theme control.
+- All files in `public/` are accessible without login. Never store personally identifying customer photos, credentials, or private documents here.
 
-Full upload guide: `docs/design/HUMAN_MOTION_2_MEDIA_UPLOAD.md`.
+Detailed path mapping and QA: `docs/design/HUMAN_MOTION_2_MEDIA_UPLOAD.md`.

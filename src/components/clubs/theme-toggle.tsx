@@ -1,21 +1,30 @@
 "use client";
-import { useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
+
+const subscribe = () => () => {};
+const clientSnapshot = () => true;
+const serverSnapshot = () => false;
+
 export function ClubThemeToggle() {
-  const [dark, setDark] = useState(true);
+  const { resolvedTheme, setTheme } = useTheme();
+  const mounted = useSyncExternalStore(subscribe, clientSnapshot, serverSnapshot);
+  const dark = resolvedTheme !== "light";
   return (
     <button
       type="button"
-      aria-label={dark ? "Use light theme" : "Use dark theme"}
-      onClick={() => {
-        const next = !dark;
-        setDark(next);
-        document.documentElement.classList.toggle("dark", next);
-        window.localStorage.setItem("ck-theme", next ? "dark" : "light");
-      }}
-      className="grid size-11 place-items-center rounded-xl border border-[#f6dc9b]/20 text-[#f3c28a]"
+      className="hm-theme-toggle"
+      title={dark ? "Switch to light mode" : "Switch to dark mode"}
+      aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
+      aria-pressed={mounted ? dark : undefined}
+      onClick={() => setTheme(dark ? "light" : "dark")}
     >
-      {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+      {mounted && !dark ? (
+        <Moon className="size-5" aria-hidden="true" />
+      ) : (
+        <Sun className="size-5" aria-hidden="true" />
+      )}
     </button>
   );
 }

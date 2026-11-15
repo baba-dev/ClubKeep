@@ -517,7 +517,7 @@ export function DemoExperience({
         <div className="mx-auto flex max-w-[1560px] flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-7">
           <div className="flex items-center gap-3">
             <ClubKeepBrand />
-            <span className="hm-ops-pill">Interactive Demo</span>
+            <span className="hm-ops-pill">Human Motion 2.0 · Interactive Demo</span>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <DemoPill emphasis>

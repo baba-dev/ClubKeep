@@ -11,6 +11,19 @@ The manual bootstrap created:
 - root-owned `/etc/clubkeep/web.env` and `migrate.env` (never upload these)
 - independently configured HTTPS Nginx host and certificates
 
+## Lean release v2 transition
+
+**Do not deploy a v2 archive with the old VPS release helper.** See
+[Lean Releases v2 runbook](LEAN_RELEASES_V2.md). The exact root-owned helper
+must be reviewed and installed by an operator first, then verified using
+`sudo /usr/local/sbin/clubkeep-release --capabilities`. The GitHub deploy
+workflow now aborts before uploading when v2 support is absent.
+
+The optimized artifact ships the traced standalone app and a separately
+locked migration kit, not full build-time `node_modules`. Existing v1
+releases and code rollback remain supported. Never assume database migration
+rollback is safe.
+
 ## Release contract
 
 `.github/workflows/deploy-vps.yml` runs **only after** current-main CI succeeds.

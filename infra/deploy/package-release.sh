@@ -33,11 +33,26 @@ fs.writeFileSync(output, JSON.stringify({
 NODE
 
 node infra/deploy/verify-lean-release.mjs "$stage" "$sha"
+# Fail closed on significant artifact regressions; tighten after observed CI baseline.
+unpacked_kib="$(du -sk "$stage" | cut -f1)"
+if (( unpacked_kib > 700 * 1024 )); then
+  echo "Lean release exceeded 700 MiB extracted limit" >&2
+  exit 1
+fi
 archive="clubkeep-$sha-linux-arm64.tar.gz"
 test ! -e "$archive" || { echo "Archive already exists; refusing overwrite" >&2; exit 1; }
 tar -C "$stage" -cf - ./RELEASE-SHA ./release-manifest.json ./migrate ./.next/standalone |
   gzip -1 > "$archive"
 test -s "$archive"
+archive_bytes="$(stat -c %s "$archive")"
+if (( archive_bytes > 250 * 1024 * 1024 )); then
+  rm -f -- "$archive"
+  echo "Lean release exceeded 250 MiB archive limit" >&2
+  exit 1
+fi
+if (( unpacked_kib > 450 * 1024 || archive_bytes > 180 * 1024 * 1024 )); then
+  echo "::warning::Lean release exceeds 450 MiB/180 MiB preferred target"
+fi
 sha256sum "$archive" > "$archive.sha256"
 sha256sum --check --strict "$archive.sha256"
 test "$(tar -xOzf "$archive" ./RELEASE-SHA)" = "$sha"

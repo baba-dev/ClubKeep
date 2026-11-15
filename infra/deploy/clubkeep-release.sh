@@ -61,6 +61,57 @@ if ! printf '%s\n' "$listing" | awk -v format="$format" '
 '; then
   die "Unexpected path in release format $format archive"
 fi
+if [[ "$format" == 2 ]]; then
+  # Inspect link targets BEFORE extraction; Next.js standalone legitimately
+  # uses internal symlinks. Refuse escapes, hardlinks, special files, and bombs.
+  python3 - "$archive" <<'PY' || die "Unsafe lean archive member or link"
+import posixpath
+import sys
+import tarfile
+
+def allowed(path):
+    return (
+        path in {"RELEASE-SHA", "release-manifest.json", "migrate", ".next/standalone"}
+        or path.startswith("migrate/")
+        or path.startswith(".next/standalone/")
+    )
+
+try:
+    total = 0
+    count = 0
+    seen = set()
+    with tarfile.open(sys.argv[1], mode="r:gz") as archive:
+        for member in archive:
+            raw = member.name
+            if raw.startswith("/") or ".." in raw.split("/"):
+                raise ValueError("Non-relative archive path")
+            name = posixpath.normpath(raw)
+            if not allowed(name) or name in seen:
+                raise ValueError("Unexpected or duplicate release entry")
+            seen.add(name)
+            count += 1
+            if count > 100000:
+                raise ValueError("Too many archive entries")
+            if member.issym():
+                link = member.linkname
+                if posixpath.isabs(link) or ".." in link.split("/") and not link.startswith("../"):
+                    raise ValueError("Unsupported symlink")
+                target = posixpath.normpath(posixpath.join(posixpath.dirname(name), link))
+                if not (target == "migrate" or target.startswith("migrate/")
+                        or target == ".next/standalone"
+                        or target.startswith(".next/standalone/")):
+                    raise ValueError("Escaping archive symlink")
+            elif member.isfile():
+                total += member.size
+                if total > 700 * 1024 * 1024:
+                    raise ValueError("Archive expanded size exceeds limit")
+            elif not member.isdir():
+                raise ValueError("Hardlink or special file forbidden")
+except (ValueError, tarfile.TarError, OSError) as exc:
+    print("Invalid lean release tar members:", exc, file=sys.stderr)
+    sys.exit(1)
+PY
+fi
 
 previous="$(readlink -f "$current")"
 [[ "$previous" == "$BASE/releases/"* && -f "$previous/.next/standalone/server.js" ]] ||

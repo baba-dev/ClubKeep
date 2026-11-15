@@ -24,7 +24,9 @@ export default function MyPaymentsRoute(props: {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-[#0b0b0e] p-8 text-[#fce8d2]">Loading your club…</main>
+        <main className="min-h-screen bg-[var(--hm-surface)] p-8 text-[var(--hm-text)]">
+          Loading your club…
+        </main>
       }
     >
       <MyPayments {...props} />
@@ -85,7 +87,7 @@ async function MyPayments({
               ))}
             </div>
           ) : (
-            <p className="mt-5 rounded-xl border border-white/10 p-4 text-sm text-[#e1c6ab]">
+            <p className="mt-5 rounded-xl border border-[var(--hm-line)] p-4 text-sm text-[#e1c6ab]">
               No outstanding balance across the latest terms shown.
             </p>
           )}
@@ -94,8 +96,8 @@ async function MyPayments({
             independently bank verified.
           </p>
         </aside>
-        <section className="min-w-0 overflow-hidden rounded-3xl border border-white/10 bg-[#19191e]">
-          <div className="flex items-center justify-between gap-3 border-b border-white/10 p-6">
+        <section className="min-w-0 overflow-hidden rounded-3xl border border-[var(--hm-line)] bg-[var(--hm-surface)]">
+          <div className="flex items-center justify-between gap-3 border-b border-[var(--hm-line)] p-6">
             <h2 className="flex items-center gap-2 text-lg font-bold">
               <CreditCard className="size-5 text-[#ffc47d]" /> Payment record
             </h2>
@@ -110,7 +112,7 @@ async function MyPayments({
               No payments have been recorded for you by this club.
             </p>
           ) : (
-            <ul className="divide-y divide-white/10">
+            <ul className="divide-y divide-[var(--hm-line)]">
               {page.map((payment) => (
                 <li key={payment.id}>
                   <Link
@@ -120,7 +122,7 @@ async function MyPayments({
                       "/my/receipts/" +
                       encodeURIComponent(payment.id)
                     }
-                    className="flex flex-wrap items-center justify-between gap-4 p-5 transition-colors hover:bg-white/5 sm:px-7"
+                    className="flex flex-wrap items-center justify-between gap-4 p-5 transition-colors hover:bg-[var(--hm-raised)] sm:px-7"
                   >
                     <div className="flex items-center gap-3">
                       <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-[#332419] text-[#ffb56c]">
@@ -159,7 +161,7 @@ async function MyPayments({
           {next && (
             <Link
               href={"?cursor=" + encodeURIComponent(next)}
-              className="flex min-h-14 items-center justify-center gap-2 border-t border-white/10 text-sm font-semibold text-[#ffc17b] hover:bg-white/5"
+              className="flex min-h-14 items-center justify-center gap-2 border-t border-[var(--hm-line)] text-sm font-semibold text-[var(--hm-terracotta)] hover:bg-[var(--hm-raised)]"
             >
               Older records <ArrowRight className="size-4" />
             </Link>

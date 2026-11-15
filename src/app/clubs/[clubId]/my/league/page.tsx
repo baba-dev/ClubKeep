@@ -21,7 +21,9 @@ export default function LeaguePage(props: Props) {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-[#111115] p-8 text-[#fbd19a]">Loading the league…</main>
+        <main className="min-h-screen bg-[var(--hm-surface)] p-8 text-[#fbd19a]">
+          Loading the league…
+        </main>
       }
     >
       <Content {...props} />
@@ -81,7 +83,7 @@ async function Content({ params, searchParams }: Props) {
       summary="Every score is reviewed by your club. Different disciplines have separate standings; your identity appears only after you opt in."
     >
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <section className="overflow-hidden rounded-3xl border border-[#f8ba70]/25 bg-[#17171b]">
+        <section className="overflow-hidden rounded-3xl border border-[#f8ba70]/25 bg-[var(--hm-surface)]">
           <div className="relative overflow-hidden border-b border-[#f9c289]/15 bg-gradient-to-r from-[#4a2815] via-[#302019] to-[#161318] p-6 sm:p-9">
             <div className="relative flex items-center gap-3">
               <span className="grid size-12 place-items-center rounded-2xl bg-[#ffc67d]/15">
@@ -100,7 +102,7 @@ async function Content({ params, searchParams }: Props) {
               </p>
             )}
             {season && (
-              <p className="mt-2 text-xs text-[#c4ab94]">
+              <p className="mt-2 text-xs text-[var(--hm-muted)]">
                 This season ends {season.endAt.toISOString().slice(0, 10)} (exclusive).
               </p>
             )}
@@ -108,7 +110,7 @@ async function Content({ params, searchParams }: Props) {
           {season && season.metrics.length > 1 && (
             <nav
               aria-label="Competition disciplines"
-              className="flex flex-wrap gap-2 border-b border-white/10 p-4"
+              className="flex flex-wrap gap-2 border-b border-[var(--hm-line)] p-4"
             >
               {season.metrics.map((m) => (
                 <Link
@@ -119,7 +121,7 @@ async function Content({ params, searchParams }: Props) {
                     "min-h-11 rounded-xl px-4 py-3 text-xs font-bold " +
                     (metric?.id === m.id
                       ? "bg-[#f3ba75] text-[#241309]"
-                      : "border border-white/15 text-[#dec2a3]")
+                      : "border border-[var(--hm-line)] text-[#dec2a3]")
                   }
                 >
                   {METRICS[m.metric].label}
@@ -128,18 +130,18 @@ async function Content({ params, searchParams }: Props) {
             </nav>
           )}
           {!member ? (
-            <p className="p-9 text-sm leading-7 text-[#c4af9c]">
+            <p className="p-9 text-sm leading-7 text-[var(--hm-muted)]">
               Ask reception to link your verified account before joining the private club league.
             </p>
           ) : !season ? (
-            <p className="p-9 text-sm text-[#c4af9c]">
+            <p className="p-9 text-sm text-[var(--hm-muted)]">
               Your club has not opened a competition season yet.
             </p>
           ) : !consent?.enabled ? (
             <div className="p-8">
               <ShieldCheck className="size-8 text-[#ffbe7b]" />
               <h3 className="mt-4 text-xl font-black">Your privacy, your call.</h3>
-              <p className="mt-3 text-sm leading-7 text-[#c5ad9c]">
+              <p className="mt-3 text-sm leading-7 text-[var(--hm-muted)]">
                 Join the club-only standings from your Performance Arena privacy controls. Scores
                 remain hidden until you choose to participate.
               </p>
@@ -151,11 +153,11 @@ async function Content({ params, searchParams }: Props) {
               </Link>
             </div>
           ) : !board?.entries.length ? (
-            <p className="p-9 text-sm text-[#c4af9c]">
+            <p className="p-9 text-sm text-[var(--hm-muted)]">
               No verified entries yet. Be the first to set a club record!
             </p>
           ) : (
-            <ol className="divide-y divide-white/10">
+            <ol className="divide-y divide-[var(--hm-line)]">
               {board.entries.map((entry, index) => (
                 <li
                   key={entry.memberRecordId}
@@ -170,7 +172,7 @@ async function Content({ params, searchParams }: Props) {
                         "grid size-11 shrink-0 place-items-center rounded-xl font-black tabular-nums " +
                         (!cursor && index < 3
                           ? "bg-gradient-to-br from-[#fbd394] to-[#d98037] text-[#2c180d]"
-                          : "bg-white/5 text-[#c6ae97]")
+                          : "bg-white/5 text-[var(--hm-muted)]")
                       }
                     >
                       {!cursor && index === 0 ? (
@@ -180,7 +182,7 @@ async function Content({ params, searchParams }: Props) {
                       )}
                     </span>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-bold text-[#fff0dc]">
+                      <p className="truncate text-sm font-bold text-[var(--hm-text)]">
                         {entry.member.displayName}
                         {entry.memberRecordId === member.id ? " · You" : ""}
                       </p>
@@ -189,9 +191,9 @@ async function Content({ params, searchParams }: Props) {
                       </p>
                     </div>
                   </div>
-                  <span className="text-right text-lg font-black text-[#ffc680] tabular-nums">
+                  <span className="text-right text-lg font-black text-[var(--hm-terracotta)] tabular-nums">
                     {entry.value}
-                    <small className="ml-1 text-xs font-semibold text-[#bdac99]">
+                    <small className="ml-1 text-xs font-semibold text-[var(--hm-muted)]">
                       {metric && METRICS[metric.metric].unit}
                     </small>
                   </span>
@@ -207,7 +209,7 @@ async function Content({ params, searchParams }: Props) {
                 "&cursor=" +
                 encodeURIComponent(board.nextCursor)
               }
-              className="flex min-h-14 items-center justify-center border-t border-white/10 text-sm font-bold text-[#ffc17b] hover:bg-white/5"
+              className="flex min-h-14 items-center justify-center border-t border-[var(--hm-line)] text-sm font-bold text-[var(--hm-terracotta)] hover:bg-[var(--hm-raised)]"
             >
               More verified results →
             </Link>
@@ -223,7 +225,7 @@ async function Content({ params, searchParams }: Props) {
                 <small className="ml-2 text-sm font-semibold">{METRICS[metric.metric].unit}</small>
               </p>
             ) : (
-              <p className="mt-4 text-sm leading-7 text-[#cbb09b]">
+              <p className="mt-4 text-sm leading-7 text-[var(--hm-muted)]">
                 Once a club manager verifies your result, your best performance lands here.
               </p>
             )}
@@ -237,12 +239,12 @@ async function Content({ params, searchParams }: Props) {
             )}
           </section>
           {member && season && (
-            <section className="rounded-3xl border border-white/10 bg-[#1d1c21] p-6">
+            <section className="rounded-3xl border border-[var(--hm-line)] bg-[var(--hm-surface)] p-6">
               <h2 className="mb-5 text-xl font-black">Submit your result</h2>
               <ScoreSubmitForm clubId={clubId} metrics={season.metrics} />
             </section>
           )}
-          <p className="flex gap-2 text-xs leading-6 text-[#ab9786]">
+          <p className="flex gap-2 text-xs leading-6 text-[var(--hm-muted)]">
             <ShieldCheck className="mt-1 size-4 shrink-0" /> Club-only visibility. Scores are
             nonclinical, verified and never used to predict your health.
           </p>

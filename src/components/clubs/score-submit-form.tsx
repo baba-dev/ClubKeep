@@ -71,7 +71,7 @@ export function ScoreSubmitForm({
             setMetricId(e.target.value);
             operation.current = null;
           }}
-          className="mt-2 min-h-12 w-full rounded-xl border border-white/15 bg-[#111114] px-4 text-sm text-white focus-visible:outline-2 focus-visible:outline-[#ffbb77]"
+          className="mt-2 min-h-12 w-full rounded-xl border border-[var(--hm-line)] bg-[#111114] px-4 text-sm text-white focus-visible:outline-2 focus-visible:outline-[#ffbb77]"
         >
           {metrics.map((m) => (
             <option key={m.id} value={m.id}>
@@ -93,7 +93,7 @@ export function ScoreSubmitForm({
             setValue(e.target.value);
             operation.current = null;
           }}
-          className="mt-2 min-h-12 w-full rounded-xl border border-white/15 bg-[#111114] px-4 text-lg font-black text-white tabular-nums focus-visible:outline-2 focus-visible:outline-[#ffbb77]"
+          className="mt-2 min-h-12 w-full rounded-xl border border-[var(--hm-line)] bg-[#111114] px-4 text-lg font-black text-white tabular-nums focus-visible:outline-2 focus-visible:outline-[#ffbb77]"
           placeholder="0"
         />
       </label>
@@ -107,7 +107,7 @@ export function ScoreSubmitForm({
             setNote(e.target.value);
             operation.current = null;
           }}
-          className="mt-2 w-full rounded-xl border border-white/15 bg-[#111114] p-4 text-sm text-white focus-visible:outline-2 focus-visible:outline-[#ffbb77]"
+          className="mt-2 w-full rounded-xl border border-[var(--hm-line)] bg-[#111114] p-4 text-sm text-white focus-visible:outline-2 focus-visible:outline-[#ffbb77]"
           placeholder="Match, class or supervised lift details"
         />
       </label>

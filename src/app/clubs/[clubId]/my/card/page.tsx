@@ -16,7 +16,9 @@ export default function MyCardRoute(props: { params: Promise<{ clubId: string }>
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-[#0b0b0e] p-8 text-[#fce8d2]">Loading your club…</main>
+        <main className="min-h-screen bg-[var(--hm-surface)] p-8 text-[var(--hm-text)]">
+          Loading your club…
+        </main>
       }
     >
       <MyCard {...props} />
@@ -42,7 +44,7 @@ async function MyCard({ params }: { params: Promise<{ clubId: string }> }) {
       summary="A beautifully simple membership ID, ready to show or print. Entry requires your separate live rotating check-in pass."
     >
       {!member ? (
-        <div className="rounded-3xl border border-white/15 bg-[#19191e] p-8">
+        <div className="rounded-3xl border border-[var(--hm-line)] bg-[var(--hm-surface)] p-8">
           <ShieldCheck className="size-7 text-[#ffbf7d]" />
           <h2 className="mt-4 text-xl font-bold">Your member record needs linking</h2>
           <p className="mt-3 text-sm text-[#bbaca0]">
@@ -97,7 +99,7 @@ async function MyCard({ params }: { params: Promise<{ clubId: string }> }) {
               </div>
             </div>
           </section>
-          <aside className="rounded-3xl border border-white/10 bg-[#1a191d] p-6">
+          <aside className="rounded-3xl border border-[var(--hm-line)] bg-[#1a191d] p-6">
             <ShieldCheck className="size-8 text-[#f5b977]" />
             <h2 className="mt-4 text-lg font-bold">Secure by design</h2>
             <p className="mt-2 text-sm leading-7 text-[#bca99a]">

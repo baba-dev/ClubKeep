@@ -81,7 +81,9 @@ async function DiscoverContent({ searchParams }: { searchParams: Promise<Query> 
           <ClubKeepBrand />
           <div className="flex items-center gap-2">
             <ClubThemeToggle />
-            <Link href="/auth/sign-in" className="hm-button hm-button-secondary">Sign in</Link>
+            <Link href="/auth/sign-in" className="hm-button hm-button-secondary">
+              Sign in
+            </Link>
           </div>
         </header>
         <section className="hm-public-hero mt-8">
@@ -89,7 +91,10 @@ async function DiscoverContent({ searchParams }: { searchParams: Promise<Query> 
           <div className="relative z-10">
             <p className="hm-kicker hm-page-eyebrow">Find your people</p>
             <h1 className="mt-4">Every community starts somewhere.</h1>
-            <p className="hm-small mt-5 max-w-2xl">Explore gyms, yoga studios, dance academies, sports clubs and more. Only owner-submitted and approved public profiles appear in search results.</p>
+            <p className="hm-small mt-5 max-w-2xl">
+              Explore gyms, yoga studios, dance academies, sports clubs and more. Only
+              owner-submitted and approved public profiles appear in search results.
+            </p>
           </div>
         </section>
         <form
@@ -110,12 +115,7 @@ async function DiscoverContent({ searchParams }: { searchParams: Promise<Query> 
           <label className="sr-only" htmlFor="category">
             Club category
           </label>
-          <select
-            id="category"
-            name="type"
-            defaultValue={type || ""}
-            className="hm-public-field"
-          >
+          <select id="category" name="type" defaultValue={type || ""} className="hm-public-field">
             <option value="">All categories</option>
             {categories.map((x) => (
               <option key={x} value={x}>
@@ -142,9 +142,7 @@ async function DiscoverContent({ searchParams }: { searchParams: Promise<Query> 
             placeholder="City (optional)"
             className="min-h-12 rounded-xl border border-[#f6dc9b]/20 bg-[#0b0807] px-4 text-sm"
           />
-          <button className="hm-button hm-button-primary">
-            Discover
-          </button>
+          <button className="hm-button hm-button-primary">Discover</button>
         </form>
         {list.length ? (
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -158,13 +156,17 @@ async function DiscoverContent({ searchParams }: { searchParams: Promise<Query> 
                   className="hm-public-card group"
                 >
                   <div className="hm-public-card-art">
-                    <ThemeArtwork pair={HM_MEDIA.illustrations.botanicalCorner} className="hm-gallery-art" />
-                    <Icon className="relative size-12 text-[var(--hm-sage-deep)]" aria-hidden="true" />
+                    <ThemeArtwork
+                      pair={HM_MEDIA.illustrations.botanicalCorner}
+                      className="hm-gallery-art"
+                    />
+                    <Icon
+                      className="relative size-12 text-[var(--hm-sage-deep)]"
+                      aria-hidden="true"
+                    />
                   </div>
                   <div className="p-6">
-                    <p className="hm-kicker hm-page-eyebrow">
-                      {item.club.vertical.toLowerCase()}
-                    </p>
+                    <p className="hm-kicker hm-page-eyebrow">{item.club.vertical.toLowerCase()}</p>
                     <h2 className="mt-2 text-xl font-semibold">{item.club.name}</h2>
                     <p className="hm-small mt-2 line-clamp-2 min-h-10">
                       {data?.tagline || "A place to belong."}

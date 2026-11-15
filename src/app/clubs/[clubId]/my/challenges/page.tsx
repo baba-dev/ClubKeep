@@ -82,9 +82,14 @@ async function Content({ params }: Props) {
         <ThemeArtwork pair={HM_MEDIA.photography.challenge} className="hm-gallery-photo" />
         <ThemeArtwork pair={HM_MEDIA.illustrations.challengeLandscape} className="hm-gallery-art" />
         <div className="relative z-10 max-w-xl">
-          <p className="hm-kicker flex items-center gap-2 text-[#ffdec7]"><Flame className="size-4" aria-hidden="true" /> Club challenge circuit</p>
+          <p className="hm-kicker flex items-center gap-2 text-[#ffdec7]">
+            <Flame className="size-4" aria-hidden="true" /> Club challenge circuit
+          </p>
           <h2 className="mt-4">Earned, never given.</h2>
-          <p className="mt-4">Achievements reflect verified club attendance or approved scores. Images are promotional artwork, never member portraits.</p>
+          <p className="mt-4">
+            Achievements reflect verified club attendance or approved scores. Images are promotional
+            artwork, never member portraits.
+          </p>
         </div>
       </section>
       <div className="mt-7 grid gap-5 md:grid-cols-2">
@@ -101,21 +106,31 @@ async function Content({ params }: Props) {
             const entry = entries.get(challenge.id),
               joined = Boolean(entry?.active);
             const p = progress[index] ?? { progress: 0, completed: false };
-            const percentage = joined && challenge.target > 0 ? Math.min(100, Math.round((100 * p.progress) / challenge.target)) : 0;
+            const percentage =
+              joined && challenge.target > 0
+                ? Math.min(100, Math.round((100 * p.progress) / challenge.target))
+                : 0;
             const ended = challenge.endAt <= now;
             return (
               <section key={challenge.id} className="hm-member-panel min-w-0">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <p className="hm-kicker hm-page-eyebrow flex items-center gap-2">
-                    <Trophy className="size-4" aria-hidden="true" /> {ended ? "Completed season" : "Your challenge"}
+                    <Trophy className="size-4" aria-hidden="true" />{" "}
+                    {ended ? "Completed season" : "Your challenge"}
                   </p>
-                  <span className={`hm-ops-pill ${p.completed && joined ? "hm-ops-pill--active" : "hm-ops-pill--urgent"}`}>
-                    {p.completed && joined ? "Verified target met" : ended ? "Season ended" : joined ? "Participating" : "Not joined"}
+                  <span
+                    className={`hm-ops-pill ${p.completed && joined ? "hm-ops-pill--active" : "hm-ops-pill--urgent"}`}
+                  >
+                    {p.completed && joined
+                      ? "Verified target met"
+                      : ended
+                        ? "Season ended"
+                        : joined
+                          ? "Participating"
+                          : "Not joined"}
                   </span>
                 </div>
-                <h3 className="hm-display mt-6 text-2xl">
-                  {challenge.title}
-                </h3>
+                <h3 className="hm-display mt-6 text-2xl">{challenge.title}</h3>
                 <p className="hm-small mt-3">
                   {challenge.kind === "ATTENDANCE"
                     ? "Verified club sessions"
@@ -148,7 +163,12 @@ async function Content({ params }: Props) {
                 </p>
                 <div className="mt-5">
                   <VerifiedAchievement
-                    state={awardState({ joined, completed: p.completed, progress: p.progress, ended })}
+                    state={awardState({
+                      joined,
+                      completed: p.completed,
+                      progress: p.progress,
+                      ended,
+                    })}
                     progress={p.progress}
                     target={challenge.target}
                     kind={challenge.kind}

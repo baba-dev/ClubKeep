@@ -1,7 +1,14 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { DemoExperience } from "@/components/demo/demo-experience";
-import { DEMO_ROLES, DEMO_VIEWS, DEMO_VERTICALS, type DemoRole, type DemoView, type DemoVertical } from "@/lib/demo-fixtures";
+import {
+  DEMO_ROLES,
+  DEMO_VIEWS,
+  DEMO_VERTICALS,
+  type DemoRole,
+  type DemoView,
+  type DemoVertical,
+} from "@/lib/demo-fixtures";
 
 export const metadata: Metadata = {
   title: "Explore ClubKeep · Interactive full-feature demo",

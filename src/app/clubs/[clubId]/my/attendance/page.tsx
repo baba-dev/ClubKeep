@@ -26,7 +26,9 @@ export default function MySessionsRoute(props: {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-[#0b0b0e] p-8 text-[#fce8d2]">Loading your club…</main>
+        <main className="min-h-screen bg-[var(--hm-surface)] p-8 text-[var(--hm-text)]">
+          Loading your club…
+        </main>
       }
     >
       <MySessions {...props} />
@@ -86,7 +88,7 @@ async function MySessions({
               Open my live pass <ArrowRight className="size-4" />
             </Link>
           ) : (
-            <p className="mt-5 rounded-xl border border-white/15 bg-black/15 p-4 text-sm text-[#f5c491]">
+            <p className="mt-5 rounded-xl border border-[var(--hm-line)] bg-black/15 p-4 text-sm text-[#f5c491]">
               Ask reception to link or renew your active club membership before using a QR pass.
             </p>
           )}
@@ -95,8 +97,8 @@ async function MySessions({
             session history.
           </p>
         </section>
-        <section className="min-w-0 overflow-hidden rounded-3xl border border-white/10 bg-[#18181d]">
-          <div className="flex items-center justify-between gap-3 border-b border-white/10 px-6 py-5">
+        <section className="min-w-0 overflow-hidden rounded-3xl border border-[var(--hm-line)] bg-[#18181d]">
+          <div className="flex items-center justify-between gap-3 border-b border-[var(--hm-line)] px-6 py-5">
             <h2 className="flex items-center gap-2 text-lg font-bold">
               <CalendarDays className="size-5 text-[#ffbe76]" /> Visit history
             </h2>
@@ -112,7 +114,7 @@ async function MySessions({
               No visits recorded yet. Your first training day starts here.
             </p>
           ) : (
-            <ul className="divide-y divide-white/10">
+            <ul className="divide-y divide-[var(--hm-line)]">
               {page.map((visit) => (
                 <li
                   key={visit.id}
@@ -142,7 +144,7 @@ async function MySessions({
           {next && (
             <Link
               href={"?cursor=" + encodeURIComponent(next)}
-              className="flex min-h-14 items-center justify-center gap-2 border-t border-white/10 text-sm font-semibold text-[#ffc17b] hover:bg-white/5"
+              className="flex min-h-14 items-center justify-center gap-2 border-t border-[var(--hm-line)] text-sm font-semibold text-[var(--hm-terracotta)] hover:bg-[var(--hm-raised)]"
             >
               Older sessions <ArrowRight className="size-4" />
             </Link>

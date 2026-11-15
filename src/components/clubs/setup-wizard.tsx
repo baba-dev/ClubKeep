@@ -198,44 +198,70 @@ export function SetupWizard({
             <ClubThemeToggle />
           </div>
         </div>
-        <div className="hm-setup-progress mt-7" role="progressbar" aria-label="Club setup progress" aria-valuemin={1} aria-valuemax={5} aria-valuenow={stepIndex + 1}>
+        <div
+          className="hm-setup-progress mt-7"
+          role="progressbar"
+          aria-label="Club setup progress"
+          aria-valuemin={1}
+          aria-valuemax={5}
+          aria-valuenow={stepIndex + 1}
+        >
           {steps.map((s, i) => (
-            <span
-              key={s}
-              data-completed={i < stepIndex}
-              data-current={i === stepIndex}
-            />
+            <span key={s} data-completed={i < stepIndex} data-current={i === stepIndex} />
           ))}
         </div>
-        <section className="hm-public-hero relative mt-9 overflow-hidden rounded-3xl border p-7 sm:p-10" style={{ borderColor: "var(--hm-line)", background: "var(--hm-raised)" }}>
-          <ThemeArtwork pair={HM_MEDIA.illustrations.botanical} className="hm-gallery-art pointer-events-none absolute inset-0 opacity-30" />
+        <section
+          className="hm-public-hero relative mt-9 overflow-hidden rounded-3xl border p-7 sm:p-10"
+          style={{ borderColor: "var(--hm-line)", background: "var(--hm-raised)" }}
+        >
+          <ThemeArtwork
+            pair={HM_MEDIA.illustrations.botanical}
+            className="hm-gallery-art pointer-events-none absolute inset-0 opacity-30"
+          />
           <div className="relative z-10 max-w-xl">
             <p className="hm-kicker hm-page-eyebrow">{initial.club.name} · Guided setup</p>
             <h1 className="hm-display mt-3 text-4xl sm:text-5xl">{labels[stepIndex]}</h1>
-            <p className="hm-small mt-4 max-w-lg">Five clear steps to build your club. Each completed step is saved securely to your existing setup record.</p>
-            <p className="hm-small mt-3">Next: {stepIndex < 4 ? labels[stepIndex + 1] : "Open your club workspace"}</p>
+            <p className="hm-small mt-4 max-w-lg">
+              Five clear steps to build your club. Each completed step is saved securely to your
+              existing setup record.
+            </p>
+            <p className="hm-small mt-3">
+              Next: {stepIndex < 4 ? labels[stepIndex + 1] : "Open your club workspace"}
+            </p>
           </div>
         </section>
-        <form
-          onSubmit={onNext}
-          className="hm-setup-form mt-7 space-y-5"
-        >
+        <form onSubmit={onNext} className="hm-setup-form mt-7 space-y-5">
           {initialStep === "type" && (
             <fieldset>
               <legend className="mb-4 font-semibold">What kind of club are you running?</legend>
               <div className="grid gap-4 sm:grid-cols-2">
                 {categories.map((c) => (
-                  <label key={c.value} className="hm-setup-category" data-selected={vertical === c.value}>
+                  <label
+                    key={c.value}
+                    className="hm-setup-category"
+                    data-selected={vertical === c.value}
+                  >
                     {heroForVertical(c.value) ? (
                       <ThemeArtwork pair={heroForVertical(c.value)!} className="hm-gallery-photo" />
                     ) : (
-                      <ThemeArtwork pair={HM_MEDIA.illustrations.challengeLandscape} className="hm-gallery-art" />
+                      <ThemeArtwork
+                        pair={HM_MEDIA.illustrations.challengeLandscape}
+                        className="hm-gallery-art"
+                      />
                     )}
                     <div className="hm-setup-category-body">
                       <div className="flex items-start justify-between gap-3">
-                        <span className="hm-category-icon"><c.icon className="size-5" aria-hidden="true" /></span>
-                        <input type="radio" name="vertical" value={c.value} checked={vertical === c.value}
-                          onChange={() => setVertical(c.value)} aria-label={c.title} />
+                        <span className="hm-category-icon">
+                          <c.icon className="size-5" aria-hidden="true" />
+                        </span>
+                        <input
+                          type="radio"
+                          name="vertical"
+                          value={c.value}
+                          checked={vertical === c.value}
+                          onChange={() => setVertical(c.value)}
+                          aria-label={c.title}
+                        />
                       </div>
                       <span className="mt-5 block font-semibold">{c.title}</span>
                       <p className="mt-2 text-xs leading-5">{c.description}</p>
@@ -342,9 +368,7 @@ export function SetupWizard({
                 <div className="hm-setup-note p-5">
                   <CheckCircle2 className="mb-2 size-6 text-[var(--hm-sage-deep)]" />
                   <p className="font-semibold">Membership plan ready</p>
-                  <p className="hm-small mt-2">
-                    {plans.map((p) => p.name).join(", ")}
-                  </p>
+                  <p className="hm-small mt-2">{plans.map((p) => p.name).join(", ")}</p>
                 </div>
               ) : (
                 <>
@@ -421,7 +445,7 @@ export function SetupWizard({
           {error && (
             <p
               role="alert"
-              className="rounded-xl border border-red-500/30 bg-red-50 dark:bg-red-950/30 p-3 text-sm text-red-700 dark:text-red-200"
+              className="rounded-xl border border-red-500/30 bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/30 dark:text-red-200"
             >
               {error}
             </p>
@@ -436,11 +460,7 @@ export function SetupWizard({
               <ArrowLeft className="mr-2 inline size-4" />
               Back
             </button>
-            <button
-              type="submit"
-              disabled={busy}
-              className="hm-button hm-button-primary"
-            >
+            <button type="submit" disabled={busy} className="hm-button hm-button-primary">
               {busy ? "Saving…" : initialStep === "review" ? "Launch my club" : "Save & continue"}
               <ArrowRight className="ml-2 inline size-4" />
             </button>

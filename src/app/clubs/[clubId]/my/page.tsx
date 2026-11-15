@@ -30,7 +30,9 @@ export default function MyClubPageRoute(props: { params: Promise<{ clubId: strin
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-[#0b0b0e] p-8 text-[#fce8d2]">Loading your club…</main>
+        <main className="min-h-screen bg-[var(--hm-surface)] p-8 text-[var(--hm-text)]">
+          Loading your club…
+        </main>
       }
     >
       <MyClubPage {...props} />
@@ -79,46 +81,85 @@ async function MyClubPage({ params }: { params: Promise<{ clubId: string }> }) {
             <section className="hm-member-photo-banner">
               <ThemeArtwork pair={HM_MEDIA.photography.community} className="hm-gallery-photo" />
               <div className="relative z-10 max-w-lg">
-                <p className="hm-kicker text-[#fce0c6]"><Flame className="mr-2 inline size-4" aria-hidden="true" /> Your personal ClubKeep space</p>
+                <p className="hm-kicker text-[#fce0c6]">
+                  <Flame className="mr-2 inline size-4" aria-hidden="true" /> Your personal ClubKeep
+                  space
+                </p>
                 <p className="mt-6 text-sm text-[#f4ded0]">Welcome back,</p>
                 <h2 className="mt-1">{member.displayName}</h2>
-                <p className="mt-4">Member #{String(member.memberNumber).padStart(4, "0")} · {club.name}</p>
+                <p className="mt-4">
+                  Member #{String(member.memberNumber).padStart(4, "0")} · {club.name}
+                </p>
                 <div className="mt-5 flex flex-wrap gap-2">
-                  <span className="rounded-full bg-[#e1eadc] px-4 py-2 text-xs font-bold text-[#34523a]">{current?.status ?? "NOT ASSIGNED"}</span>
-                  <span className="rounded-full border border-white/40 px-4 py-2 text-xs font-semibold text-white">{current?.planName ?? "No plan yet"}</span>
+                  <span className="rounded-full bg-[#e1eadc] px-4 py-2 text-xs font-bold text-[#34523a]">
+                    {current?.status ?? "NOT ASSIGNED"}
+                  </span>
+                  <span className="rounded-full border border-white/40 px-4 py-2 text-xs font-semibold text-white">
+                    {current?.planName ?? "No plan yet"}
+                  </span>
                 </div>
-                <Link href={base + "/my/card"} className="hm-button mt-6 bg-[#fff6ea] text-[#453024]">
-                  <IdCard className="size-4" aria-hidden="true" /> View membership ID <ArrowUpRight className="size-4" aria-hidden="true" />
+                <Link
+                  href={base + "/my/card"}
+                  className="hm-button mt-6 bg-[#fff6ea] text-[#453024]"
+                >
+                  <IdCard className="size-4" aria-hidden="true" /> View membership ID{" "}
+                  <ArrowUpRight className="size-4" aria-hidden="true" />
                 </Link>
-                <p className="mt-4 text-[11px] text-[#f5e3d4]">Promotional imagery · Your membership details come from your club records.</p>
+                <p className="mt-4 text-[11px] text-[#f5e3d4]">
+                  Promotional imagery · Your membership details come from your club records.
+                </p>
               </div>
             </section>
             <section className="hm-member-panel flex flex-col justify-between">
               <div>
                 {snapshot && snapshot.visitCount >= 100 ? (
-                  <AchievementArt name="milestone-badge" size={88} title="100 verified club sessions" />
+                  <AchievementArt
+                    name="milestone-badge"
+                    size={88}
+                    title="100 verified club sessions"
+                  />
                 ) : (
                   <span className="grid size-12 place-items-center rounded-2xl bg-[var(--hm-raised)]">
                     <Trophy className="size-6 text-[var(--hm-terracotta)]" aria-hidden="true" />
                   </span>
                 )}
                 <p className="hm-kicker hm-muted mt-6">Verified sessions</p>
-                <p className="mt-2 text-6xl font-bold tracking-tight tabular-nums">{snapshot?.visitCount ?? 0}</p>
+                <p className="mt-2 text-6xl font-bold tracking-tight tabular-nums">
+                  {snapshot?.visitCount ?? 0}
+                </p>
                 <p className="hm-small mt-2">Recorded arrivals with this club</p>
-                {snapshot && snapshot.visitCount >= 100 && <span className="hm-ops-pill hm-ops-pill--active mt-3">100-session milestone reached</span>}
+                {snapshot && snapshot.visitCount >= 100 && (
+                  <span className="hm-ops-pill hm-ops-pill--active mt-3">
+                    100-session milestone reached
+                  </span>
+                )}
               </div>
-              <Link href={base + "/my/attendance"} className="hm-button hm-button-secondary mt-7 self-start">
+              <Link
+                href={base + "/my/attendance"}
+                className="hm-button hm-button-secondary mt-7 self-start"
+              >
                 Session history <ArrowUpRight className="size-4" aria-hidden="true" />
               </Link>
             </section>
           </div>
-          <Link href={base + "/my/play"} className="hm-member-photo-banner group mt-5 min-h-[220px] justify-between gap-5 sm:flex-row">
+          <Link
+            href={base + "/my/play"}
+            className="hm-member-photo-banner group mt-5 min-h-[220px] justify-between gap-5 sm:flex-row"
+          >
             <ThemeArtwork pair={HM_MEDIA.photography.challenge} className="hm-gallery-photo" />
-            <ThemeArtwork pair={HM_MEDIA.illustrations.challengeLandscape} className="hm-gallery-art" />
+            <ThemeArtwork
+              pair={HM_MEDIA.illustrations.challengeLandscape}
+              className="hm-gallery-art"
+            />
             <div className="relative z-10 max-w-lg">
-              <p className="hm-kicker text-[#ffdec7]"><Trophy className="mr-2 inline size-4" aria-hidden="true" /> Performance League & Challenges</p>
+              <p className="hm-kicker text-[#ffdec7]">
+                <Trophy className="mr-2 inline size-4" aria-hidden="true" /> Performance League &
+                Challenges
+              </p>
               <h2 className="mt-3">Your next personal best starts here.</h2>
-              <p className="mt-3">Submit verified results, explore opt-in rankings, and discover club challenges.</p>
+              <p className="mt-3">
+                Submit verified results, explore opt-in rankings, and discover club challenges.
+              </p>
             </div>
             <span className="hm-button relative z-10 shrink-0 bg-[#fff0dc] text-[#533528]">
               Enter the Arena <ArrowUpRight className="size-4" aria-hidden="true" />
@@ -129,35 +170,35 @@ async function MyClubPage({ params }: { params: Promise<{ clubId: string }> }) {
               href={base + "/my-attendance"}
               className="group rounded-3xl border border-[#f5ac61]/30 bg-[#271d17] p-6 transition hover:-translate-y-0.5 hover:border-[#ffc27e] motion-reduce:transform-none"
             >
-              <ScanLine className="size-8 text-[#ffb666]" />
+              <ScanLine className="size-8 text-[var(--hm-terracotta)]" />
               <h2 className="mt-5 text-xl font-bold">Ready to check in?</h2>
               <p className="mt-2 text-sm leading-6 text-[#bcaa9a]">
                 Bring up your rotating, secure entry QR at reception.
               </p>
-              <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#ffc17b]">
+              <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[var(--hm-terracotta)]">
                 Open live pass <ArrowUpRight className="size-4" />
               </span>
             </Link>
             <Link
               href={base + "/my/renewal"}
-              className="group rounded-3xl border border-white/10 bg-[#19191e] p-6 transition hover:-translate-y-0.5 hover:border-[#ffd098]/50 motion-reduce:transform-none"
+              className="group rounded-3xl border border-[var(--hm-line)] bg-[var(--hm-surface)] p-6 transition hover:-translate-y-0.5 hover:border-[#ffd098]/50 motion-reduce:transform-none"
             >
-              <CalendarClock className="size-8 text-[#ffb666]" />
+              <CalendarClock className="size-8 text-[var(--hm-terracotta)]" />
               <h2 className="mt-5 text-xl font-bold">Stay in the game</h2>
               <p className="mt-2 text-sm leading-6 text-[#bcaa9a]">
                 {current
                   ? "Your plan ends " + current.endAt.toISOString().slice(0, 10) + " (exclusive)."
                   : "Ask reception to assign your first plan."}
               </p>
-              <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#ffc17b]">
+              <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[var(--hm-terracotta)]">
                 Renewal options <ArrowUpRight className="size-4" />
               </span>
             </Link>
             <Link
               href={base + "/my/payments"}
-              className="group rounded-3xl border border-white/10 bg-[#19191e] p-6 transition hover:-translate-y-0.5 hover:border-[#ffd098]/50 motion-reduce:transform-none"
+              className="group rounded-3xl border border-[var(--hm-line)] bg-[var(--hm-surface)] p-6 transition hover:-translate-y-0.5 hover:border-[#ffd098]/50 motion-reduce:transform-none"
             >
-              <CircleDollarSign className="size-8 text-[#ffb666]" />
+              <CircleDollarSign className="size-8 text-[var(--hm-terracotta)]" />
               <h2 className="mt-5 text-xl font-bold">Know your balance</h2>
               <p className="mt-2 text-sm leading-6 text-[#bcaa9a]">
                 {due.length
@@ -165,12 +206,12 @@ async function MyClubPage({ params }: { params: Promise<{ clubId: string }> }) {
                     " outstanding across shown terms."
                   : "No outstanding dues among your latest membership terms."}
               </p>
-              <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#ffc17b]">
+              <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[var(--hm-terracotta)]">
                 Fee history <ArrowUpRight className="size-4" />
               </span>
             </Link>
           </div>
-          <section className="mt-6 rounded-3xl border border-white/10 bg-[#15151a] p-6 sm:p-8">
+          <section className="mt-6 rounded-3xl border border-[var(--hm-line)] bg-[var(--hm-surface)] p-6 sm:p-8">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="flex items-center gap-2 text-[11px] font-bold tracking-widest text-[#ffb575] uppercase">
@@ -180,13 +221,13 @@ async function MyClubPage({ params }: { params: Promise<{ clubId: string }> }) {
               </div>
               <Link
                 href={base + "/my/attendance"}
-                className="text-sm font-semibold text-[#ffc17b] hover:underline"
+                className="text-sm font-semibold text-[var(--hm-terracotta)] hover:underline"
               >
                 All sessions →
               </Link>
             </div>
             {snapshot?.recentVisits.length ? (
-              <ul className="mt-6 divide-y divide-white/10">
+              <ul className="mt-6 divide-y divide-[var(--hm-line)]">
                 {snapshot.recentVisits.map((visit) => (
                   <li key={visit.id} className="flex items-center justify-between gap-3 py-4">
                     <span className="flex items-center gap-2 font-semibold">

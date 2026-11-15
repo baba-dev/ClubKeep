@@ -1,5 +1,15 @@
 import Link from "next/link";
-import { Activity, ArrowLeft, CalendarDays, CreditCard, IdCard, Zap, Trophy, Sparkles, ShieldCheck } from "lucide-react";
+import {
+  Activity,
+  ArrowLeft,
+  CalendarDays,
+  CreditCard,
+  IdCard,
+  Zap,
+  Trophy,
+  Sparkles,
+  ShieldCheck,
+} from "lucide-react";
 import { ClubKeepBrand, ThemeArtwork } from "@/components/human-motion/media-components";
 import { ClubThemeToggle } from "@/components/clubs/theme-toggle";
 import { HM_MEDIA } from "@/components/human-motion/media";
@@ -15,7 +25,13 @@ const items = [
 ] as const;
 
 export function MemberArenaShell({
-  clubId, clubName, active, eyebrow, title, summary, children,
+  clubId,
+  clubName,
+  active,
+  eyebrow,
+  title,
+  summary,
+  children,
 }: {
   clubId: string;
   clubName: string;
@@ -28,13 +44,22 @@ export function MemberArenaShell({
   const base = "/clubs/" + encodeURIComponent(clubId) + "/my";
   return (
     <div className="hm-app hm-member hm-member-shell">
-      <a href="#member-content" className="hm-skip-link print:hidden">Skip to your member content</a>
+      <a href="#member-content" className="hm-skip-link print:hidden">
+        Skip to your member content
+      </a>
       <header className="hm-member-header print:hidden">
         <div className="hm-member-header-inner">
           <div className="flex min-w-0 items-center gap-3 sm:gap-5">
             <ClubKeepBrand />
-            <span className="hidden text-sm hm-muted md:inline" aria-hidden="true">/</span>
-            <span className="hidden max-w-44 truncate text-sm font-semibold sm:inline" title={clubName}>{clubName}</span>
+            <span className="hm-muted hidden text-sm md:inline" aria-hidden="true">
+              /
+            </span>
+            <span
+              className="hidden max-w-44 truncate text-sm font-semibold sm:inline"
+              title={clubName}
+            >
+              {clubName}
+            </span>
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <ClubThemeToggle />
@@ -48,8 +73,14 @@ export function MemberArenaShell({
       </header>
       <main id="member-content" className="hm-member-main print:p-0">
         <div className="hm-member-intro relative">
-          <div className="pointer-events-none absolute -right-12 -top-12 hidden h-60 w-60 opacity-30 md:block" aria-hidden="true">
-            <ThemeArtwork pair={HM_MEDIA.illustrations.botanicalCorner} className="hm-gallery-art" />
+          <div
+            className="pointer-events-none absolute -top-12 -right-12 hidden h-60 w-60 opacity-30 md:block"
+            aria-hidden="true"
+          >
+            <ThemeArtwork
+              pair={HM_MEDIA.illustrations.botanicalCorner}
+              className="hm-gallery-art"
+            />
           </div>
           <p className="hm-kicker hm-page-eyebrow flex items-center gap-2">
             <Sparkles className="size-4" aria-hidden="true" /> {eyebrow}

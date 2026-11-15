@@ -55,6 +55,7 @@ import {
 import { ThemeArtwork, ClubKeepBrand } from "@/components/human-motion/media-components";
 import { HM_MEDIA, heroForVertical } from "@/components/human-motion/media";
 import { ClubThemeToggle } from "@/components/clubs/theme-toggle";
+import { AchievementArt } from "@/components/human-motion/AchievementArt";
 
 const tabIcons: Record<DemoView, typeof Activity> = {
   overview: BarChart3,
@@ -182,7 +183,7 @@ function Panel({
     <section className={cardClass}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <h2 className="flex items-center gap-3 text-lg font-black tracking-tight sm:text-xl">
-          {Icon && <Icon className="size-6 text-[#ffbb78]" aria-hidden="true" />}
+          {Icon && <Icon className="size-6 text-[var(--hm-terracotta)]" aria-hidden="true" />}
           {title}
         </h2>
         {extra}
@@ -205,9 +206,7 @@ function Metric({
   return (
     <div className="hm-ops-stat">
       <Icon className="size-6 text-[var(--hm-sage-deep)]" aria-hidden="true" />
-      <p className="hm-ops-stat-value tabular-nums sm:text-4xl">
-        {value}
-      </p>
+      <p className="hm-ops-stat-value tabular-nums sm:text-4xl">{value}</p>
       <p className="hm-ops-stat-label">{label}</p>
       {note && <p className="hm-small mt-1">{note}</p>}
     </div>
@@ -237,10 +236,10 @@ function DemoRow({
   trailing?: ReactNode;
 }) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 py-4 first:border-t-0">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--hm-line)] py-4 first:border-t-0">
       <div>
-        <p className="font-bold text-[#fff0da]">{title}</p>
-        {subtitle && <p className="mt-1 text-xs text-[#b7a497]">{subtitle}</p>}
+        <p className="font-bold text-[var(--hm-text)]">{title}</p>
+        {subtitle && <p className="hm-small mt-1">{subtitle}</p>}
       </div>
       {trailing}
     </div>
@@ -274,7 +273,7 @@ export function DemoExperience({
   const [scoreMember, setScoreMember] = useState(1);
   const [challengeTitle, setChallengeTitle] = useState("");
   const [challengeGoal, setChallengeGoal] = useState("10");
-  const [timeZoneDraft, setTimeZoneDraft] = useState(initialDemo.timezone);
+  const [timeZoneDraft, setTimeZoneDraft] = useState(() => demoFixture(initialVertical).timezone);
   const [portalMessage, setPortalMessage] = useState("");
   const [invitesCreated, setInvitesCreated] = useState(0);
   const [inviteRevoked, setInviteRevoked] = useState(false);
@@ -323,7 +322,9 @@ export function DemoExperience({
     setInvitesCreated(0);
     setInviteRevoked(false);
     setDemoPasskey(false);
-    setNotice("Loaded the " + vertical.toLowerCase() + " fictional showcase. No production records changed.");
+    setNotice(
+      "Loaded the " + vertical.toLowerCase() + " fictional showcase. No production records changed."
+    );
     window.history.replaceState(null, "", demoRoute(role, view, vertical));
   }
   const members = data.members;
@@ -535,9 +536,7 @@ export function DemoExperience({
         <aside className="border-b border-[var(--hm-line)] bg-[var(--hm-surface)] lg:border-r lg:border-b-0">
           <div className="sticky top-0 max-h-[100dvh] overflow-y-auto p-4 sm:p-6">
             <div className="hm-demo-card p-4">
-              <p className="hm-kicker hm-page-eyebrow">
-                Perspective switcher
-              </p>
+              <p className="hm-kicker hm-page-eyebrow">Perspective switcher</p>
               <label htmlFor="demo-persona" className="hm-small mt-3 block">
                 Explore as
               </label>
@@ -559,15 +558,22 @@ export function DemoExperience({
                 ))}
               </select>
               <p className="hm-small mt-3">{roleDescriptions[role]}</p>
-              <p className="hm-small mt-2">
-                Simulation only · no permissions granted
-              </p>
+              <p className="hm-small mt-2">Simulation only · no permissions granted</p>
             </div>
             <div className="mt-4">
               <p className="hm-kicker hm-muted mb-3">Explore by club type</p>
-              <div className="hm-demo-verticals" role="group" aria-label="Choose fictional club vertical">
+              <div
+                className="hm-demo-verticals"
+                role="group"
+                aria-label="Choose fictional club vertical"
+              >
                 {DEMO_VERTICALS.map((v) => (
-                  <button key={v} type="button" aria-pressed={presetVertical === v} onClick={() => selectDemoVertical(v)}>
+                  <button
+                    key={v}
+                    type="button"
+                    aria-pressed={presetVertical === v}
+                    onClick={() => selectDemoVertical(v)}
+                  >
                     {v === "GYM" ? "Gym" : v === "YOGA" ? "Yoga" : "Dance"}
                   </button>
                 ))}
@@ -611,7 +617,7 @@ export function DemoExperience({
                             "flex min-h-11 min-w-0 items-center gap-2 rounded-xl px-3 text-left text-xs font-bold transition focus-visible:outline-2 focus-visible:outline-[#ffd19b] " +
                             (v === view
                               ? "bg-gradient-to-r from-[#f2bd72] to-[#ef8531] text-[#281509]"
-                              : "text-[#c5b6a6] hover:bg-white/10 hover:text-white")
+                              : "text-[var(--hm-muted)] hover:bg-white/10 hover:text-white")
                           }
                         >
                           <Icon className="size-4 shrink-0" aria-hidden="true" />
@@ -627,7 +633,7 @@ export function DemoExperience({
         </aside>
         <main className="min-w-0 px-4 pt-8 pb-24 sm:px-8 sm:pt-12 xl:px-12">
           <div className="mx-auto max-w-6xl">
-            <div className="flex flex-wrap items-center gap-2 text-[11px] font-black tracking-widest text-[#ffbf78] uppercase">
+            <div className="hm-kicker hm-page-eyebrow flex flex-wrap items-center gap-2">
               <Zap className="size-4" /> Full product preview{" "}
               <span className="text-[#796e67]">/</span> {role}{" "}
               <span className="text-[#796e67]">/</span>{" "}
@@ -635,21 +641,14 @@ export function DemoExperience({
             </div>
             <div className="mt-5 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
               <div>
-                <h1 className="hm-display max-w-3xl text-4xl sm:text-6xl">
-                  {hero[view][0]}
-                </h1>
-                <p className="hm-small mt-4 max-w-2xl sm:text-base">
-                  {hero[view][1]}
-                </p>
+                <h1 className="hm-display max-w-3xl text-4xl sm:text-6xl">{hero[view][0]}</h1>
+                <p className="hm-small mt-4 max-w-2xl sm:text-base">{hero[view][1]}</p>
               </div>
-              <span className="inline-flex items-center gap-2 self-start rounded-2xl border border-[#f4b977]/25 bg-[#241b16] px-4 py-3 text-xs text-[#f3c997]">
+              <span className="hm-ops-pill self-start">
                 <Eye className="size-4" /> Browser & AI-ready preview
               </span>
             </div>
-            <div
-              role="note"
-              className="mt-8 flex flex-wrap items-center gap-3 rounded-2xl border border-[#ffc581]/25 bg-[#231a14] px-5 py-4 text-xs leading-6 text-[#e9c8a4]"
-            >
+            <div role="note" className="hm-ops-safety mt-8 text-xs">
               <ShieldCheck className="size-5 shrink-0 text-[#f5bd7d]" />
               <p className="min-w-0 flex-1">
                 All names, clubs, currency amounts and achievements on this page are fictional.
@@ -671,15 +670,21 @@ export function DemoExperience({
               {view === "overview" && (
                 <>
                   <section className="hm-demo-hero p-7 sm:p-10">
-                    <ThemeArtwork pair={heroForVertical(presetVertical) ?? HM_MEDIA.illustrations.challengeLandscape} className="hm-gallery-photo" />
-                    <ThemeArtwork pair={HM_MEDIA.illustrations.heroFlow} className="hm-gallery-art" />
+                    <ThemeArtwork
+                      pair={
+                        heroForVertical(presetVertical) ?? HM_MEDIA.illustrations.challengeLandscape
+                      }
+                      className="hm-gallery-photo"
+                    />
+                    <ThemeArtwork
+                      pair={HM_MEDIA.illustrations.heroFlow}
+                      className="hm-gallery-art"
+                    />
                     <div className="relative">
                       <DemoPill emphasis>
                         <Flame className="mr-1 size-3" /> CLUBKEEP BUSINESS
                       </DemoPill>
-                      <h2 className="mt-5 hm-display text-3xl sm:text-5xl">
-                        {data.clubName}
-                      </h2>
+                      <h2 className="hm-display mt-5 text-3xl sm:text-5xl">{data.clubName}</h2>
                       <p className="mt-3 text-sm text-[#f5dcc4]">
                         {data.city} · {data.vertical.toLowerCase()} · club owner&apos;s workspace
                       </p>
@@ -707,7 +712,10 @@ export function DemoExperience({
                           <IdCard className="size-4" /> Switch to member view
                         </button>
                       </div>
-                      <p className="mt-5 text-[11px] text-[#f9e6d5]">Editorial model photography · Fictional ${presetVertical.toLowerCase()} club, not a real customer.</p>
+                      <p className="mt-5 text-[11px] text-[#f9e6d5]">
+                        Editorial model photography · Fictional {presetVertical.toLowerCase()} club,
+                        not a real customer.
+                      </p>
                     </div>
                   </section>
                   <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
@@ -738,7 +746,7 @@ export function DemoExperience({
                           <button
                             key={v}
                             onClick={() => jump(v)}
-                            className="flex min-h-12 w-full items-center justify-between rounded-xl border border-white/10 px-4 text-left text-sm font-bold text-[#efd2b4] hover:border-[#f4bb79]/50"
+                            className="flex min-h-12 w-full items-center justify-between rounded-xl border border-[var(--hm-line)] px-4 text-left text-sm font-bold text-[#efd2b4] hover:border-[#f4bb79]/50"
                           >
                             {label}
                             <ChevronRight className="size-4" />
@@ -815,7 +823,7 @@ export function DemoExperience({
                           onChange={(e) => setCityDraft(e.target.value)}
                         />
                       </label>
-                      <p className="text-sm leading-7 text-[#b8a798]">
+                      <p className="text-sm leading-7 text-[var(--hm-muted)]">
                         4 · Branding can be configured later. 5 · The actual product requires a
                         membership plan and owner review before launching the club.
                       </p>
@@ -1339,8 +1347,21 @@ export function DemoExperience({
                         </DemoPill>
                       }
                     >
+                      <div className="hm-member-award mb-4">
+                        <AchievementArt name="achievement-medal" size={64} />
+                        <div>
+                          <p className="font-semibold">Fictional challenge reward</p>
+                          <p className="hm-small mt-1">
+                            {c.joined && c.progress >= c.goal
+                              ? "Earned in this demo"
+                              : c.joined
+                                ? "In progress in this demo"
+                                : "Locked until joined"}
+                          </p>
+                        </div>
+                      </div>
                       <div className="flex items-end justify-between">
-                        <p className="text-4xl font-black text-[#ffcd87] tabular-nums">
+                        <p className="text-4xl font-black text-[var(--hm-terracotta)] tabular-nums">
                           {c.joined ? c.progress : 0}
                           <small className="ml-2 text-base text-[#a89a8f]">/ {c.goal}</small>
                         </p>
@@ -1548,7 +1569,7 @@ export function DemoExperience({
                     </div>
                   </section>
                   <Panel title="Member-only access" icon={ShieldCheck}>
-                    <p className="text-sm leading-7 text-[#c6b3a2]">
+                    <p className="text-sm leading-7 text-[var(--hm-muted)]">
                       A digital membership card identifies you; it is not a permanent authentication
                       or admission QR. For entry, open the separately generated, short-lived
                       rotating pass in a real authenticated member session.
@@ -1577,7 +1598,7 @@ export function DemoExperience({
                               : p.method + " · externally recorded"
                           }
                           trailing={
-                            <span className="font-black text-[#ffce8e]">
+                            <span className="font-black text-[var(--hm-terracotta)]">
                               {demoCurrency(p.amount)}
                             </span>
                           }
@@ -1614,7 +1635,7 @@ export function DemoExperience({
                     </div>
                   </Panel>
                   <Panel title="Private member renewal" icon={CalendarClock}>
-                    <p className="text-sm leading-7 text-[#c8b4a3]">
+                    <p className="text-sm leading-7 text-[var(--hm-muted)]">
                       Request a renewal. Your club owner can resolve it without taking money through
                       ClubKeep.
                     </p>
@@ -1745,7 +1766,7 @@ export function DemoExperience({
                     </div>
                   </Panel>
                   <Panel title="Publication, not automatic exposure" icon={Eye}>
-                    <p className="text-sm leading-7 text-[#c8b5a4]">
+                    <p className="text-sm leading-7 text-[var(--hm-muted)]">
                       ClubKeep only lists clubs after owners submit public profiles and platform
                       moderation approves them. Member rosters, payment ledgers and private
                       performance rankings are never part of the public directory.
@@ -1782,7 +1803,7 @@ export function DemoExperience({
                       <DemoRow
                         title="Session protection"
                         subtitle="Server-verified sessions, exact-origin POST and abuse limiting"
-                        trailing={<ShieldCheck className="size-5 text-[#ffc387]" />}
+                        trailing={<ShieldCheck className="size-5 text-[var(--hm-terracotta)]" />}
                       />
                     </div>
                     <button
@@ -1801,7 +1822,7 @@ export function DemoExperience({
                     </button>
                   </Panel>
                   <Panel title="Protected live account" icon={ShieldCheck}>
-                    <p className="text-sm leading-7 text-[#c6b4a4]">
+                    <p className="text-sm leading-7 text-[var(--hm-muted)]">
                       Real passkey enrollment requires authenticated browser/device WebAuthn and
                       configured providers. This demonstration does not collect a password, create a
                       credential, call an authentication endpoint or replace session safeguards.
@@ -1847,7 +1868,7 @@ export function DemoExperience({
                     </div>
                   </Panel>
                   <Panel title="Platform vs club roles" icon={Crown}>
-                    <p className="text-sm leading-7 text-[#cbb5a3]">
+                    <p className="text-sm leading-7 text-[var(--hm-muted)]">
                       Global platform admins moderate submitted public content. They do not gain
                       access to all clubs&apos; members, finances or private athlete data. Use the
                       demo role switcher to preview separate authorized journeys safely.
@@ -1862,14 +1883,14 @@ export function DemoExperience({
                 </div>
               )}
             </div>
-            <footer className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 py-7 text-xs text-[#a6988a]">
+            <footer className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--hm-line)] py-7 text-xs text-[var(--hm-muted)]">
               <p>
                 ClubKeep · Safe, fictional, resettable preview for UI reviews and customer
                 discovery.
               </p>
               <Link
                 href="/home"
-                className="inline-flex items-center gap-2 font-bold text-[#ffc384]"
+                className="inline-flex items-center gap-2 font-bold text-[var(--hm-terracotta)]"
               >
                 Your actual workspace <ArrowRight className="size-4" />
               </Link>

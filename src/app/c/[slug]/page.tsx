@@ -73,17 +73,20 @@ async function ClubPublicContent({ params }: { params: Promise<{ slug: string }>
     <main className="hm-app hm-public">
       <div className="hm-public-container">
         <header className="hm-public-header">
-          <Link
-            href="/discover/clubs"
-            className="hm-button hm-button-secondary"
-          >
+          <Link href="/discover/clubs" className="hm-button hm-button-secondary">
             <ArrowLeft className="size-4" />
             Explore clubs
           </Link>
-          <div className="flex items-center gap-3"><ClubKeepBrand /><ClubThemeToggle /></div>
+          <div className="flex items-center gap-3">
+            <ClubKeepBrand />
+            <ClubThemeToggle />
+          </div>
         </header>
         <div className="hm-public-hero mt-9 grid min-h-[235px] place-items-center">
-          <ThemeArtwork pair={HM_MEDIA.illustrations.challengeLandscape} className="hm-gallery-art" />
+          <ThemeArtwork
+            pair={HM_MEDIA.illustrations.challengeLandscape}
+            className="hm-gallery-art"
+          />
           <span className="relative flex flex-col items-center gap-4">
             <Globe2 className="size-14 text-[var(--hm-sage-deep)]" aria-hidden="true" />
             <span className="hm-kicker hm-muted">ClubKeep public profile · Brand illustration</span>
@@ -95,9 +98,7 @@ async function ClubPublicContent({ params }: { params: Promise<{ slug: string }>
           </p>
           <h1 className="hm-display mt-3 text-4xl sm:text-6xl">{club.name}</h1>
           <p className="mt-5 text-xl leading-8 text-[var(--hm-cocoa)]">{p.tagline}</p>
-          <p className="hm-muted mt-6 text-base leading-8 whitespace-pre-wrap">
-            {p.description}
-          </p>
+          <p className="hm-muted mt-6 text-base leading-8 whitespace-pre-wrap">{p.description}</p>
           <div className="hm-muted mt-8 flex flex-wrap items-center gap-4 border-t border-[var(--hm-line)] pt-7 text-sm">
             <span className="inline-flex items-center gap-2">
               <MapPin className="size-4" />

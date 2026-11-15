@@ -19,7 +19,9 @@ export default function PerformancePage(props: Props) {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-[#101012] p-8 text-[#f2c795]">Loading your arena…</main>
+        <main className="min-h-screen bg-[var(--hm-surface)] p-8 text-[#f2c795]">
+          Loading your arena…
+        </main>
       }
     >
       <PerformanceContent {...props} />
@@ -89,7 +91,7 @@ async function PerformanceContent({ params }: Props) {
           <h2 className="relative mt-6 max-w-md text-3xl font-black tracking-tight text-white sm:text-5xl">
             {current?.name ?? "Your next season starts here."}
           </h2>
-          <p className="relative mt-4 max-w-md text-sm leading-7 text-[#d7bca8]">
+          <p className="relative mt-4 max-w-md text-sm leading-7 text-[var(--hm-muted)]">
             {current
               ? current.metrics.length + " verified disciplines · Scores reviewed by your club."
               : "Your club hasn't started a competition season yet. Your attendance and membership remain unaffected."}
@@ -112,10 +114,10 @@ async function PerformanceContent({ params }: Props) {
         {member ? (
           <RankingConsentControl clubId={clubId} initial={consent?.enabled ?? false} />
         ) : (
-          <section className="rounded-3xl border border-white/15 bg-[#19191e] p-7">
+          <section className="rounded-3xl border border-[var(--hm-line)] bg-[var(--hm-surface)] p-7">
             <ShieldCheck className="size-8 text-[#f3bd7b]" />
             <h2 className="mt-4 text-xl font-bold">Link your account to compete</h2>
-            <p className="mt-3 text-sm leading-7 text-[#bdad9e]">
+            <p className="mt-3 text-sm leading-7 text-[var(--hm-muted)]">
               Ask reception to link your verified member account. Names and scores are never matched
               by an unverified phone or email.
             </p>
@@ -125,32 +127,32 @@ async function PerformanceContent({ params }: Props) {
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
         <Link
           href={base + "/league"}
-          className="group rounded-3xl border border-white/10 bg-[#1b1b20] p-6 hover:border-[#ffbf77]/50"
+          className="group rounded-3xl border border-[var(--hm-line)] bg-[var(--hm-surface)] p-6 hover:border-[#ffbf77]/50"
         >
-          <Gauge className="size-8 text-[#ffc47a]" />
+          <Gauge className="size-8 text-[var(--hm-terracotta)]" />
           <h3 className="mt-5 text-xl font-black">Leaderboards</h3>
-          <p className="mt-2 text-sm leading-6 text-[#b6a599]">
+          <p className="mt-2 text-sm leading-6 text-[var(--hm-muted)]">
             Rankings based on club-approved performance, never self-reported claims.
           </p>
-          <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#ffc17b]">
+          <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[var(--hm-terracotta)]">
             View standings <ArrowUpRight className="size-4" />
           </span>
         </Link>
         <Link
           href={base + "/challenges"}
-          className="group rounded-3xl border border-white/10 bg-[#1b1b20] p-6 hover:border-[#ffbf77]/50"
+          className="group rounded-3xl border border-[var(--hm-line)] bg-[var(--hm-surface)] p-6 hover:border-[#ffbf77]/50"
         >
-          <Award className="size-8 text-[#ffc47a]" />
+          <Award className="size-8 text-[var(--hm-terracotta)]" />
           <h3 className="mt-5 text-xl font-black">Club challenges</h3>
-          <p className="mt-2 text-sm leading-6 text-[#b6a599]">
+          <p className="mt-2 text-sm leading-6 text-[var(--hm-muted)]">
             Small consistent wins add up. Join privately and earn milestone badges.
           </p>
-          <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#ffc17b]">
+          <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[var(--hm-terracotta)]">
             Explore goals <ArrowUpRight className="size-4" />
           </span>
         </Link>
-        <section className="rounded-3xl border border-white/10 bg-[#1b1b20] p-6">
-          <Sparkles className="size-8 text-[#ffc47a]" />
+        <section className="rounded-3xl border border-[var(--hm-line)] bg-[var(--hm-surface)] p-6">
+          <Sparkles className="size-8 text-[var(--hm-terracotta)]" />
           <h3 className="mt-5 text-xl font-black">Your submissions</h3>
           <p className="mt-3 text-5xl font-black text-white tabular-nums">
             {scores.length}
@@ -159,9 +161,9 @@ async function PerformanceContent({ params }: Props) {
           <p className="mt-2 text-xs text-[#b5a396]">Recent activity records</p>
         </section>
       </div>
-      <section className="mt-6 rounded-3xl border border-white/10 bg-[#19191e] p-6 sm:p-8">
+      <section className="mt-6 rounded-3xl border border-[var(--hm-line)] bg-[var(--hm-surface)] p-6 sm:p-8">
         <h2 className="flex items-center gap-2 text-xl font-black">
-          <Activity className="size-6 text-[#ffc17b]" /> Performance log
+          <Activity className="size-6 text-[var(--hm-terracotta)]" /> Performance log
         </h2>
         {!member ? (
           <p className="mt-5 text-sm text-[#baab9e]">
@@ -172,20 +174,20 @@ async function PerformanceContent({ params }: Props) {
             No scores submitted yet. Join your club&apos;s first season to get started.
           </p>
         ) : (
-          <ul className="mt-5 divide-y divide-white/10">
+          <ul className="mt-5 divide-y divide-[var(--hm-line)]">
             {scores.map((s) => (
               <li key={s.id} className="flex flex-wrap items-center justify-between gap-3 py-4">
                 <span>
                   <strong className="text-sm">{METRICS[s.seasonMetric.metric].label}</strong>
-                  <small className="mt-1 block text-xs text-[#9f9088]">
+                  <small className="mt-1 block text-xs text-[var(--hm-muted)]">
                     {s.submittedAt.toISOString().slice(0, 10)}
                   </small>
                 </span>
                 <span className="text-right">
-                  <strong className="font-black text-[#ffc17b] tabular-nums">
+                  <strong className="font-black text-[var(--hm-terracotta)] tabular-nums">
                     {s.value} {METRICS[s.seasonMetric.metric].unit}
                   </strong>
-                  <small className="mt-1 block text-xs text-[#b7a799]">
+                  <small className="mt-1 block text-xs text-[var(--hm-muted)]">
                     {s.status.toLowerCase()}
                   </small>
                 </span>

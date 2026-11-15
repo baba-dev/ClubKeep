@@ -11,7 +11,10 @@ export const achievementNames = [
 export type AchievementName = (typeof achievementNames)[number];
 export type AchievementTheme = "auto" | "light" | "dark";
 
-export interface AchievementArtProps extends Omit<HTMLAttributes<HTMLSpanElement>, "children" | "title"> {
+export interface AchievementArtProps extends Omit<
+  HTMLAttributes<HTMLSpanElement>,
+  "children" | "title"
+> {
   name: AchievementName;
   theme?: AchievementTheme;
   /** CSS length or pixel dimension, default 96. */
@@ -57,7 +60,14 @@ export function AchievementArt({
   return (
     <span
       {...rest}
-      className={`ck-achievement ck-achievement--${theme}${animated ? " ck-achievement--animated" : ""}${className ? ` ${className}` : ""}`}
+      className={[
+        "ck-achievement",
+        `ck-achievement--${theme}`,
+        ...(animated ? ["ck-achievement--animated"] : []),
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
       role={title ? "img" : undefined}
       aria-label={title || undefined}
       aria-hidden={title ? undefined : true}

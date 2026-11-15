@@ -78,14 +78,22 @@ test("ClubKeep brand files and gradient-safe achievement atlas are present", () 
     "brand/logos/clubkeep-mono-cocoa.svg",
     "brand/logos/clubkeep-mono-ivory.svg",
     "brand/icons/clubkeep-app-icon.svg",
-  ]) assert.match(readFileSync(asset(relative), "utf8"), /<svg[\s>]/);
+  ])
+    assert.match(readFileSync(asset(relative), "utf8"), /<svg[\s>]/);
   const sprite = readFileSync(asset("achievements/achievement-sprite.svg"), "utf8");
   const ids = [...sprite.matchAll(/\bid="([^"]+)"/g)].map((m) => m[1]);
   assert.equal(new Set(ids).size, ids.length, "Sprite gradient IDs must be unique");
-  for (const [, id] of sprite.matchAll(/url\(#([^)]+)\)/g)) assert.ok(ids.includes(id), `Missing sprite gradient: ${id}`);
-  assert.equal(existsSync(join(root, "achievements", "individual", "achievement-sprite.svg")), false);
+  for (const [, id] of sprite.matchAll(/url\(#([^)]+)\)/g))
+    assert.ok(ids.includes(id), `Missing sprite gradient: ${id}`);
+  assert.equal(
+    existsSync(join(root, "achievements", "individual", "achievement-sprite.svg")),
+    false
+  );
   for (const folder of ["branding", "decorations", "medals", "metrics", "models", "concepts"]) {
-    assert.equal(existsSync(join(process.cwd(), "src/components/human-motion", folder)), false,
-      `Public media accidentally uploaded as React source: ${folder}`);
+    assert.equal(
+      existsSync(join(process.cwd(), "src/components/human-motion", folder)),
+      false,
+      `Public media accidentally uploaded as React source: ${folder}`
+    );
   }
 });

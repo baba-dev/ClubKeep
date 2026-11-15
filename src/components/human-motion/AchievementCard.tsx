@@ -22,10 +22,9 @@ export function AchievementCard({
 }: AchievementCardProps) {
   return (
     <article
-      className={[
-        "ck-achievement-card",
-        ...(unlocked ? [] : ["ck-achievement-card--locked"]),
-      ].join(" ")}
+      className={["ck-achievement-card", ...(unlocked ? [] : ["ck-achievement-card--locked"])].join(
+        " "
+      )}
       aria-label={`${title} — ${unlocked ? "earned" : "not yet earned"}`}
     >
       <AchievementArt name={name} theme={theme} size={96} animated={animated && unlocked} />

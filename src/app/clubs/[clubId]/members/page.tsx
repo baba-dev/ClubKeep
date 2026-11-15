@@ -7,7 +7,11 @@ import { requireClubActive } from "@/lib/member-service";
 import { prisma } from "@/lib/prisma";
 import { statusForTerm } from "@/lib/membership-dates";
 import { BusinessShell } from "@/components/clubs/business-shell";
-import { OperationsBanner, OperationsStat, OperationsEmpty } from "@/components/human-motion/operations-ui";
+import {
+  OperationsBanner,
+  OperationsStat,
+  OperationsEmpty,
+} from "@/components/human-motion/operations-ui";
 
 export const metadata: Metadata = { title: "Members · ClubKeep", robots: { index: false } };
 type Filter = "all" | "active" | "expiring" | "expired" | "archived";
@@ -118,15 +122,27 @@ async function MembersContent({ params, searchParams }: Props) {
         title="Every name belongs to a story."
         description="An organized member roster, thoughtful follow-ups, and space to welcome new people."
         art="community"
-        action={{ href: `/clubs/${encodeURIComponent(clubId)}/members/new`, label: "Register member" }}
+        action={{
+          href: `/clubs/${encodeURIComponent(clubId)}/members/new`,
+          label: "Register member",
+        }}
         compact
       />
       <div className="hm-ops-stats">
         <OperationsStat icon={UsersRound} tone="sage" label="Active roster records" value={total} />
-        <OperationsStat icon={UserRoundCheck} tone="cocoa" label="Plan capacity" value={quota ?? "Unlimited"} detail={access.businessTier + " tier"} />
+        <OperationsStat
+          icon={UserRoundCheck}
+          tone="cocoa"
+          label="Plan capacity"
+          value={quota ?? "Unlimited"}
+          detail={access.businessTier + " tier"}
+        />
         <div className="hm-ops-stat flex flex-col justify-center gap-2">
           <p className="hm-kicker hm-page-eyebrow">Quick action</p>
-          <Link className="hm-button hm-button-primary" href={`/clubs/${encodeURIComponent(clubId)}/members/new`}>
+          <Link
+            className="hm-button hm-button-primary"
+            href={`/clubs/${encodeURIComponent(clubId)}/members/new`}
+          >
             <Plus className="size-4" aria-hidden="true" /> Register member
           </Link>
         </div>
@@ -147,10 +163,7 @@ async function MembersContent({ params, searchParams }: Props) {
               className="min-h-11 w-full rounded-xl border border-[#f6dc9b]/20 bg-[#0c0907] pr-4 pl-11 text-sm text-[#fbf1e6] outline-none focus:border-[#f0ad56]"
             />
           </label>
-          <button
-            type="submit"
-            className="hm-button hm-button-secondary"
-          >
+          <button type="submit" className="hm-button hm-button-secondary">
             Search
           </button>
         </form>
@@ -168,8 +181,15 @@ async function MembersContent({ params, searchParams }: Props) {
         </nav>
         <div className="mt-6 space-y-3">
           {rows.length === 0 ? (
-            <OperationsEmpty icon={UsersRound} title="No members in this view" detail="Try a different search or filter, or welcome your first member.">
-              <Link href={`/clubs/${encodeURIComponent(clubId)}/members/new`} className="hm-button hm-button-secondary">
+            <OperationsEmpty
+              icon={UsersRound}
+              title="No members in this view"
+              detail="Try a different search or filter, or welcome your first member."
+            >
+              <Link
+                href={`/clubs/${encodeURIComponent(clubId)}/members/new`}
+                className="hm-button hm-button-secondary"
+              >
                 Register a member <ArrowRight className="size-4" aria-hidden="true" />
               </Link>
             </OperationsEmpty>

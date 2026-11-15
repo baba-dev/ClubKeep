@@ -28,7 +28,7 @@ export default function AttendanceHistoryPage(props: Props) {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-[#0b0705] p-8 text-[#fbf1e6]">
+        <main className="min-h-screen bg-[var(--hm-surface)] p-8 text-[var(--hm-text)]">
           Opening attendance history…
         </main>
       }
@@ -117,40 +117,40 @@ async function HistoryContent({ params, searchParams }: Props) {
     >
       <Link
         href={`/clubs/${clubId}/attendance`}
-        className="mt-6 inline-flex min-h-10 items-center gap-2 text-sm text-[#f3bd79] hover:underline"
+        className="mt-6 inline-flex min-h-10 items-center gap-2 text-sm text-[var(--hm-terracotta)] hover:underline"
       >
         <ArrowLeft className="size-4" />
         Back to check-in
       </Link>
       <form
         method="get"
-        className="mt-6 grid gap-3 rounded-3xl border border-[#f6dc9b]/15 bg-[#1c130d] p-5 sm:grid-cols-[1fr_1fr_1fr_auto] sm:items-end sm:p-7"
+        className="mt-6 grid gap-3 rounded-3xl border border-[var(--hm-line)]/15 bg-[var(--hm-surface)] p-5 sm:grid-cols-[1fr_1fr_1fr_auto] sm:items-end sm:p-7"
       >
         {memberId && <input type="hidden" name="memberId" value={memberId} />}
-        <label className="text-xs font-semibold text-[#e9cba6]">
+        <label className="text-xs font-semibold text-[var(--hm-terracotta)]">
           From date
           <input
             name="from"
             type="date"
             defaultValue={from}
-            className="mt-2 min-h-11 w-full rounded-xl border border-[#f6dc9b]/20 bg-[#0c0806] px-3 text-sm text-[#f6e6d5] focus:border-[#ffc787]"
+            className="mt-2 min-h-11 w-full rounded-xl border border-[var(--hm-line)]/20 bg-[var(--hm-surface)] px-3 text-sm text-[var(--hm-text)] focus:border-[var(--hm-line)]"
           />
         </label>
-        <label className="text-xs font-semibold text-[#e9cba6]">
+        <label className="text-xs font-semibold text-[var(--hm-terracotta)]">
           To date
           <input
             name="to"
             type="date"
             defaultValue={to}
-            className="mt-2 min-h-11 w-full rounded-xl border border-[#f6dc9b]/20 bg-[#0c0806] px-3 text-sm text-[#f6e6d5] focus:border-[#ffc787]"
+            className="mt-2 min-h-11 w-full rounded-xl border border-[var(--hm-line)]/20 bg-[var(--hm-surface)] px-3 text-sm text-[var(--hm-text)] focus:border-[var(--hm-line)]"
           />
         </label>
-        <label className="text-xs font-semibold text-[#e9cba6]">
+        <label className="text-xs font-semibold text-[var(--hm-terracotta)]">
           Method
           <select
             name="method"
             defaultValue={method ?? ""}
-            className="mt-2 min-h-11 w-full rounded-xl border border-[#f6dc9b]/20 bg-[#0c0806] px-3 text-sm text-[#f6e6d5] focus:border-[#ffc787]"
+            className="mt-2 min-h-11 w-full rounded-xl border border-[var(--hm-line)]/20 bg-[var(--hm-surface)] px-3 text-sm text-[var(--hm-text)] focus:border-[var(--hm-line)]"
           >
             <option value="">All arrivals</option>
             <option value="QR">QR scan</option>
@@ -163,7 +163,7 @@ async function HistoryContent({ params, searchParams }: Props) {
         </button>
       </form>
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-        <p className="flex items-center gap-2 text-xs text-[#bda58b]">
+        <p className="flex items-center gap-2 text-xs text-[var(--hm-muted)]">
           <CalendarDays className="size-4" />
           Times shown in {club.timeZone}. {page.length} entries on this page.
         </p>
@@ -172,33 +172,35 @@ async function HistoryContent({ params, searchParams }: Props) {
             {canExport ? (
               <Link
                 href={`/api/clubs/${clubId}/attendance/export?from=${from}&to=${to}`}
-                className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#f6dc9b]/25 px-4 text-sm font-semibold text-[#f4ca91] hover:bg-[#302016]"
+                className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--hm-line)]/25 px-4 text-sm font-semibold text-[var(--hm-terracotta)] hover:bg-[var(--hm-raised)]"
               >
                 <Download className="size-4" />
                 Export CSV
               </Link>
             ) : (
-              <p className="text-xs text-[#b69a80]">Select up to 31 days to enable CSV export</p>
+              <p className="text-xs text-[var(--hm-muted)]">
+                Select up to 31 days to enable CSV export
+              </p>
             )}
           </div>
         )}
       </div>
-      <section className="mt-4 overflow-hidden rounded-3xl border border-[#f6dc9b]/15 bg-[#17100b]">
+      <section className="mt-4 overflow-hidden rounded-3xl border border-[var(--hm-line)]/15 bg-[var(--hm-surface)]">
         {page.length === 0 ? (
           <div className="p-12 text-center">
-            <History className="mx-auto size-9 text-[#c9a06b]" />
+            <History className="mx-auto size-9 text-[var(--hm-muted)]" />
             <h2 className="mt-4 text-xl font-semibold">No visits match these filters</h2>
-            <p className="mt-2 text-sm text-[#a9907a]">Try a different date or method.</p>
+            <p className="mt-2 text-sm text-[var(--hm-muted)]">Try a different date or method.</p>
           </div>
         ) : (
           <div className="divide-y divide-[#f6dc9b]/10">
             {page.map((entry) => (
               <article
                 key={entry.id}
-                className="flex flex-wrap items-center justify-between gap-4 px-5 py-5 hover:bg-[#25180f] sm:px-7"
+                className="flex flex-wrap items-center justify-between gap-4 px-5 py-5 hover:bg-[var(--hm-raised)] sm:px-7"
               >
                 <div className="flex min-w-0 items-center gap-4">
-                  <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[#f26b00]/10 text-[#ffbf7a]">
+                  <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[#f26b00]/10 text-[var(--hm-terracotta)]">
                     {entry.method === "QR" ? (
                       <ScanLine className="size-5" />
                     ) : (
@@ -208,11 +210,11 @@ async function HistoryContent({ params, searchParams }: Props) {
                   <div className="min-w-0">
                     <Link
                       href={`/clubs/${clubId}/members/${entry.memberRecord.id}`}
-                      className="block truncate font-semibold hover:text-[#ffbe79] hover:underline"
+                      className="block truncate font-semibold hover:text-[var(--hm-terracotta)] hover:underline"
                     >
                       {entry.memberRecord.displayName}
                     </Link>
-                    <p className="mt-1 text-xs text-[#ad927d]">
+                    <p className="mt-1 text-xs text-[var(--hm-muted)]">
                       #{String(entry.memberRecord.memberNumber).padStart(4, "0")} ·{" "}
                       {entry.method === "QR" ? "QR code" : "Manual"} · Recorded by{" "}
                       {entry.checkedInBy.name}
@@ -220,8 +222,10 @@ async function HistoryContent({ params, searchParams }: Props) {
                   </div>
                 </div>
                 <div className="min-w-0 text-right">
-                  <p className="text-sm font-semibold text-[#edc08c]">{entry.localDate}</p>
-                  <p className="mt-1 text-xs text-[#ad957e]">
+                  <p className="text-sm font-semibold text-[var(--hm-terracotta)]">
+                    {entry.localDate}
+                  </p>
+                  <p className="mt-1 text-xs text-[var(--hm-muted)]">
                     {new Intl.DateTimeFormat("en", {
                       timeZone: club.timeZone,
                       hour: "2-digit",
@@ -240,14 +244,14 @@ async function HistoryContent({ params, searchParams }: Props) {
         )}
       </section>
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-        <p className="flex items-center gap-2 text-xs text-[#b99b82]">
+        <p className="flex items-center gap-2 text-xs text-[var(--hm-muted)]">
           <ShieldCheck className="size-4" />
           Attendance records are club-private and do not include Personal health data.
         </p>
         {hasNext && (
           <Link
             href={`? ${nextQuery.toString()}`.replace("? ", "?")}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#d8a35e]/30 px-5 text-sm font-semibold text-[#ffcb91] hover:bg-[#2c1c13]"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--hm-line)]/30 px-5 text-sm font-semibold text-[var(--hm-terracotta)] hover:bg-[var(--hm-raised)]"
           >
             Older visits <ArrowRight className="size-4" />
           </Link>

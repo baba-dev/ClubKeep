@@ -73,8 +73,12 @@ export function OperationsStat({
 }) {
   return (
     <div className={`hm-ops-stat hm-ops-stat--${tone}`}>
-      <span className="hm-ops-stat-icon"><Icon aria-hidden="true" className="size-5" /></span>
-      <p className="hm-ops-stat-value" aria-label={label + ": " + value}>{value}</p>
+      <span className="hm-ops-stat-icon">
+        <Icon aria-hidden="true" className="size-5" />
+      </span>
+      <p className="hm-ops-stat-value" aria-label={label + ": " + value}>
+        {value}
+      </p>
       <p className="hm-ops-stat-label">{label}</p>
       {detail && <p className="hm-small mt-1">{detail}</p>}
       {children}
@@ -95,8 +99,15 @@ export function OperationsEmpty({
 }) {
   return (
     <div className="hm-ops-empty">
-      <ThemeArtwork pair={HM_MEDIA.illustrations.botanicalCorner} className="hm-ops-empty-art hm-gallery-art" />
-      <Icon className="relative size-8" style={{ color: "var(--hm-sage-deep)" }} aria-hidden="true" />
+      <ThemeArtwork
+        pair={HM_MEDIA.illustrations.botanicalCorner}
+        className="hm-ops-empty-art hm-gallery-art"
+      />
+      <Icon
+        className="relative size-8"
+        style={{ color: "var(--hm-sage-deep)" }}
+        aria-hidden="true"
+      />
       <h3 className="relative mt-3 font-semibold">{title}</h3>
       <p className="hm-small relative mt-2 max-w-lg">{detail}</p>
       {children && <div className="relative mt-5">{children}</div>}

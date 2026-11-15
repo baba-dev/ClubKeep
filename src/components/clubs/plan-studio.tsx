@@ -137,7 +137,7 @@ export function PlanStudio({
   const activePlans = plans.filter((plan) => !plan.archivedAt);
   const archivedPlans = plans.filter((plan) => Boolean(plan.archivedAt));
   return (
-    <div className="mt-6 hm-ops-form">
+    <div className="hm-ops-form mt-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <p className="text-sm text-[var(--hm-muted)]">
           {plans.filter((plan) => !plan.archivedAt).length} available plans · {plans.length} total
@@ -174,10 +174,7 @@ export function PlanStudio({
         </p>
       )}
       {open && (
-        <form
-          onSubmit={save}
-          className="hm-ops-section hm-ops-form mt-6"
-        >
+        <form onSubmit={save} className="hm-ops-section hm-ops-form mt-6">
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-xs font-semibold tracking-widest text-[var(--hm-terracotta)] uppercase">
@@ -191,7 +188,7 @@ export function PlanStudio({
               type="button"
               onClick={reset}
               aria-label="Close plan editor"
-              className="flex size-10 items-center justify-center rounded-xl border border-[var(--hm-line)] text-[#debea1] hover:bg-[#49301f]"
+              className="flex size-10 items-center justify-center rounded-xl border border-[var(--hm-line)] text-[var(--hm-terracotta)] hover:bg-[#49301f]"
             >
               <X className="size-4" />
             </button>
@@ -301,66 +298,68 @@ export function PlanStudio({
       )}
       <section className="mt-8" aria-labelledby="hm-current-plans">
         <div className="flex items-center justify-between gap-3">
-          <h2 id="hm-current-plans" className="hm-section-title">Available plans</h2>
+          <h2 id="hm-current-plans" className="hm-section-title">
+            Available plans
+          </h2>
           <span className="hm-ops-pill">{activePlans.length} current</span>
         </div>
-      <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {activePlans.length === 0 && (
-          <div className="hm-ops-empty md:col-span-2">
-            <Layers3 className="size-8 text-[#ecb873]" />
-            <h3 className="mt-5 text-xl font-semibold">Your first plan starts here</h3>
-            <p className="mt-3 text-sm text-[var(--hm-muted)]">
-              Set up monthly, quarterly or annual memberships with flexible durations. Your price is
-              always your decision.
-            </p>
-          </div>
-        )}
-        {activePlans.map((plan) => (
-          <article
-            key={plan.id}
-            className="hm-ops-plan-card"
-          >
-            <div className="absolute -top-14 -right-14 size-36 rounded-full bg-[#f26b00]/10 blur-3xl" />
-            <p className="text-xs font-semibold tracking-[.18em] text-[var(--hm-terracotta)] uppercase">
-              {plan.archivedAt
-                ? "Archived plan"
-                : `${plan.durationCount} ${plan.durationUnit.toLowerCase()}`}
-            </p>
-            <h3 className="relative mt-4 text-xl font-semibold">{plan.name}</h3>
-            <p className="hm-ops-plan-price mt-3">
-              {formatMinorMoney(plan.priceMinor, plan.currency)}
-            </p>
-            <p className="mt-3 flex-1 text-sm leading-6 text-[var(--hm-muted)]">
-              {plan.description || "A flexible membership for your club."}
-            </p>
-            {canManage && !plan.archivedAt && (
-              <div className="mt-5 flex flex-wrap gap-2 border-t border-[var(--hm-line)] pt-4">
-                <button
-                  type="button"
-                  onClick={() => edit(plan)}
-                  className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[var(--hm-line)] px-4 text-xs text-[#f5c989] hover:bg-[var(--hm-raised)]"
-                >
-                  <Pencil className="size-3.5" />
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  disabled={busy}
-                  onClick={() => void archive(plan.id)}
-                  className="inline-flex min-h-10 items-center gap-2 rounded-xl px-4 text-xs text-[#dfb6a4] hover:bg-[var(--hm-raised)] disabled:opacity-50"
-                >
-                  <Archive className="size-3.5" />
-                  Archive
-                </button>
-              </div>
-            )}
-          </article>
-        ))}
-      </div>      </section>
+        <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {activePlans.length === 0 && (
+            <div className="hm-ops-empty md:col-span-2">
+              <Layers3 className="size-8 text-[var(--hm-terracotta)]" />
+              <h3 className="mt-5 text-xl font-semibold">Your first plan starts here</h3>
+              <p className="mt-3 text-sm text-[var(--hm-muted)]">
+                Set up monthly, quarterly or annual memberships with flexible durations. Your price
+                is always your decision.
+              </p>
+            </div>
+          )}
+          {activePlans.map((plan) => (
+            <article key={plan.id} className="hm-ops-plan-card">
+              <div className="absolute -top-14 -right-14 size-36 rounded-full bg-[var(--hm-terracotta)]/10 blur-3xl" />
+              <p className="text-xs font-semibold tracking-[.18em] text-[var(--hm-terracotta)] uppercase">
+                {plan.archivedAt
+                  ? "Archived plan"
+                  : `${plan.durationCount} ${plan.durationUnit.toLowerCase()}`}
+              </p>
+              <h3 className="relative mt-4 text-xl font-semibold">{plan.name}</h3>
+              <p className="hm-ops-plan-price mt-3">
+                {formatMinorMoney(plan.priceMinor, plan.currency)}
+              </p>
+              <p className="mt-3 flex-1 text-sm leading-6 text-[var(--hm-muted)]">
+                {plan.description || "A flexible membership for your club."}
+              </p>
+              {canManage && !plan.archivedAt && (
+                <div className="mt-5 flex flex-wrap gap-2 border-t border-[var(--hm-line)] pt-4">
+                  <button
+                    type="button"
+                    onClick={() => edit(plan)}
+                    className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[var(--hm-line)] px-4 text-xs text-[var(--hm-terracotta)] hover:bg-[var(--hm-raised)]"
+                  >
+                    <Pencil className="size-3.5" />
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void archive(plan.id)}
+                    className="inline-flex min-h-10 items-center gap-2 rounded-xl px-4 text-xs text-[var(--hm-terracotta)] hover:bg-[var(--hm-raised)] disabled:opacity-50"
+                  >
+                    <Archive className="size-3.5" />
+                    Archive
+                  </button>
+                </div>
+              )}
+            </article>
+          ))}
+        </div>{" "}
+      </section>
       {archivedPlans.length > 0 && (
         <details className="hm-ops-section mt-6">
           <summary className="flex cursor-pointer items-center justify-between gap-3">
-            <span className="font-semibold">Archived plans <span className="hm-ops-pill ml-2">{archivedPlans.length}</span></span>
+            <span className="font-semibold">
+              Archived plans <span className="hm-ops-pill ml-2">{archivedPlans.length}</span>
+            </span>
             <span className="hm-small">Show historical offers</span>
           </summary>
           <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -368,15 +367,20 @@ export function PlanStudio({
               <article key={plan.id} className="hm-ops-plan-card hm-ops-plan-card--archived">
                 <span className="hm-ops-pill">Archived</span>
                 <h3 className="mt-5 text-lg font-semibold">{plan.name}</h3>
-                <p className="hm-ops-plan-price mt-4">{formatMinorMoney(plan.priceMinor, plan.currency)}</p>
-                <p className="hm-small mt-3">{plan.durationCount} {plan.durationUnit.toLowerCase()}</p>
-                <p className="hm-small mt-3">{plan.description || "A previous membership offer."}</p>
+                <p className="hm-ops-plan-price mt-4">
+                  {formatMinorMoney(plan.priceMinor, plan.currency)}
+                </p>
+                <p className="hm-small mt-3">
+                  {plan.durationCount} {plan.durationUnit.toLowerCase()}
+                </p>
+                <p className="hm-small mt-3">
+                  {plan.description || "A previous membership offer."}
+                </p>
               </article>
             ))}
           </div>
         </details>
       )}
-
     </div>
   );
 }

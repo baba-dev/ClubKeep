@@ -52,20 +52,20 @@ export function AttendanceTimeZoneSetting({
     }
   }
   return (
-    <details className="mt-7 rounded-2xl border border-[#f6dc9b]/15 bg-[#21160f] p-5">
-      <summary className="flex cursor-pointer list-none items-center gap-3 font-semibold text-[#f5cd99] [&::-webkit-details-marker]:hidden">
+    <details className="mt-7 rounded-2xl border border-[var(--hm-line)]/15 bg-[var(--hm-raised)] p-5">
+      <summary className="flex cursor-pointer list-none items-center gap-3 font-semibold text-[var(--hm-terracotta)] [&::-webkit-details-marker]:hidden">
         <Settings2 className="size-5" />
         Attendance time zone{" "}
-        <span className="ml-auto text-xs font-normal text-[#ac937b]">{timeZone}</span>
+        <span className="ml-auto text-xs font-normal text-[var(--hm-muted)]">{timeZone}</span>
       </summary>
       <form
         onSubmit={submit}
-        className="mt-5 grid gap-3 border-t border-[#f6dc9b]/10 pt-5 sm:grid-cols-[1fr_auto] sm:items-end"
+        className="mt-5 grid gap-3 border-t border-[var(--hm-line)]/10 pt-5 sm:grid-cols-[1fr_auto] sm:items-end"
       >
-        <label className="text-xs font-semibold text-[#e5c49e]">
+        <label className="text-xs font-semibold text-[var(--hm-terracotta)]">
           IANA time zone
-          <span className="mt-2 flex items-center gap-3 rounded-xl border border-[#f6dc9b]/20 bg-[#100b08] px-4">
-            <Globe2 className="size-4 text-[#ecba81]" />
+          <span className="mt-2 flex items-center gap-3 rounded-xl border border-[var(--hm-line)]/20 bg-[var(--hm-surface)] px-4">
+            <Globe2 className="size-4 text-[var(--hm-terracotta)]" />
             <input
               list="b2-club-zones"
               required
@@ -90,12 +90,12 @@ export function AttendanceTimeZoneSetting({
           {saving ? "Saving…" : "Save zone"}
         </button>
       </form>
-      <p className="mt-4 text-xs leading-6 text-[#aa927c]">
+      <p className="mt-4 text-xs leading-6 text-[var(--hm-muted)]">
         Changes affect new arrivals only. Historical club-day snapshots remain unchanged. The
         underlying B1 membership term validity still uses its existing UTC date contract.
       </p>
       {notice && (
-        <p role="status" className="mt-3 text-sm text-[#f1c59d]">
+        <p role="status" className="mt-3 text-sm text-[var(--hm-terracotta)]">
           {notice}
         </p>
       )}

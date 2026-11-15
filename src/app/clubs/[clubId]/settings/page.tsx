@@ -7,6 +7,10 @@ import { requireClubRole } from "@/lib/club-access";
 import { prisma } from "@/lib/prisma";
 import { BusinessShell } from "@/components/clubs/business-shell";
 import { ClubSettingsEditor } from "@/components/clubs/club-settings-editor";
+import { ShieldCheck, Globe2 } from "lucide-react";
+import { OperationsBanner, OperationsSafetyNote } from "@/components/human-motion/operations-ui";
+import { ThemeArtwork } from "@/components/human-motion/media-components";
+import { HM_MEDIA, heroForVertical } from "@/components/human-motion/media";
 export const metadata: Metadata = { title: "Club settings · ClubKeep", robots: { index: false } };
 export default function ClubSettings({ params }: { params: Promise<{ clubId: string }> }) {
   return (
@@ -37,6 +41,7 @@ async function ClubSettingsContent({ params }: { params: Promise<{ clubId: strin
       vertical: true,
       timeZone: true,
       setupProgress: true,
+      publicProfile: { select: { status: true } },
     },
   });
   if (!club) notFound();
@@ -44,12 +49,19 @@ async function ClubSettingsContent({ params }: { params: Promise<{ clubId: strin
     <BusinessShell
       clubId={clubId}
       clubName={club.name}
-      active="overview"
+      active="settings"
       eyebrow="Club settings"
       title="Everything in its place."
       description="Review your club identity and take control of what appears publicly."
     >
-      <div className="mt-8 grid gap-4 md:grid-cols-2">
+      <OperationsBanner
+        eyebrow="Home for your community"
+        title="Your club, your character."
+        description="Fine-tune your identity and manage what visitors can see—without changing the records that matter."
+        art="botanical"
+        compact
+      />
+      <div className="mt-6 grid gap-5 xl:grid-cols-[1.05fr_.95fr]">
         <ClubSettingsEditor
           clubId={clubId}
           initial={{
@@ -58,23 +70,68 @@ async function ClubSettingsContent({ params }: { params: Promise<{ clubId: strin
             city: club.setupProgress?.city ?? "",
           }}
         />
-        <section className="rounded-3xl border border-[#f6dc9b]/20 bg-[#1c130d] p-7">
-          <h2 className="text-xl font-semibold">Public presence</h2>
-          <p className="mt-3 text-sm leading-7 text-[#bca28b]">
-            Your listing is private unless you submit it and the platform approves it.
-          </p>
-          <Link
-            href={"/clubs/" + clubId + "/settings/public-profile"}
-            className="mt-6 inline-flex min-h-12 items-center rounded-xl bg-gradient-to-r from-[#efc279] to-[#ee781e] px-5 font-semibold text-[#291507]"
-          >
-            Manage public profile
-          </Link>
-        </section>
+        <div className="space-y-5">
+          <section className="hm-ops-section mt-0" aria-label="Club identity preview">
+            <p className="hm-kicker hm-page-eyebrow">Visual identity preview</p>
+            <div className="hm-ops-settings-preview mt-4">
+              <div
+                className="relative h-36 overflow-hidden rounded-xl"
+                style={{ background: "var(--hm-raised)" }}
+              >
+                <ThemeArtwork
+                  pair={heroForVertical(club.vertical) ?? HM_MEDIA.illustrations.challengeLandscape}
+                  className="hm-gallery-photo"
+                />
+              </div>
+              <h2 className="hm-display mt-4 text-2xl">{club.name}</h2>
+              <p className="hm-small mt-2">
+                {club.vertical.toLowerCase().replaceAll("_", " ")} ·{" "}
+                {club.setupProgress?.city || "Your city"}
+              </p>
+              <p className="hm-small mt-2">
+                Editorial imagery preview, not an uploaded public club photo.
+              </p>
+            </div>
+          </section>
+          <section className="hm-ops-section mt-0">
+            <div className="flex items-start gap-3">
+              <span className="hm-ops-stat-icon">
+                <Globe2 className="size-5" aria-hidden="true" />
+              </span>
+              <div>
+                <h2 className="hm-section-title">Public presence</h2>
+                <span className="hm-ops-pill mt-3">{club.publicProfile?.status ?? "HIDDEN"}</span>
+              </div>
+            </div>
+            <p className="hm-small mt-4">
+              Your club profile is visible only according to its publication status. Submissions and
+              approvals are managed separately from operational settings.
+            </p>
+            <p className="hm-small mt-3">Directory handle: /c/{club.slug}</p>
+            <Link
+              href={`/clubs/${encodeURIComponent(clubId)}/settings/public-profile`}
+              className="hm-button hm-button-primary mt-5"
+            >
+              Manage public profile
+            </Link>
+          </section>
+          <section className="hm-ops-section mt-0">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="size-5 text-[var(--hm-sage-deep)]" aria-hidden="true" />
+              <h2 className="font-semibold">Owner-only controls</h2>
+            </div>
+            <p className="hm-small mt-3">
+              This page requires the owner role. Managers and staff cannot change your identity or
+              publication settings.
+            </p>
+            <p className="hm-small mt-2">Attendance timezone: {club.timeZone}</p>
+          </section>
+        </div>
       </div>
-      <p className="mt-5 text-xs text-[#a58c77]">
-        Membership pricing, existing attendance timezone data and historical subscriptions are never
-        silently rewritten by a club identity change.
-      </p>
+      <OperationsSafetyNote>
+        Changing identity details never silently rewrites historical subscriptions, receipts, or
+        club-local attendance records.
+      </OperationsSafetyNote>
     </BusinessShell>
   );
 }

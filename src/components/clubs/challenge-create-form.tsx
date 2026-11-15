@@ -50,13 +50,13 @@ export function ChallengeCreateForm({
   }
   if (!seasons.length)
     return (
-      <p className="mt-4 text-sm text-[#bda58e]">
+      <p className="mt-4 text-sm text-[var(--hm-muted)]">
         Create a competition season before adding challenges.
       </p>
     );
   return (
     <form onSubmit={submit} className="mt-5 space-y-4">
-      <label className="block text-xs font-bold text-[#e9c59c]">
+      <label className="block text-xs font-bold text-[var(--hm-terracotta)]">
         Season
         <select
           value={seasonId}
@@ -70,7 +70,7 @@ export function ChallengeCreateForm({
           ))}
         </select>
       </label>
-      <label className="block text-xs font-bold text-[#e9c59c]">
+      <label className="block text-xs font-bold text-[var(--hm-terracotta)]">
         Challenge title
         <input
           required
@@ -83,7 +83,7 @@ export function ChallengeCreateForm({
         />
       </label>
       <div className="grid grid-cols-[1fr_110px] gap-3">
-        <label className="block text-xs font-bold text-[#e9c59c]">
+        <label className="block text-xs font-bold text-[var(--hm-terracotta)]">
           Goal type
           <select
             value={kind}
@@ -94,7 +94,7 @@ export function ChallengeCreateForm({
             <option value="APPROVED_SCORES">Approved results</option>
           </select>
         </label>
-        <label className="block text-xs font-bold text-[#e9c59c]">
+        <label className="block text-xs font-bold text-[var(--hm-terracotta)]">
           Target
           <input
             required
@@ -109,7 +109,7 @@ export function ChallengeCreateForm({
       </div>
       <button
         disabled={busy}
-        className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-gradient-to-r from-[#ffd18c] to-[#ed7524] px-5 text-sm font-black text-[#2c170b] disabled:opacity-45"
+        className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-[var(--hm-action)] px-5 text-sm font-black text-[#2c170b] disabled:opacity-45"
       >
         <Flag className="size-4" /> {busy ? "Creating…" : "Launch club challenge"}
       </button>

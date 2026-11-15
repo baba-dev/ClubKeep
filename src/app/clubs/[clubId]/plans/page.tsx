@@ -44,11 +44,27 @@ async function PlansContent({ params }: { params: Promise<{ clubId: string }> })
       title="Membership, made flexible."
       description="Craft a plan for every kind of member. Change future prices freely while keeping past membership records accurate."
     >
-      <OperationsBanner eyebrow="A plan for every path" title="Thoughtful memberships, beautifully managed." description="Offer choices that make sense for your community, without changing anyone\u0027s historical terms." art="lifestyle" compact />
+      <OperationsBanner
+        eyebrow="A plan for every path"
+        title="Thoughtful memberships, beautifully managed."
+        description="Offer choices that make sense for your community, without changing anyone\u0027s historical terms."
+        art="lifestyle"
+        compact
+      />
       <div className="hm-ops-stats">
         <OperationsStat icon={Layers3} label="All plans" value={plans.length} />
-        <OperationsStat icon={BadgeCheck} tone="terracotta" label="Available" value={plans.filter((p) => !p.archivedAt).length} />
-        <OperationsStat icon={Archive} tone="cocoa" label="Archived" value={plans.filter((p) => p.archivedAt).length} />
+        <OperationsStat
+          icon={BadgeCheck}
+          tone="terracotta"
+          label="Available"
+          value={plans.filter((p) => !p.archivedAt).length}
+        />
+        <OperationsStat
+          icon={Archive}
+          tone="cocoa"
+          label="Archived"
+          value={plans.filter((p) => p.archivedAt).length}
+        />
       </div>
       <PlanStudio
         clubId={clubId}

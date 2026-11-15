@@ -22,7 +22,7 @@ import {
 import { formatMinorMoney } from "@/lib/money-format";
 import { BusinessShell } from "@/components/clubs/business-shell";
 import { CollectionsTrend } from "@/components/human-motion/collections-trend";
-import { OperationsBanner, OperationsSafetyNote } from "@/components/human-motion/operations-ui";
+import { OperationsBanner } from "@/components/human-motion/operations-ui";
 
 export const metadata: Metadata = { title: "Club finance · ClubKeep", robots: { index: false } };
 type Props = { params: Promise<{ clubId: string }> };
@@ -60,19 +60,19 @@ async function FinanceContent({ params }: Props) {
       title="Finance, without the guesswork."
       description="Track fees received outside ClubKeep, understand outstanding memberships, and issue clear receipts. No payments are processed by ClubKeep."
     >
-      <OperationsBanner eyebrow="Clarity in every currency" title="A calmer view of every collection." description="Real net receipts, upcoming dues and histories kept separate by currency." art="landscape" compact />
+      <OperationsBanner
+        eyebrow="Clarity in every currency"
+        title="A calmer view of every collection."
+        description="Real net receipts, upcoming dues and histories kept separate by currency."
+        art="landscape"
+        compact
+      />
       <div className="mt-5 flex flex-wrap gap-3">
-        <Link
-          href={base + "/dues"}
-          className="hm-button hm-button-primary"
-        >
+        <Link href={base + "/dues"} className="hm-button hm-button-primary">
           <CalendarClock className="size-4" />
           View outstanding dues
         </Link>
-        <Link
-          href={base + "/payments"}
-          className="hm-button hm-button-secondary"
-        >
+        <Link href={base + "/payments"} className="hm-button hm-button-secondary">
           <History className="size-4" />
           All recorded payments
         </Link>
@@ -95,10 +95,7 @@ async function FinanceContent({ params }: Props) {
           </section>
         ) : (
           totals.map((entry) => (
-            <section
-              key={entry.currency}
-              className="hm-ops-section"
-            >
+            <section key={entry.currency} className="hm-ops-section">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="text-xs font-semibold tracking-[.2em] text-[#e7b779] uppercase">
@@ -108,9 +105,7 @@ async function FinanceContent({ params }: Props) {
                     {entry.terms} active or scheduled membership terms
                   </h2>
                 </div>
-                <span className="hm-ops-pill">
-                  Currency totals kept separate
-                </span>
+                <span className="hm-ops-pill">Currency totals kept separate</span>
               </div>
               <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 {[
@@ -119,10 +114,7 @@ async function FinanceContent({ params }: Props) {
                   { icon: ReceiptText, label: "Outstanding dues", value: entry.outstanding },
                   { icon: CalendarClock, label: "Overdue at term expiry", value: entry.overdue },
                 ].map(({ icon: Icon, label, value }) => (
-                  <div
-                    key={label}
-                    className="hm-ops-stat"
-                  >
+                  <div key={label} className="hm-ops-stat">
                     <Icon className="size-5 text-[var(--hm-sage-deep)]" />
                     <p className="hm-ops-stat-value break-all">
                       {formatMinorMoney(value, entry.currency)}
@@ -141,7 +133,9 @@ async function FinanceContent({ params }: Props) {
               Monthly externally recorded net collections, local club time
             </p>
             {trend.length === 0 ? (
-              <p className="hm-small mt-6">Once your first fee is recorded, verified monthly totals will appear here.</p>
+              <p className="hm-small mt-6">
+                Once your first fee is recorded, verified monthly totals will appear here.
+              </p>
             ) : (
               <CollectionsTrend entries={trend} />
             )}

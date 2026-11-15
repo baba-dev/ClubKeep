@@ -158,28 +158,30 @@ export function AttendanceScanner({ clubId }: { clubId: string }) {
   return (
     <section
       aria-label="QR check-in scanner"
-      className="overflow-hidden rounded-[1.8rem] border border-[#f6dc9b]/20 bg-gradient-to-br from-[#2b1b10] via-[#1c130e] to-[#110c09] shadow-[0_25px_70px_rgba(0,0,0,.22)]"
+      className="overflow-hidden rounded-[1.8rem] border border-[var(--hm-line)]/20 bg-gradient-to-br from-[var(--hm-surface)] via-[var(--hm-surface)] to-[var(--hm-surface)] shadow-[0_25px_70px_rgba(0,0,0,.22)]"
     >
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#f6dc9b]/10 px-5 py-5 sm:px-7">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--hm-line)]/10 px-5 py-5 sm:px-7">
         <div className="flex items-center gap-3">
-          <span className="flex size-11 items-center justify-center rounded-2xl bg-[#ed9a41]/15 text-[#ffc687]">
+          <span className="flex size-11 items-center justify-center rounded-2xl bg-[#ed9a41]/15 text-[var(--hm-terracotta)]">
             <ScanLine className="size-6" aria-hidden="true" />
           </span>
           <div>
-            <h2 className="text-lg font-semibold tracking-tight text-[#fbf1e6]">Quick scan</h2>
-            <p className="text-xs text-[#b99c81]">
+            <h2 className="text-lg font-semibold tracking-tight text-[var(--hm-text)]">
+              Quick scan
+            </h2>
+            <p className="text-xs text-[var(--hm-muted)]">
               A fresh QR is shown on each member&apos;s phone
             </p>
           </div>
         </div>
-        <span className="inline-flex items-center gap-2 rounded-full border border-[#f2c486]/20 bg-[#f2c486]/5 px-3 py-2 text-xs text-[#e8c18c]">
+        <span className="inline-flex items-center gap-2 rounded-full border border-[var(--hm-line)]/20 bg-[#f2c486]/5 px-3 py-2 text-xs text-[var(--hm-terracotta)]">
           <ShieldCheck className="size-3.5" /> Signed &amp; short-lived
         </span>
       </div>
 
       <div className="grid gap-6 p-5 lg:grid-cols-[1.15fr_.85fr] lg:items-start lg:p-7">
         <div>
-          <div className="relative aspect-[4/3] max-h-[460px] overflow-hidden rounded-[1.4rem] border border-[#ffc58b]/20 bg-[#070707]">
+          <div className="relative aspect-[4/3] max-h-[460px] overflow-hidden rounded-[1.4rem] border border-[var(--hm-line)]/20 bg-[#070707]">
             <video
               ref={videoRef}
               autoPlay
@@ -190,10 +192,10 @@ export function AttendanceScanner({ clubId }: { clubId: string }) {
             />
             {!scanning && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-[radial-gradient(circle_at_center,rgba(244,124,29,.17),transparent_64%)] px-6 text-center">
-                <span className="flex size-20 items-center justify-center rounded-3xl border border-[#ffba73]/30 bg-[#f26b00]/10">
-                  <Camera className="size-9 text-[#f6c27e]" />
+                <span className="flex size-20 items-center justify-center rounded-3xl border border-[var(--hm-line)]/30 bg-[var(--hm-terracotta)]/10">
+                  <Camera className="size-9 text-[var(--hm-terracotta)]" />
                 </span>
-                <p className="max-w-xs text-sm leading-6 text-[#bea58d]">
+                <p className="max-w-xs text-sm leading-6 text-[var(--hm-muted)]">
                   Position a member&apos;s rotating ClubKeep QR inside the frame to register their
                   arrival.
                 </p>
@@ -202,7 +204,7 @@ export function AttendanceScanner({ clubId }: { clubId: string }) {
             {scanning && (
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-[13%] rounded-2xl border border-[#f7c079]/30"
+                className="pointer-events-none absolute inset-[13%] rounded-2xl border border-[var(--hm-line)]/30"
               >
                 <span className="absolute top-0 left-0 h-9 w-9 rounded-tl-xl border-t-[3px] border-l-[3px] border-[#ffd296]" />
                 <span className="absolute top-0 right-0 h-9 w-9 rounded-tr-xl border-t-[3px] border-r-[3px] border-[#ffd296]" />
@@ -212,7 +214,7 @@ export function AttendanceScanner({ clubId }: { clubId: string }) {
               </div>
             )}
             <span
-              className={`absolute bottom-3 left-3 rounded-full px-3 py-2 text-xs font-semibold backdrop-blur-md ${scanning ? "bg-emerald-900/70 text-emerald-200" : "bg-black/50 text-[#c7ac92]"}`}
+              className={`absolute bottom-3 left-3 rounded-full px-3 py-2 text-xs font-semibold backdrop-blur-md ${scanning ? "bg-emerald-900/70 text-emerald-200" : "bg-black/50 text-[var(--hm-muted)]"}`}
             >
               {scanning
                 ? working
@@ -227,38 +229,38 @@ export function AttendanceScanner({ clubId }: { clubId: string }) {
               setCameraError("");
               setScanning((value) => !value);
             }}
-            className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#f3c17a] to-[#f16d16] px-5 font-bold text-[#2b1709] transition-all hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#ffc783]"
+            className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--hm-action)] px-5 font-bold text-[var(--hm-action-text)] transition-all hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#ffc783]"
           >
             {scanning ? <CameraOff className="size-4" /> : <Camera className="size-4" />}
             {scanning ? "Stop camera" : "Start camera scanner"}
           </button>
           {cameraError && (
-            <p role="alert" className="mt-3 text-sm leading-6 text-[#f4bca1]">
+            <p role="alert" className="mt-3 text-sm leading-6 text-[var(--hm-terracotta)]">
               {cameraError}
             </p>
           )}
         </div>
 
         <div className="space-y-5">
-          <div className="rounded-2xl border border-[#f6dc9b]/12 bg-[#100b08]/60 p-5">
-            <p className="text-xs font-bold tracking-[.2em] text-[#efbc7c] uppercase">
+          <div className="rounded-2xl border border-[var(--hm-line)]/12 bg-[var(--hm-surface)]/60 p-5">
+            <p className="text-xs font-bold tracking-[.2em] text-[var(--hm-terracotta)] uppercase">
               Reception workflow
             </p>
-            <ol className="mt-4 space-y-4 text-sm text-[#c6ad95]">
+            <ol className="mt-4 space-y-4 text-sm text-[var(--hm-muted)]">
               <li className="flex gap-3">
-                <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#f1ae57]/15 text-xs font-bold text-[#ffd096]">
+                <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#f1ae57]/15 text-xs font-bold text-[var(--hm-terracotta)]">
                   01
                 </span>
                 Open camera or connect your QR scanner.
               </li>
               <li className="flex gap-3">
-                <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#f1ae57]/15 text-xs font-bold text-[#ffd096]">
+                <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#f1ae57]/15 text-xs font-bold text-[var(--hm-terracotta)]">
                   02
                 </span>
                 Ask the member to show their live QR.
               </li>
               <li className="flex gap-3">
-                <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#f1ae57]/15 text-xs font-bold text-[#ffd096]">
+                <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#f1ae57]/15 text-xs font-bold text-[var(--hm-terracotta)]">
                   03
                 </span>
                 See an instant confirmation—no repeated entries.
@@ -267,16 +269,16 @@ export function AttendanceScanner({ clubId }: { clubId: string }) {
           </div>
           <form
             onSubmit={submitHardware}
-            className="rounded-2xl border border-[#f6dc9b]/15 bg-[#17100b] p-5"
+            className="rounded-2xl border border-[var(--hm-line)]/15 bg-[var(--hm-surface)] p-5"
           >
             <label
               htmlFor="attendance-hid"
-              className="flex items-center gap-2 text-sm font-semibold text-[#f5d19b]"
+              className="flex items-center gap-2 text-sm font-semibold text-[var(--hm-terracotta)]"
             >
               <Keyboard className="size-4" />
               USB/Bluetooth QR scanner
             </label>
-            <p className="mt-2 text-xs leading-5 text-[#ae9581]">
+            <p className="mt-2 text-xs leading-5 text-[var(--hm-muted)]">
               Use a physical scanner that types a QR code and presses Enter. Scanned tokens are not
               stored in the browser.
             </p>
@@ -289,12 +291,12 @@ export function AttendanceScanner({ clubId }: { clubId: string }) {
               onChange={(event) => setManualToken(event.target.value)}
               placeholder="Scan token here"
               aria-label="QR scanner input"
-              className="mt-4 min-h-12 w-full rounded-xl border border-[#f6dc9b]/20 bg-[#0d0806] px-4 text-sm text-[#f7debc] outline-none placeholder:text-[#756354] focus:border-[#f5b65f]"
+              className="mt-4 min-h-12 w-full rounded-xl border border-[var(--hm-line)]/20 bg-[#0d0806] px-4 text-sm text-[var(--hm-terracotta)] outline-none placeholder:text-[#756354] focus:border-[#f5b65f]"
             />
             <button
               disabled={working || !manualToken.trim()}
               type="submit"
-              className="mt-3 min-h-11 w-full rounded-xl border border-[#d8aa70]/30 px-4 font-semibold text-[#f5c38f] hover:bg-[#362519] disabled:opacity-50"
+              className="mt-3 min-h-11 w-full rounded-xl border border-[#d8aa70]/30 px-4 font-semibold text-[var(--hm-terracotta)] hover:bg-[#362519] disabled:opacity-50"
             >
               Check QR
             </button>
@@ -311,10 +313,12 @@ export function AttendanceScanner({ clubId }: { clubId: string }) {
                   />
                   <p className="font-semibold">{feedback.title}</p>
                 </div>
-                <p className="mt-2 text-sm leading-6 text-[#dcc8b3]">{feedback.detail}</p>
+                <p className="mt-2 text-sm leading-6 text-[var(--hm-terracotta)]">
+                  {feedback.detail}
+                </p>
               </div>
             ) : (
-              <div className="rounded-2xl border border-dashed border-[#f6dc9b]/15 p-5 text-sm leading-6 text-[#ab967f]">
+              <div className="rounded-2xl border border-dashed border-[var(--hm-line)]/15 p-5 text-sm leading-6 text-[var(--hm-muted)]">
                 The latest scan result appears here. A duplicate or expired membership is never
                 recorded silently.
               </div>

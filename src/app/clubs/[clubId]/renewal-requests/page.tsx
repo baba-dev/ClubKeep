@@ -15,7 +15,9 @@ export default function RenewalRequestQueueRoute(props: Props) {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-[#0b0b0e] p-8 text-[#fce8d2]">Loading your club…</main>
+        <main className="min-h-screen bg-[var(--hm-surface)] p-8 text-[var(--hm-text)]">
+          Loading your club…
+        </main>
       }
     >
       <RenewalRequestQueue {...props} />
@@ -63,15 +65,15 @@ async function RenewalRequestQueue({ params, searchParams }: Props) {
       title="Renewal request inbox"
       description="Review requests from your verified linked members. Only the existing B1 member renewal flow can extend a term."
     >
-      <div className="mt-8 overflow-hidden rounded-3xl border border-[#f6c78c]/20 bg-[#19110d]">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#f6dc9b]/15 p-6">
+      <div className="mt-8 overflow-hidden rounded-3xl border border-[var(--hm-line)]/20 bg-[var(--hm-surface)]">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--hm-line)]/15 p-6">
           <h2 className="flex items-center gap-2 text-lg font-bold">
-            <BellRing className="size-5 text-[#ffc178]" /> Pending requests
+            <BellRing className="size-5 text-[var(--hm-terracotta)]" /> Pending requests
           </h2>
-          <span className="text-xs text-[#c5aa92]">{page.length} displayed · up to 50</span>
+          <span className="text-xs text-[var(--hm-muted)]">{page.length} displayed · up to 50</span>
         </div>
         {page.length === 0 ? (
-          <p className="p-9 text-sm text-[#baa38e]">
+          <p className="p-9 text-sm text-[var(--hm-muted)]">
             All caught up. New member requests will arrive here.
           </p>
         ) : (
@@ -79,17 +81,17 @@ async function RenewalRequestQueue({ params, searchParams }: Props) {
             {page.map((request) => (
               <li key={request.id} className="grid gap-5 p-6 lg:grid-cols-[1fr_auto]">
                 <div>
-                  <p className="text-base font-bold text-[#fff0d9]">
+                  <p className="text-base font-bold text-[var(--hm-text)]">
                     {request.member.displayName}{" "}
-                    <span className="text-xs font-normal text-[#bda48e]">
+                    <span className="text-xs font-normal text-[var(--hm-muted)]">
                       #{request.member.memberNumber}
                     </span>
                   </p>
-                  <p className="mt-2 text-xs text-[#ad9680]">
+                  <p className="mt-2 text-xs text-[var(--hm-muted)]">
                     Requested {request.createdAt.toISOString().slice(0, 10)}
                   </p>
                   {request.message && (
-                    <p className="mt-3 max-w-xl text-sm leading-6 text-[#dfc3a4]">
+                    <p className="mt-3 max-w-xl text-sm leading-6 text-[var(--hm-terracotta)]">
                       {request.message}
                     </p>
                   )}
@@ -100,7 +102,7 @@ async function RenewalRequestQueue({ params, searchParams }: Props) {
                       "/members/" +
                       encodeURIComponent(request.memberRecordId)
                     }
-                    className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[#ffc17b]"
+                    className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[var(--hm-terracotta)]"
                   >
                     Open member and manage renewal <ArrowUpRight className="size-4" />
                   </Link>
@@ -114,12 +116,12 @@ async function RenewalRequestQueue({ params, searchParams }: Props) {
       {next && (
         <Link
           href={"?cursor=" + encodeURIComponent(next)}
-          className="mt-5 inline-flex min-h-12 items-center rounded-xl border border-[#ffc17b]/25 px-5 text-sm font-bold text-[#ffc17b]"
+          className="mt-5 inline-flex min-h-12 items-center rounded-xl border border-[var(--hm-line)]/25 px-5 text-sm font-bold text-[var(--hm-terracotta)]"
         >
           Next pending requests →
         </Link>
       )}
-      <p className="mt-5 flex gap-2 text-xs text-[#ab917c]">
+      <p className="mt-5 flex gap-2 text-xs text-[var(--hm-muted)]">
         <ShieldCheck className="size-4 shrink-0" /> Marking reviewed does not charge anyone or renew
         a subscription; use the member record to assign a new B1 term.
       </p>

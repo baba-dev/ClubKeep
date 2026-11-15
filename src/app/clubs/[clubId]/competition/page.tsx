@@ -16,7 +16,7 @@ import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/required-session";
 import { requireClubActive } from "@/lib/member-service";
 import { BusinessShell } from "@/components/clubs/business-shell";
-import { OperationsBanner, OperationsStat, OperationsSafetyNote } from "@/components/human-motion/operations-ui";
+import { OperationsBanner, OperationsStat } from "@/components/human-motion/operations-ui";
 import { ThemeArtwork } from "@/components/human-motion/media-components";
 import { HM_MEDIA } from "@/components/human-motion/media";
 import { AchievementArt } from "@/components/human-motion/AchievementArt";
@@ -98,15 +98,27 @@ async function Content({ params }: Props) {
       title="Build your club's winning culture."
       description="Configure nonclinical disciplines, review score evidence and motivate members. Only approved results appear in private club rankings."
     >
-      <OperationsBanner eyebrow="A little spark goes a long way" title="Make progress worth celebrating." description="Private leagues, thoughtful challenges, and recognition grounded in staff-approved results." art="challenge" compact />
+      <OperationsBanner
+        eyebrow="A little spark goes a long way"
+        title="Make progress worth celebrating."
+        description="Private leagues, thoughtful challenges, and recognition grounded in staff-approved results."
+        art="challenge"
+        compact
+      />
       <div className="hm-ops-stats hm-ops-stats--four">
         {summary.map(({ label, value, Icon }, i) => (
-          <OperationsStat key={label} icon={Icon} label={label} value={value} tone={(["sage", "terracotta", "cocoa", "amber"] as const)[i]} />
+          <OperationsStat
+            key={label}
+            icon={Icon}
+            label={label}
+            value={value}
+            tone={(["sage", "terracotta", "cocoa", "amber"] as const)[i]}
+          />
         ))}
       </div>
       <section className="hm-ops-competition-banner mt-6" aria-label="Current club league">
         <ThemeArtwork pair={HM_MEDIA.illustrations.challengeLandscape} className="hm-gallery-art" />
-        <div className="absolute right-5 top-5 hidden sm:block" aria-hidden="true">
+        <div className="absolute top-5 right-5 hidden sm:block" aria-hidden="true">
           <AchievementArt name="challenge-trophy" size={100} />
         </div>
         <p className="hm-kicker hm-page-eyebrow relative flex items-center gap-2">
@@ -122,17 +134,11 @@ async function Content({ params }: Props) {
         </p>
         <div className="relative mt-6 flex flex-wrap gap-3">
           {canManage ? (
-            <Link
-              href={clubBase + "/competition/review"}
-              className="hm-button hm-button-primary"
-            >
+            <Link href={clubBase + "/competition/review"} className="hm-button hm-button-primary">
               Review score submissions <ArrowUpRight className="size-4" />
             </Link>
           ) : (
-            <Link
-              href={clubBase + "/members"}
-              className="hm-button hm-button-primary"
-            >
+            <Link href={clubBase + "/members"} className="hm-button hm-button-primary">
               Record a member&apos;s result
             </Link>
           )}
@@ -180,9 +186,7 @@ async function Content({ params }: Props) {
                     {s.startAt.toISOString().slice(0, 10)} – {s.endAt.toISOString().slice(0, 10)}
                   </small>
                 </span>
-                <span className="hm-ops-pill">
-                  {s.metrics.length} disciplines
-                </span>
+                <span className="hm-ops-pill">{s.metrics.length} disciplines</span>
               </li>
             ))}
           </ul>

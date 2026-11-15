@@ -7,6 +7,7 @@ import { requireClubActive } from "@/lib/member-service";
 import { prisma } from "@/lib/prisma";
 import { statusForTerm } from "@/lib/membership-dates";
 import { BusinessShell } from "@/components/clubs/business-shell";
+import { OperationsBanner, OperationsStat, OperationsEmpty } from "@/components/human-motion/operations-ui";
 
 export const metadata: Metadata = { title: "Members · ClubKeep", robots: { index: false } };
 type Filter = "all" | "active" | "expiring" | "expired" | "archived";
@@ -112,29 +113,27 @@ async function MembersContent({ params, searchParams }: Props) {
       title="Your members, beautifully organized."
       description="Register, search and look after everyone in your club. Member contact details are private to authorized staff."
     >
-      <div className="mt-8 grid gap-3 sm:grid-cols-3">
-        <div className="rounded-2xl border border-[#f5d4a1]/20 bg-[#21160e] p-5">
-          <UsersRound className="size-5 text-[#ffb067]" />
-          <p className="mt-3 text-3xl font-semibold">{total}</p>
-          <p className="mt-1 text-xs text-[#b9a18b]">Active roster records</p>
-        </div>
-        <div className="rounded-2xl border border-[#f5d4a1]/15 bg-[#19110d] p-5">
-          <UserRoundCheck className="size-5 text-[#d8b36d]" />
-          <p className="mt-3 text-3xl font-semibold">{quota ?? "∞"}</p>
-          <p className="mt-1 text-xs text-[#b9a18b]">Member limit · {access.businessTier}</p>
-        </div>
-        <div className="flex items-center justify-center rounded-2xl border border-[#f5d4a1]/15 bg-[#19110d] p-5">
-          <Link
-            href={`/clubs/${clubId}/members/new`}
-            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#f1bb5c] to-[#f26b00] px-4 py-3 font-semibold text-[#281607] hover:brightness-110"
-          >
-            <Plus className="size-4" />
-            Register member
+      <OperationsBanner
+        eyebrow="The people behind your club"
+        title="Every name belongs to a story."
+        description="An organized member roster, thoughtful follow-ups, and space to welcome new people."
+        art="community"
+        action={{ href: `/clubs/${encodeURIComponent(clubId)}/members/new`, label: "Register member" }}
+        compact
+      />
+      <div className="hm-ops-stats">
+        <OperationsStat icon={UsersRound} tone="sage" label="Active roster records" value={total} />
+        <OperationsStat icon={UserRoundCheck} tone="cocoa" label="Plan capacity" value={quota ?? "Unlimited"} detail={access.businessTier + " tier"} />
+        <div className="hm-ops-stat flex flex-col justify-center gap-2">
+          <p className="hm-kicker hm-page-eyebrow">Quick action</p>
+          <Link className="hm-button hm-button-primary" href={`/clubs/${encodeURIComponent(clubId)}/members/new`}>
+            <Plus className="size-4" aria-hidden="true" /> Register member
           </Link>
         </div>
       </div>
-      <section className="mt-6 rounded-3xl border border-[#f6dc9b]/15 bg-[#17100b] p-4 sm:p-6">
-        <form method="get" className="flex flex-col gap-3 sm:flex-row">
+      <section className="hm-ops-section" aria-label="Member directory">
+        <form method="get" className="hm-ops-form flex flex-col gap-3 sm:flex-row">
+          <input type="hidden" name="view" value={view} />
           <label htmlFor="member-search" className="relative flex-1">
             <span className="sr-only">Search members</span>
             <Search className="pointer-events-none absolute top-3.5 left-4 size-4 text-[#aa8c70]" />
@@ -150,18 +149,18 @@ async function MembersContent({ params, searchParams }: Props) {
           </label>
           <button
             type="submit"
-            className="min-h-11 rounded-xl border border-[#d6a253]/40 px-5 text-sm font-semibold text-[#f1d58b] hover:bg-[#2b1e13]"
+            className="hm-button hm-button-secondary"
           >
             Search
           </button>
         </form>
-        <nav className="mt-5 flex flex-wrap gap-2" aria-label="Member filters">
+        <nav className="hm-ops-filter mt-5" aria-label="Member filters">
           {filters.map(([key, label]) => (
             <Link
               key={key}
               href={`?view=${key}&q=${encodeURIComponent(q)}`}
               aria-current={view === key ? "page" : undefined}
-              className={`rounded-full px-3 py-2 text-xs font-semibold ${view === key ? "bg-[#f5c56d] text-[#261505]" : "border border-[#f6dc9b]/15 bg-[#251910] text-[#cbb29b] hover:text-white"}`}
+              className="hm-ops-filter-link"
             >
               {label}
             </Link>
@@ -169,28 +168,20 @@ async function MembersContent({ params, searchParams }: Props) {
         </nav>
         <div className="mt-6 space-y-3">
           {rows.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-[#f6dc9b]/20 p-10 text-center">
-              <UsersRound className="mx-auto size-9 text-[#ad885f]" />
-              <h2 className="mt-4 text-xl font-semibold">No members in this view</h2>
-              <p className="mt-2 text-sm text-[#a9927a]">
-                Try another filter or add your first member.
-              </p>
-              <Link
-                href={`/clubs/${clubId}/members/new`}
-                className="mt-5 inline-flex items-center gap-2 text-sm text-[#f4b56a] underline"
-              >
-                Register a member <ArrowRight className="size-4" />
+            <OperationsEmpty icon={UsersRound} title="No members in this view" detail="Try a different search or filter, or welcome your first member.">
+              <Link href={`/clubs/${encodeURIComponent(clubId)}/members/new`} className="hm-button hm-button-secondary">
+                Register a member <ArrowRight className="size-4" aria-hidden="true" />
               </Link>
-            </div>
+            </OperationsEmpty>
           ) : (
             rows.map((member) => (
               <Link
                 key={member.id}
                 href={`/clubs/${clubId}/members/${member.id}`}
-                className="group flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#f6dc9b]/10 bg-[#21160f] p-4 transition-colors hover:border-[#f6dc9b]/40 hover:bg-[#291c12] sm:p-5"
+                className="hm-ops-row group"
               >
                 <div className="flex min-w-0 items-center gap-4">
-                  <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[#f26b00]/15 text-lg font-semibold text-[#ffc27d]">
+                  <span className="hm-ops-avatar">
                     {member.displayName.charAt(0).toUpperCase()}
                   </span>
                   <div className="min-w-0">
@@ -204,7 +195,7 @@ async function MembersContent({ params, searchParams }: Props) {
                 <div className="flex min-w-0 items-center gap-3">
                   <div className="text-right">
                     <span
-                      className={`rounded-full px-3 py-1 text-xs font-semibold ${member.status === "ARCHIVED" ? "bg-[#aaa]/15 text-[#ddd]" : member.statusLabel === "EXPIRING" ? "bg-amber-500/15 text-amber-300" : member.statusLabel === "EXPIRED" || member.statusLabel === "NONE" ? "bg-orange-500/10 text-orange-300" : "bg-emerald-500/10 text-emerald-300"}`}
+                      className={`hm-ops-pill ${member.status === "ARCHIVED" ? "" : member.statusLabel === "EXPIRING" ? "hm-ops-pill--urgent" : member.statusLabel === "EXPIRED" || member.statusLabel === "NONE" ? "hm-ops-pill--expired" : "hm-ops-pill--active"}`}
                     >
                       {member.status === "ARCHIVED"
                         ? "Archived"

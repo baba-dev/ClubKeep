@@ -613,12 +613,7 @@ export function DemoExperience({
                           type="button"
                           aria-current={v === view ? "page" : undefined}
                           onClick={() => jump(v)}
-                          className={
-                            "flex min-h-11 min-w-0 items-center gap-2 rounded-xl px-3 text-left text-xs font-bold transition focus-visible:outline-2 focus-visible:outline-[#ffd19b] " +
-                            (v === view
-                              ? "bg-gradient-to-r from-[#f2bd72] to-[#ef8531] text-[#281509]"
-                              : "text-[var(--hm-muted)] hover:bg-white/10 hover:text-white")
-                          }
+                          className="hm-demo-nav-link"
                         >
                           <Icon className="size-4 shrink-0" aria-hidden="true" />
                           <span className="truncate">{item?.label}</span>

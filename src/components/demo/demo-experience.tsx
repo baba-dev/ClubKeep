@@ -42,13 +42,19 @@ import {
 import {
   DEMO_NAV,
   DEMO_ROLES,
+  DEMO_VERTICALS,
+  demoFixture,
   initialDemo,
   demoCurrency,
   demoRoute,
   type DemoRole,
+  type DemoVertical,
   type DemoView,
   type DemoState,
 } from "@/lib/demo-fixtures";
+import { ThemeArtwork, ClubKeepBrand } from "@/components/human-motion/media-components";
+import { HM_MEDIA, heroForVertical } from "@/components/human-motion/media";
+import { ClubThemeToggle } from "@/components/clubs/theme-toggle";
 
 const tabIcons: Record<DemoView, typeof Activity> = {
   overview: BarChart3,
@@ -156,13 +162,10 @@ const hero: Record<DemoView, [string, string]> = {
     "Review a fictional club directory submission from the platform side.",
   ],
 };
-const cardClass = "rounded-3xl border border-[#f3c08c]/15 bg-[#18191f] p-5 sm:p-7";
-const fieldClass =
-  "mt-2 min-h-12 w-full rounded-xl border border-white/15 bg-[#0e1016] px-4 text-sm text-white focus-visible:outline-2 focus-visible:outline-[#ffc081]";
-const mainButton =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#ffdfaa] to-[#ed852f] px-5 text-sm font-black text-[#24130c] transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-[#ffd6a3] disabled:opacity-40";
-const secondaryButton =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#f5bd79]/30 bg-[#322317]/40 px-4 text-sm font-bold text-[#ffd09a] transition hover:border-[#ffd5a1] focus-visible:outline-2 focus-visible:outline-[#ffd6a3] disabled:opacity-40";
+const cardClass = "hm-demo-card p-5 sm:p-7";
+const fieldClass = "hm-demo-field mt-2 min-h-12 w-full text-sm";
+const mainButton = "hm-button hm-button-primary disabled:opacity-40";
+const secondaryButton = "hm-button hm-button-secondary disabled:opacity-40";
 
 function Panel({
   title,
@@ -200,13 +203,13 @@ function Metric({
   note?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-[#e8af75]/15 bg-gradient-to-br from-[#292019] to-[#15151a] p-5">
-      <Icon className="size-6 text-[#ffc079]" aria-hidden="true" />
-      <p className="mt-4 text-3xl font-black tracking-tight text-[#ffe0ac] tabular-nums sm:text-4xl">
+    <div className="hm-ops-stat">
+      <Icon className="size-6 text-[var(--hm-sage-deep)]" aria-hidden="true" />
+      <p className="hm-ops-stat-value tabular-nums sm:text-4xl">
         {value}
       </p>
-      <p className="mt-2 text-xs font-semibold text-[#cbb5a1]">{label}</p>
-      {note && <p className="mt-1 text-xs text-[#9e8b82]">{note}</p>}
+      <p className="hm-ops-stat-label">{label}</p>
+      {note && <p className="hm-small mt-1">{note}</p>}
     </div>
   );
 }
@@ -247,20 +250,23 @@ function DemoRow({
 export function DemoExperience({
   initialRole,
   initialView,
+  initialVertical,
 }: {
   initialRole: DemoRole;
   initialView: DemoView;
+  initialVertical: DemoVertical;
 }) {
   const [role, setRole] = useState<DemoRole>(initialRole);
   const [view, setView] = useState<DemoView>(initialView);
-  const [data, setData] = useState<DemoState>(() => structuredClone(initialDemo));
+  const [presetVertical, setPresetVertical] = useState<DemoVertical>(initialVertical);
+  const [data, setData] = useState<DemoState>(() => demoFixture(initialVertical));
   const [notice, setNotice] = useState("");
   const [newMember, setNewMember] = useState("");
   const [newPlan, setNewPlan] = useState("");
   const [planAmount, setPlanAmount] = useState("1800");
-  const [clubDraft, setClubDraft] = useState(initialDemo.clubName);
-  const [verticalDraft, setVerticalDraft] = useState(initialDemo.vertical);
-  const [cityDraft, setCityDraft] = useState(initialDemo.city);
+  const [clubDraft, setClubDraft] = useState(() => demoFixture(initialVertical).clubName);
+  const [verticalDraft, setVerticalDraft] = useState(() => demoFixture(initialVertical).vertical);
+  const [cityDraft, setCityDraft] = useState(() => demoFixture(initialVertical).city);
   const [memberId, setMemberId] = useState(1);
   const [amount, setAmount] = useState("500");
   const [payMethod, setPayMethod] = useState<"CASH" | "UPI" | "CARD">("UPI");
@@ -279,14 +285,21 @@ export function DemoExperience({
     setRole(nextRole);
     setView(nextView);
     setNotice("");
-    window.history.replaceState(null, "", demoRoute(nextRole, nextView));
+    window.history.replaceState(null, "", demoRoute(nextRole, nextView, presetVertical));
     window.scrollTo({ top: 0, behavior: "instant" });
   }
   function action(message: string) {
     setNotice(message + " · Demo only. No production record changed.");
   }
   function reset() {
-    setData(structuredClone(initialDemo));
+    const restored = demoFixture(presetVertical);
+    setData(restored);
+    setClubDraft(restored.clubName);
+    setVerticalDraft(restored.vertical);
+    setCityDraft(restored.city);
+    setTimeZoneDraft(restored.timezone);
+    setMemberId(1);
+    setScoreMember(1);
     setNewMember("");
     setInvitesCreated(0);
     setInviteRevoked(false);
@@ -296,6 +309,22 @@ export function DemoExperience({
     setScoreValue("145");
     setNotice("");
     action("All fictional data has been restored");
+  }
+  function selectDemoVertical(vertical: DemoVertical) {
+    const next = demoFixture(vertical);
+    setPresetVertical(vertical);
+    setData(next);
+    setClubDraft(next.clubName);
+    setVerticalDraft(next.vertical);
+    setCityDraft(next.city);
+    setTimeZoneDraft(next.timezone);
+    setMemberId(1);
+    setScoreMember(1);
+    setInvitesCreated(0);
+    setInviteRevoked(false);
+    setDemoPasskey(false);
+    setNotice("Loaded the " + vertical.toLowerCase() + " fictional showcase. No production records changed.");
+    window.history.replaceState(null, "", demoRoute(role, view, vertical));
   }
   const members = data.members;
   const member = members.find((m) => m.id === memberId) ?? members[0];
@@ -472,7 +501,7 @@ export function DemoExperience({
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0c10] text-[#fff1e1]">
+    <div className="hm-app hm-demo">
       <div
         aria-hidden="true"
         className="pointer-events-none fixed inset-0 opacity-25"
@@ -482,20 +511,17 @@ export function DemoExperience({
           backgroundSize: "56px 56px",
         }}
       />
-      <header className="relative z-20 border-b border-[#e9b678]/15 bg-[#111116]/95 backdrop-blur-xl">
+      <header className="relative z-20 border-b border-[var(--hm-line)] bg-[var(--hm-surface)] backdrop-blur-xl">
         <div className="mx-auto flex max-w-[1560px] flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-7">
-          <Link href="/auth/sign-in" className="flex items-center gap-3 font-black">
-            <span className="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-[#ffda94] to-[#f17524] text-lg font-black text-[#251208]">
-              CK
-            </span>
-            <span className="text-xl tracking-tight">
-              ClubKeep <span className="text-[#f4b86c]">Demo</span>
-            </span>
-          </Link>
+          <div className="flex items-center gap-3">
+            <ClubKeepBrand />
+            <span className="hm-ops-pill">Interactive Demo</span>
+          </div>
           <div className="flex flex-wrap items-center gap-2">
             <DemoPill emphasis>
               <ShieldCheck className="mr-1 size-3.5" /> FICTIONAL / SAFE
             </DemoPill>
+            <ClubThemeToggle />
             <button className={secondaryButton} onClick={reset} type="button">
               <RotateCcw className="size-4" /> Reset tour
             </button>
@@ -506,13 +532,13 @@ export function DemoExperience({
         </div>
       </header>
       <div className="relative mx-auto grid min-h-[calc(100vh-75px)] max-w-[1560px] lg:grid-cols-[260px_minmax(0,1fr)]">
-        <aside className="border-b border-[#dcb375]/15 bg-[#111217]/80 lg:border-r lg:border-b-0">
+        <aside className="border-b border-[var(--hm-line)] bg-[var(--hm-surface)] lg:border-r lg:border-b-0">
           <div className="sticky top-0 max-h-[100dvh] overflow-y-auto p-4 sm:p-6">
-            <div className="rounded-2xl border border-[#f5b870]/20 bg-gradient-to-br from-[#362117] to-[#18171b] p-4">
-              <p className="text-[10px] font-black tracking-[.2em] text-[#f9bd7a] uppercase">
+            <div className="hm-demo-card p-4">
+              <p className="hm-kicker hm-page-eyebrow">
                 Perspective switcher
               </p>
-              <label htmlFor="demo-persona" className="mt-3 block text-xs text-[#c6b19f]">
+              <label htmlFor="demo-persona" className="hm-small mt-3 block">
                 Explore as
               </label>
               <select
@@ -532,10 +558,20 @@ export function DemoExperience({
                   </option>
                 ))}
               </select>
-              <p className="mt-3 text-xs leading-6 text-[#b99e87]">{roleDescriptions[role]}</p>
-              <p className="mt-2 text-[11px] text-[#e2b78a]">
+              <p className="hm-small mt-3">{roleDescriptions[role]}</p>
+              <p className="hm-small mt-2">
                 Simulation only · no permissions granted
               </p>
+            </div>
+            <div className="mt-4">
+              <p className="hm-kicker hm-muted mb-3">Explore by club type</p>
+              <div className="hm-demo-verticals" role="group" aria-label="Choose fictional club vertical">
+                {DEMO_VERTICALS.map((v) => (
+                  <button key={v} type="button" aria-pressed={presetVertical === v} onClick={() => selectDemoVertical(v)}>
+                    {v === "GYM" ? "Gym" : v === "YOGA" ? "Yoga" : "Dance"}
+                  </button>
+                ))}
+              </div>
             </div>
             <label
               htmlFor="demo-feature-mobile"
@@ -599,10 +635,10 @@ export function DemoExperience({
             </div>
             <div className="mt-5 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
               <div>
-                <h1 className="max-w-3xl text-4xl leading-[1.05] font-black tracking-[-.055em] sm:text-6xl">
+                <h1 className="hm-display max-w-3xl text-4xl sm:text-6xl">
                   {hero[view][0]}
                 </h1>
-                <p className="mt-4 max-w-2xl text-sm leading-7 text-[#bfb2a6] sm:text-base">
+                <p className="hm-small mt-4 max-w-2xl sm:text-base">
                   {hero[view][1]}
                 </p>
               </div>
@@ -634,19 +670,17 @@ export function DemoExperience({
             <div className="mt-7 space-y-6">
               {view === "overview" && (
                 <>
-                  <section className="relative isolate overflow-hidden rounded-[2rem] border border-[#ffbb6d]/30 bg-gradient-to-br from-[#5b2b10] via-[#282020] to-[#131419] p-7 sm:p-10">
-                    <div
-                      aria-hidden="true"
-                      className="pointer-events-none absolute -top-40 -right-20 size-[400px] rotate-12 rounded-full border-[66px] border-[#f4bd6e]/10"
-                    />
+                  <section className="hm-demo-hero p-7 sm:p-10">
+                    <ThemeArtwork pair={heroForVertical(presetVertical) ?? HM_MEDIA.illustrations.challengeLandscape} className="hm-gallery-photo" />
+                    <ThemeArtwork pair={HM_MEDIA.illustrations.heroFlow} className="hm-gallery-art" />
                     <div className="relative">
                       <DemoPill emphasis>
                         <Flame className="mr-1 size-3" /> CLUBKEEP BUSINESS
                       </DemoPill>
-                      <h2 className="mt-5 text-3xl font-black tracking-tight sm:text-5xl">
+                      <h2 className="mt-5 hm-display text-3xl sm:text-5xl">
                         {data.clubName}
                       </h2>
-                      <p className="mt-3 text-sm text-[#e5bc96]">
+                      <p className="mt-3 text-sm text-[#f5dcc4]">
                         {data.city} · {data.vertical.toLowerCase()} · club owner&apos;s workspace
                       </p>
                       <div className="mt-7 flex flex-wrap gap-3">
@@ -673,6 +707,7 @@ export function DemoExperience({
                           <IdCard className="size-4" /> Switch to member view
                         </button>
                       </div>
+                      <p className="mt-5 text-[11px] text-[#f9e6d5]">Editorial model photography · Fictional ${presetVertical.toLowerCase()} club, not a real customer.</p>
                     </div>
                   </section>
                   <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">

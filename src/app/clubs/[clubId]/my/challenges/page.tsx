@@ -2,13 +2,16 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
-import { Award, CalendarClock, Flame, Medal, ShieldCheck, Trophy } from "lucide-react";
+import { Award, CalendarClock, Flame, ShieldCheck, Trophy } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/required-session";
 import { memberSelfContext } from "@/lib/member-self-service";
 import { myChallengeProgress } from "@/lib/competition-challenges";
 import { ChallengeJoinButton } from "@/components/clubs/challenge-join-button";
 import { MemberArenaShell } from "@/components/clubs/member-arena-shell";
+import { HM_MEDIA } from "@/components/human-motion/media";
+import { ThemeArtwork } from "@/components/human-motion/media-components";
+import { VerifiedAchievement, awardState } from "@/components/human-motion/verified-achievement";
 
 export const metadata: Metadata = { title: "Club Challenges · ClubKeep", robots: { index: false } };
 type Props = { params: Promise<{ clubId: string }>; searchParams: Promise<{ cursor?: string }> };
@@ -75,28 +78,21 @@ async function Content({ params }: Props) {
       title="Find your next victory."
       summary="Join club-only challenges at your pace. Every milestone is backed by real check-ins or approved performances—not hype."
     >
-      <section className="relative overflow-hidden rounded-[2rem] border border-[#f3b56a]/35 bg-gradient-to-r from-[#492715] via-[#302019] to-[#161418] p-7 sm:p-9">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute top-[-50px] right-10 size-56 rotate-12 border-[34px] border-[#fac77b]/10"
-        />
-        <p className="relative flex items-center gap-2 text-xs font-black tracking-widest text-[#ffd29c] uppercase">
-          <Flame className="size-5" /> Club challenge circuit
-        </p>
-        <h2 className="relative mt-4 max-w-xl text-3xl font-black tracking-tight sm:text-4xl">
-          Earned, never given.
-        </h2>
-        <p className="relative mt-3 max-w-xl text-sm leading-7 text-[#ddbd9f]">
-          Achievements are based on your own verified club records. Participation stays private;
-          there are no public rankings or automatic payments.
-        </p>
+      <section className="hm-member-photo-banner">
+        <ThemeArtwork pair={HM_MEDIA.photography.challenge} className="hm-gallery-photo" />
+        <ThemeArtwork pair={HM_MEDIA.illustrations.challengeLandscape} className="hm-gallery-art" />
+        <div className="relative z-10 max-w-xl">
+          <p className="hm-kicker flex items-center gap-2 text-[#ffdec7]"><Flame className="size-4" aria-hidden="true" /> Club challenge circuit</p>
+          <h2 className="mt-4">Earned, never given.</h2>
+          <p className="mt-4">Achievements reflect verified club attendance or approved scores. Images are promotional artwork, never member portraits.</p>
+        </div>
       </section>
       <div className="mt-7 grid gap-5 md:grid-cols-2">
         {!challenges.length ? (
-          <div className="rounded-3xl border border-dashed border-[#f2b874]/25 bg-[#1d1b1d] p-8">
-            <CalendarClock className="size-8 text-[#f2bd7c]" />
-            <h3 className="mt-4 text-xl font-black">A new season of challenges is coming.</h3>
-            <p className="mt-3 text-sm leading-7 text-[#baa797]">
+          <div className="hm-member-panel">
+            <CalendarClock className="size-8 text-[var(--hm-sage-deep)]" />
+            <h3 className="hm-display mt-4 text-xl">A new season of challenges is coming.</h3>
+            <p className="hm-small mt-3">
               Ask your club organiser to announce the first challenge.
             </p>
           </div>
@@ -105,42 +101,33 @@ async function Content({ params }: Props) {
             const entry = entries.get(challenge.id),
               joined = Boolean(entry?.active);
             const p = progress[index] ?? { progress: 0, completed: false };
-            const percentage = joined ? Math.round((100 * p.progress) / challenge.target) : 0;
+            const percentage = joined && challenge.target > 0 ? Math.min(100, Math.round((100 * p.progress) / challenge.target)) : 0;
             const ended = challenge.endAt <= now;
             return (
-              <section
-                key={challenge.id}
-                className="min-w-0 overflow-hidden rounded-3xl border border-white/10 bg-[#191a1e] p-6 sm:p-8"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <span className="grid size-12 place-items-center rounded-2xl bg-[#ef9d49]/15">
-                    <Trophy className="size-7 text-[#ffcd88]" />
+              <section key={challenge.id} className="hm-member-panel min-w-0">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <p className="hm-kicker hm-page-eyebrow flex items-center gap-2">
+                    <Trophy className="size-4" aria-hidden="true" /> {ended ? "Completed season" : "Your challenge"}
+                  </p>
+                  <span className={`hm-ops-pill ${p.completed && joined ? "hm-ops-pill--active" : "hm-ops-pill--urgent"}`}>
+                    {p.completed && joined ? "Verified target met" : ended ? "Season ended" : joined ? "Participating" : "Not joined"}
                   </span>
-                  {p.completed && joined ? (
-                    <span className="inline-flex items-center gap-2 rounded-full border border-[#f4c57a]/35 bg-[#f1bc69]/10 px-3 py-2 text-xs font-black text-[#ffcf91]">
-                      <Medal className="size-4" /> Badge earned
-                    </span>
-                  ) : (
-                    <span className="rounded-full border border-white/15 px-3 py-2 text-xs text-[#b9a89b]">
-                      {ended ? "Season ended" : "Club-only"}
-                    </span>
-                  )}
                 </div>
-                <h3 className="mt-6 text-2xl font-black tracking-tight text-white">
+                <h3 className="hm-display mt-6 text-2xl">
                   {challenge.title}
                 </h3>
-                <p className="mt-3 text-sm text-[#b8a59a]">
+                <p className="hm-small mt-3">
                   {challenge.kind === "ATTENDANCE"
                     ? "Verified club sessions"
                     : "Approved performance submissions"}{" "}
                   · Target {challenge.target}
                 </p>
                 <div className="mt-7 flex items-end justify-between gap-3">
-                  <span className="text-3xl font-black text-[#ffca83] tabular-nums">
+                  <span className="text-3xl font-bold text-[var(--hm-terracotta)] tabular-nums">
                     {p.progress}
-                    <small className="ml-2 text-sm text-[#ab9889]">/ {challenge.target}</small>
+                    <small className="hm-muted ml-2 text-sm">/ {challenge.target}</small>
                   </span>
-                  <span className="text-xs font-bold text-[#d9b58f]">{percentage}%</span>
+                  <span className="hm-small font-bold">{percentage}%</span>
                 </div>
                 <div
                   role="progressbar"
@@ -148,17 +135,25 @@ async function Content({ params }: Props) {
                   aria-valuenow={p.progress}
                   aria-valuemax={challenge.target}
                   aria-valuemin={0}
-                  className="mt-3 h-2.5 overflow-hidden rounded-full bg-[#473527]"
+                  className="mt-3 h-2.5 overflow-hidden rounded-full bg-[var(--hm-line)]"
                 >
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-[#d56a22] to-[#ffd494] transition-[width] duration-300 motion-reduce:transition-none"
+                    className="h-full rounded-full bg-[var(--hm-sage)] transition-[width] duration-300 motion-reduce:transition-none"
                     style={{ width: percentage + "%" }}
                   />
                 </div>
-                <p className="mt-3 text-xs text-[#a99988]">
+                <p className="hm-small mt-3">
                   Ends {challenge.endAt.toISOString().slice(0, 10)} · Results are verified by your
                   club
                 </p>
+                <div className="mt-5">
+                  <VerifiedAchievement
+                    state={awardState({ joined, completed: p.completed, progress: p.progress, ended })}
+                    progress={p.progress}
+                    target={challenge.target}
+                    kind={challenge.kind}
+                  />
+                </div>
                 {member && (
                   <ChallengeJoinButton
                     clubId={clubId}
@@ -172,13 +167,13 @@ async function Content({ params }: Props) {
           })
         )}
       </div>
-      <p className="mt-7 flex items-center gap-2 text-xs leading-6 text-[#a99d91]">
+      <p className="hm-small mt-7 flex items-center gap-2">
         <ShieldCheck className="size-4 shrink-0" /> No health signals, body measures, public
         identities or external ad targeting are used by this feature.
       </p>
       <Link
         href={"/clubs/" + encodeURIComponent(clubId) + "/my/play"}
-        className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-[#ffc588]"
+        className="hm-button hm-button-secondary mt-4"
       >
         <Award className="size-4" /> Back to performance arena
       </Link>

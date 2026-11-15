@@ -3,6 +3,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@/generated/prisma/client";
+import { ClubKeepBrand, ThemeArtwork } from "@/components/human-motion/media-components";
+import { ClubThemeToggle } from "@/components/clubs/theme-toggle";
+import { HM_MEDIA } from "@/components/human-motion/media";
 import { validatedPublic } from "@/lib/public-directory";
 import {
   Dumbbell,
@@ -72,37 +75,29 @@ async function DiscoverContent({ searchParams }: { searchParams: Promise<Query> 
   const list = items.slice(0, 12);
   const next = list[list.length - 1]?.clubId;
   return (
-    <main className="min-h-screen bg-[#0b0705] px-5 py-8 text-[#fff0e0] sm:px-8">
-      <div className="mx-auto max-w-6xl">
-        <header className="flex items-center justify-between border-b border-[#f6dc9b]/15 pb-6">
-          <Link href="/auth/sign-in" className="text-xl font-bold">
-            ClubKeep<span className="ml-2 text-sm font-normal text-[#d2a874]">Discover</span>
-          </Link>
-          <Link
-            href="/auth/sign-in"
-            className="rounded-xl border border-[#f6dc9b]/20 px-4 py-2 text-sm"
-          >
-            Sign in
-          </Link>
+    <main className="hm-app hm-public">
+      <div className="hm-public-container">
+        <header className="hm-public-header">
+          <ClubKeepBrand />
+          <div className="flex items-center gap-2">
+            <ClubThemeToggle />
+            <Link href="/auth/sign-in" className="hm-button hm-button-secondary">Sign in</Link>
+          </div>
         </header>
-        <section className="py-12 sm:py-16">
-          <p className="text-xs font-semibold tracking-[.2em] text-[#e8b36c] uppercase">
-            Find your people
-          </p>
-          <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-6xl">
-            Every community starts somewhere.
-          </h1>
-          <p className="mt-4 max-w-2xl leading-7 text-[#c2a992]">
-            Explore gyms, yoga studios, dance academies, sports clubs and more. Only owner-submitted
-            and approved profiles appear here.
-          </p>
+        <section className="hm-public-hero mt-8">
+          <ThemeArtwork pair={HM_MEDIA.illustrations.botanical} className="hm-gallery-art" />
+          <div className="relative z-10">
+            <p className="hm-kicker hm-page-eyebrow">Find your people</p>
+            <h1 className="mt-4">Every community starts somewhere.</h1>
+            <p className="hm-small mt-5 max-w-2xl">Explore gyms, yoga studios, dance academies, sports clubs and more. Only owner-submitted and approved public profiles appear in search results.</p>
+          </div>
         </section>
         <form
           method="get"
-          className="flex flex-col gap-3 rounded-3xl border border-[#f6dc9b]/20 bg-[#20150e] p-4 sm:flex-row sm:p-5"
+          className="hm-public-card mt-6 flex flex-col gap-3 p-4 sm:flex-row sm:p-5"
         >
-          <label className="flex min-h-12 flex-1 items-center gap-3 rounded-xl border border-[#f6dc9b]/20 bg-[#0b0807] px-4">
-            <Search className="size-4 text-[#c2a180]" />
+          <label className="flex min-h-12 flex-1 items-center gap-3 rounded-xl border border-[var(--hm-line)] bg-[var(--hm-surface)] px-4">
+            <Search className="size-4 text-[var(--hm-sage-deep)]" />
             <span className="sr-only">Search club name</span>
             <input
               name="q"
@@ -119,7 +114,7 @@ async function DiscoverContent({ searchParams }: { searchParams: Promise<Query> 
             id="category"
             name="type"
             defaultValue={type || ""}
-            className="min-h-12 rounded-xl border border-[#f6dc9b]/20 bg-[#0b0807] px-4 text-sm"
+            className="hm-public-field"
           >
             <option value="">All categories</option>
             {categories.map((x) => (
@@ -147,7 +142,7 @@ async function DiscoverContent({ searchParams }: { searchParams: Promise<Query> 
             placeholder="City (optional)"
             className="min-h-12 rounded-xl border border-[#f6dc9b]/20 bg-[#0b0807] px-4 text-sm"
           />
-          <button className="min-h-12 rounded-xl bg-gradient-to-r from-[#e3b962] to-[#f26b00] px-6 font-bold text-[#281607]">
+          <button className="hm-button hm-button-primary">
             Discover
           </button>
         </form>
@@ -160,20 +155,21 @@ async function DiscoverContent({ searchParams }: { searchParams: Promise<Query> 
                 <Link
                   key={item.clubId}
                   href={"/c/" + encodeURIComponent(item.club.slug)}
-                  className="group overflow-hidden rounded-3xl border border-[#f6dc9b]/20 bg-[#1d140e] transition hover:border-[#f6bd73]/55"
+                  className="hm-public-card group"
                 >
-                  <div className="grid h-40 place-items-center bg-gradient-to-br from-[#492a18] via-[#322014] to-[#15100d]">
-                    <Icon className="size-14 text-[#efb873]" aria-hidden="true" />
+                  <div className="hm-public-card-art">
+                    <ThemeArtwork pair={HM_MEDIA.illustrations.botanicalCorner} className="hm-gallery-art" />
+                    <Icon className="relative size-12 text-[var(--hm-sage-deep)]" aria-hidden="true" />
                   </div>
                   <div className="p-6">
-                    <p className="text-xs font-semibold tracking-wider text-[#f5b979] uppercase">
+                    <p className="hm-kicker hm-page-eyebrow">
                       {item.club.vertical.toLowerCase()}
                     </p>
                     <h2 className="mt-2 text-xl font-semibold">{item.club.name}</h2>
-                    <p className="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-[#c4aa93]">
+                    <p className="hm-small mt-2 line-clamp-2 min-h-10">
                       {data?.tagline || "A place to belong."}
                     </p>
-                    <p className="mt-5 flex items-center gap-2 text-xs text-[#bfa58b]">
+                    <p className="hm-small mt-5 flex items-center gap-2">
                       <MapPin className="size-4" />
                       {data?.city || "Location not published"}
                       <ArrowRight className="ml-auto size-4" />
@@ -184,17 +180,17 @@ async function DiscoverContent({ searchParams }: { searchParams: Promise<Query> 
             })}
           </div>
         ) : (
-          <section className="mt-8 rounded-3xl border border-dashed border-[#f6dc9b]/25 p-12 text-center">
-            <Search className="mx-auto size-9 text-[#dfaf76]" />
+          <section className="hm-ops-empty mt-8 text-center">
+            <Search className="mx-auto size-9 text-[var(--hm-sage-deep)]" />
             <h2 className="mt-4 text-xl font-semibold">No clubs found</h2>
-            <p className="mt-2 text-sm text-[#bca28a]">
+            <p className="hm-small mt-2">
               Try another name or category. New clubs appear only after approval.
             </p>
           </section>
         )}
         {more && next && (
           <Link
-            className="mt-8 inline-flex rounded-xl border border-[#f6dc9b]/25 px-5 py-3 text-sm"
+            className="hm-button hm-button-secondary mt-8"
             href={
               "/discover/clubs?" +
               new URLSearchParams({
@@ -208,7 +204,7 @@ async function DiscoverContent({ searchParams }: { searchParams: Promise<Query> 
             Explore more clubs <ArrowRight className="ml-2 size-4" />
           </Link>
         )}
-        <footer className="mt-16 border-t border-[#f6dc9b]/10 py-8 text-xs text-[#bba18a]">
+        <footer className="hm-small mt-16 border-t border-[var(--hm-line)] py-8">
           ClubKeep by BabaBuilds · Discover a community, keep your membership private.
         </footer>
       </div>

@@ -20,7 +20,9 @@ export default function MemberRenewalRoute(props: { params: Promise<{ clubId: st
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-[#0b0b0e] p-8 text-[#fce8d2]">Loading your club…</main>
+        <main className="min-h-screen bg-[var(--hm-surface)] p-8 text-[var(--hm-text)]">
+          Loading your club…
+        </main>
       }
     >
       <MemberRenewal {...props} />
@@ -89,14 +91,17 @@ async function MemberRenewal({ params }: { params: Promise<{ clubId: string }> }
             renew a subscription automatically.
           </p>
         </section>
-        <aside className="rounded-3xl border border-white/10 bg-[#19191e] p-7">
+        <aside className="rounded-3xl border border-[var(--hm-line)] bg-[var(--hm-surface)] p-7">
           <h2 className="flex items-center gap-2 text-lg font-bold">
             <CheckCircle2 className="size-5 text-[#ffc47f]" /> Your requests
           </h2>
           {requests.length ? (
             <ul className="mt-5 space-y-3">
               {requests.map((request) => (
-                <li key={request.id} className="rounded-xl border border-white/10 bg-[#252026] p-4">
+                <li
+                  key={request.id}
+                  className="rounded-xl border border-[var(--hm-line)] bg-[#252026] p-4"
+                >
                   <p className="text-sm font-semibold text-[#ffe3c3]">
                     {renewalStatusLabel(request.status)}
                   </p>

@@ -1,7 +1,14 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { DemoExperience } from "@/components/demo/demo-experience";
-import { DEMO_ROLES, DEMO_VIEWS, type DemoRole, type DemoView } from "@/lib/demo-fixtures";
+import {
+  DEMO_ROLES,
+  DEMO_VIEWS,
+  DEMO_VERTICALS,
+  type DemoRole,
+  type DemoView,
+  type DemoVertical,
+} from "@/lib/demo-fixtures";
 
 export const metadata: Metadata = {
   title: "Explore ClubKeep · Interactive full-feature demo",
@@ -10,7 +17,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-type Props = { searchParams: Promise<{ role?: string; view?: string }> };
+type Props = { searchParams: Promise<{ role?: string; view?: string; vertical?: string }> };
 export default function DemoPage(props: Props) {
   return (
     <Suspense
@@ -28,5 +35,6 @@ async function DemoPageContent({ searchParams }: Props) {
   const params = await searchParams;
   const role: DemoRole = DEMO_ROLES.find((r) => r === params.role) ?? "owner";
   const view: DemoView = DEMO_VIEWS.find((v) => v === params.view) ?? "overview";
-  return <DemoExperience initialRole={role} initialView={view} />;
+  const vertical: DemoVertical = DEMO_VERTICALS.find((v) => v === params.vertical) ?? "GYM";
+  return <DemoExperience initialRole={role} initialView={view} initialVertical={vertical} />;
 }

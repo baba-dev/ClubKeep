@@ -6,7 +6,12 @@ set -Eeuo pipefail
 umask 077
 
 die() { printf 'CLUBKEEP DEPLOY STOP: %s\n' "$*" >&2; exit 1; }
-[[ "${EUID}" -eq 0 && "$#" -eq 2 ]] || die "Root and two validated arguments required"
+if [[ "$#" -eq 1 && "$1" == "--capabilities" ]]; then
+  [[ "$EUID" -eq 0 ]] || die "Root required"
+  echo 'clubkeep-release-formats: 1,2'
+  exit 0
+fi
+[[ "$EUID" -eq 0 && "$#" -eq 2 ]] || die "Root and two validated arguments required"
 sha="$1"; digest="$2"
 [[ "$sha" =~ ^[0-9a-f]{40}$ && "$digest" =~ ^[0-9a-f]{64}$ ]] || die "Invalid SHA or digest"
 BASE=/var/www/clubkeep
@@ -38,16 +43,74 @@ printf '%s  %s\n' "$digest" "$archive" | sha256sum --check --strict >/dev/null |
 
 # Archive entries must be relative and may only live under the release roots.
 # GNU tar is run as the unprivileged clubkeep user, never as root.
-if ! tar -tzf "$archive" | awk '
-  /^\// { bad=1 }
-  /(^|\/)\.\.(\/|$)/ { bad=1 }
-  !(/^\.\/RELEASE-SHA$/ || /^\.\/package\.json$/ ||
+# List the archive completely before detecting the format or extracting any bytes.
+listing="$(tar -tzf "$archive")" || die "Unable to list release archive"
+format=1
+if printf '%s\n' "$listing" | awk '$0 == "./release-manifest.json" { ok=1 } END { exit !ok }'; then
+  format=2
+fi
+if ! printf '%s\n' "$listing" | awk -v format="$format" '
+  /^\// || /(^|\/)\.\.(\/|$)/ { bad=1 }
+  format == 1 && !(/^\.\/RELEASE-SHA$/ || /^\.\/package\.json$/ ||
     /^\.\/package-lock\.json$/ || /^\.\/next\.config\.ts$/ ||
     /^\.\/prisma\.config\.ts$/ || /^\.\/prisma(\/|$)/ ||
     /^\.\/node_modules(\/|$)/ || /^\.\/\.next\/standalone(\/|$)/) { bad=1 }
+  format == 2 && !(/^\.\/RELEASE-SHA$/ || /^\.\/release-manifest\.json$/ ||
+    /^\.\/migrate(\/|$)/ || /^\.\/\.next\/standalone(\/|$)/) { bad=1 }
   END { exit bad }
 '; then
-  die "Unexpected path in archive"
+  die "Unexpected path in release format $format archive"
+fi
+if [[ "$format" == 2 ]]; then
+  # Inspect link targets BEFORE extraction; Next.js standalone legitimately
+  # uses internal symlinks. Refuse escapes, hardlinks, special files, and bombs.
+  python3 - "$archive" <<'PY' || die "Unsafe lean archive member or link"
+import posixpath
+import sys
+import tarfile
+
+def allowed(path):
+    return (
+        path in {"RELEASE-SHA", "release-manifest.json", "migrate", ".next/standalone"}
+        or path.startswith("migrate/")
+        or path.startswith(".next/standalone/")
+    )
+
+try:
+    total = 0
+    count = 0
+    seen = set()
+    with tarfile.open(sys.argv[1], mode="r:gz") as archive:
+        for member in archive:
+            raw = member.name
+            if raw.startswith("/") or ".." in raw.split("/"):
+                raise ValueError("Non-relative archive path")
+            name = posixpath.normpath(raw)
+            if not allowed(name) or name in seen:
+                raise ValueError("Unexpected or duplicate release entry")
+            seen.add(name)
+            count += 1
+            if count > 100000:
+                raise ValueError("Too many archive entries")
+            if member.issym():
+                link = member.linkname
+                if posixpath.isabs(link) or ".." in link.split("/") and not link.startswith("../"):
+                    raise ValueError("Unsupported symlink")
+                target = posixpath.normpath(posixpath.join(posixpath.dirname(name), link))
+                if not (target == "migrate" or target.startswith("migrate/")
+                        or target == ".next/standalone"
+                        or target.startswith(".next/standalone/")):
+                    raise ValueError("Escaping archive symlink")
+            elif member.isfile():
+                total += member.size
+                if total > 700 * 1024 * 1024:
+                    raise ValueError("Archive expanded size exceeds limit")
+            elif not member.isdir():
+                raise ValueError("Hardlink or special file forbidden")
+except (ValueError, tarfile.TarError, OSError) as exc:
+    print("Invalid lean release tar members:", exc, file=sys.stderr)
+    sys.exit(1)
+PY
 fi
 
 previous="$(readlink -f "$current")"
@@ -61,10 +124,34 @@ chmod 0640 "$archive"
 runuser -u clubkeep -- tar --extract --gzip --file "$archive" --directory "$tmp" --no-same-owner ||
     die "Unable to extract release as clubkeep"
 [[ "$(cat "$tmp/RELEASE-SHA")" == "$sha" ]] || die "Release marker mismatch"
-[[ -s "$tmp/.next/standalone/server.js" &&
-   -x "$tmp/node_modules/.bin/prisma" &&
-   -f "$tmp/prisma/migrations/migration_lock.toml" ]] ||
-    die "Required standalone or migration files absent"
+[[ -s "$tmp/.next/standalone/server.js" ]] ||
+  die "Standalone server missing"
+if [[ "$format" == 2 ]]; then
+  [[ -f "$tmp/release-manifest.json" &&
+     -s "$tmp/migrate/node_modules/prisma/build/index.js" &&
+     -f "$tmp/migrate/node_modules/dotenv/package.json" &&
+     -f "$tmp/migrate/prisma/migrations/migration_lock.toml" &&
+     -f "$tmp/migrate/prisma.config.ts" &&
+     ! -e "$tmp/node_modules" ]] || die "Lean migration toolchain missing"
+  "$NODE_BIN/node" - "$tmp/release-manifest.json" "$sha" <<'NODE' ||
+    die "Lean release manifest invalid"
+const fs = require("node:fs");
+const [,, file, sha] = process.argv;
+const m = JSON.parse(fs.readFileSync(file, "utf8"));
+if (m.format !== 2 || m.application !== "clubkeep" || m.sha !== sha ||
+    m.architecture !== "linux-arm64" || m.runtime !== "node24" ||
+    !/^[0-9a-f]{64}$/.test(m.packageLockSha256)) process.exit(1);
+NODE
+  # Even if a producer included symlinks, do not allow links outside this release.
+  while IFS= read -r -d '' link; do
+    resolved="$(realpath -e -- "$link")" || die "Dangling symlink in artifact"
+    [[ "$resolved" == "$tmp/"* ]] || die "Artifact symlink escapes release root"
+  done < <(find "$tmp" -type l -print0)
+else
+  [[ -x "$tmp/node_modules/.bin/prisma" &&
+     -f "$tmp/prisma/migrations/migration_lock.toml" ]] ||
+     die "Legacy migration toolchain missing"
+fi
 mv "$tmp" "$release"
 
 # Backup is independent of MenuMinute and captured BEFORE schema changes.
@@ -77,16 +164,21 @@ chmod 0600 "$backup"
 echo "Verified isolated ClubKeep backup: $(basename "$backup")"
 
 # The migrator URL is never printed or stored in the release archive.
+migration_root="$release"
+migration_cli="node_modules/prisma/build/index.js"
+if [[ "$format" == 2 ]]; then
+  migration_root="$release/migrate"
+fi
 (
   set -a
   # shellcheck disable=SC1090
   source "$CONFIG/migrate.env"
   set +a
-  cd "$release"
+  cd "$migration_root"
   runuser -u clubkeep -- env PATH="$NODE_BIN:/usr/bin:/bin" \
-    "$NODE_BIN/node" node_modules/prisma/build/index.js migrate deploy
+    "$NODE_BIN/node" "$migration_cli" migrate deploy
   runuser -u clubkeep -- env PATH="$NODE_BIN:/usr/bin:/bin" \
-    "$NODE_BIN/node" node_modules/prisma/build/index.js migrate status
+    "$NODE_BIN/node" "$migration_cli" migrate status
 ) || die "Migrations failed; previous release still active"
 
 # Fresh tables from additive migrations need DML grants, not DDL.

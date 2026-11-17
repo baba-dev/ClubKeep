@@ -38,13 +38,18 @@ jobs:
           node --check infra/deploy/build-migration-kit.mjs
           node --check infra/deploy/verify-lean-release.mjs
           bash -n infra/deploy/clubkeep-cleanup.sh
+          bash -n infra/deploy/clubkeep-node24-rollback.sh
+          if bash infra/deploy/clubkeep-node24-rollback.sh --apply > /dev/null 2>&1; then
+            echo "Unsafe operator-only runtime rollback accepted on non-root runner" >&2
+            exit 1
+          fi
           # Non-root runners must not be permitted to prune production paths.
           if bash infra/deploy/clubkeep-cleanup.sh --apply > /dev/null 2>&1; then
             echo "Unsafe retention: non-root apply was accepted" >&2
             exit 1
           fi
 
-      - name: Set up Node 24
+      - name: Set up Node 26.13.1
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version-file: .nvmrc
@@ -71,6 +76,9 @@ jobs:
           npm run lint
           npm run format:check
           npm run typecheck
+
+      - name: Node runtime / release manifest regression suite
+        run: node --test tests/unit/node-runtime-migration.test.mjs
 
       - name: Unit tests
         run: npm run test
@@ -116,7 +124,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Set up Node 24
+      - name: Set up Node 26.13.1
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version-file: .nvmrc
@@ -166,7 +174,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - name: Set up Node 24
+      - name: Set up Node 26.13.1
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version-file: .nvmrc

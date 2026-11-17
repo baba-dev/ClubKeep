@@ -11,6 +11,29 @@ if [[ "$#" -eq 1 && "$1" == "--capabilities" ]]; then
   echo 'clubkeep-release-formats: 1,2,3'
   exit 0
 fi
+# Production deploy only accepts v3 after the installed root-owned helper and
+# shared Node26 installation have passed this read-only prerequisite.
+if [[ "$#" -eq 1 && "$1" == "--node26-ready" ]]; then
+  [[ "$EUID" -eq 0 ]] || die "Root required"
+  node26=/opt/bababuilds/runtimes/node-v26.13.1-linux-arm64/bin/node
+  [[ -f "$node26" && ! -L "$node26" && -x "$node26" ]] ||
+    die "Shared Node26 runtime missing"
+  [[ "$("$node26" -p 'process.version+":"+process.platform+":"+process.arch')" ==
+     "v26.13.1:linux:arm64" ]] || die "Node26 version or platform mismatch"
+  printf '%s  %s\n' \
+    de21e5b6e081aa16f86413aeba8c77fac44670cb6fe2748cc7c00329e6e6aa3a \
+    "$node26" | sha256sum --check --status || die "Shared runtime checksum mismatch"
+  for svc in bababuilds-erp.service postgresql@17-main.service \
+             clubkeep-web.service clubkeep-redis.service \
+             menuminute-web.service menuminute-worker.service; do
+    systemctl is-active --quiet "$svc" ||
+      die "Production prerequisite service unhealthy: $svc"
+  done
+  [[ -f /var/www/clubkeep/current/.next/standalone/server.js ]] ||
+    die "Current ClubKeep release is missing"
+  echo 'CLUBKEEP_NODE26_READY shared_runtime_verified all_sibling_services_active'
+  exit 0
+fi
 [[ "$EUID" -eq 0 && "$#" -eq 2 ]] || die "Root and two validated arguments required"
 sha="$1"; digest="$2"
 [[ "$sha" =~ ^[0-9a-f]{40}$ && "$digest" =~ ^[0-9a-f]{64}$ ]] || die "Invalid SHA or digest"

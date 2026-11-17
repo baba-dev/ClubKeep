@@ -8,7 +8,7 @@
 - Separate **Business web app** and **Personal web/app surfaces** sharing a design system. Responsive PWA and Android/iOS mobile clients can share an API/domain contract; health-platform collection requires native integration.
 - Business and Personal billing entitlements are independent. Paid Growth/Pro clubs can assign a fixed number of sponsored **Personal Pro** seats; assigned users control private health-data sharing.
 - Regional and age policy engine must guard features **at the API level**, not solely in UI.
-- Keep ClubKeep's original Luxe visual design direction; add a distinct, complementary Personal health experience rather than duplicating a club dashboard.
+- Keep ClubKeep's approved Human Motion 2.0 design system ([DESIGN.md](DESIGN.md)); add a distinct, complementary Personal health experience rather than duplicating a club dashboard.
 
 ## Phase 0 — Correct current scaffold (critical prerequisite; detailed plan in [PHASE_0_FOUNDATION.md](PHASE_0_FOUNDATION.md))
 

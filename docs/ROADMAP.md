@@ -82,7 +82,7 @@ Cut from the bottom of this list first if time runs short (order of cuts: ID car
 ## Platform and design updates (14–17 Nov 2026)
 
 - [x] Safe full-product demo and onboarding repair, merged PR #26 ([DEMO_AND_ONBOARDING.md](DEMO_AND_ONBOARDING.md)).
-- [x] Human Motion 2.0 visual pass: HM2-A owner dashboard (#29), HM2-B club operations (#30), HM2-C member, onboarding and public (#31), demo visual and release readiness (#32). See `docs/design/`. **Open:** `DESIGN.md` still names Luxe as the approved theme; the governing system needs an owner decision.
+- [x] Human Motion 2.0 visual pass: HM2-A owner dashboard (#29), HM2-B club operations (#30), HM2-C member, onboarding and public (#31), demo visual and release readiness (#32). See `docs/design/`. `DESIGN.md` now names HM2 as the governing system (owner decision, 17 Nov 2026); Luxe is superseded history.
 - [x] Lean release artifacts v2 (#33, [LEAN_RELEASES_V2.md](LEAN_RELEASES_V2.md)) and Node 26 central runtime cutover (#34, [NODE26-CENTRAL-RUNTIME.md](NODE26-CENTRAL-RUNTIME.md)): deploy tooling only, no product change.
 - [x] B7 owner insights implemented on a feature branch, awaiting review and a PG17 integration test ([B7_OWNER_INSIGHTS.md](B7_OWNER_INSIGHTS.md)).
 - [ ] **Next:** pilot go-live gate (enable providers, staging acceptance, restore and rollback drill), then B8 billing plan (needs plan mode and owner decisions on open entitlements).

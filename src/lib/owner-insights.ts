@@ -105,8 +105,10 @@ export async function ownerInsights(
       FROM "ClubAttendance"
       WHERE "clubId" = ${clubId} AND "localDate" >= ${trendStart} AND "localDate" <= ${today}
     `,
+    // "joinedAt" is TIMESTAMP(3) without zone holding UTC: tag it as UTC first, then convert
+    // to club-local time. A single AT TIME ZONE would shift the instant the wrong way.
     db.$queryRaw<Array<{ month: string; joined: bigint }>>`
-      SELECT to_char("joinedAt" AT TIME ZONE ${timeZone}, 'YYYY-MM') AS "month", COUNT(*)::bigint AS "joined"
+      SELECT to_char(("joinedAt" AT TIME ZONE 'UTC') AT TIME ZONE ${timeZone}, 'YYYY-MM') AS "month", COUNT(*)::bigint AS "joined"
       FROM "ClubMemberRecord"
       WHERE "clubId" = ${clubId} AND "joinedAt" >= ${growthCutoff}
       GROUP BY 1

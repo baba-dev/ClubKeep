@@ -91,7 +91,8 @@ Names are suggestions; keep them consistent once chosen. All club-owned models i
 | `Kpi`              | Definition of a measure: name, unit, direction (higher or lower is better)                    |
 | `Season`           | Calendar season: year, index 1 to 4, start and end dates                                      |
 | `Score`            | Member, activity, KPI, season, value, status (pending, approved, rejected), enteredBy, approvedBy |
-| `OwnerSubscription`| The owner's ClubKeep plan: tier, provider (razorpay or stripe), provider ids, status, period end |
+| `ClubSubscription` | B8: the club's ClubKeep plan (one row per club): tier, provider (razorpay or stripe), provider subscription id, status, paid-through date, grace clock. Owner decision 17 Nov 2026: billed **per club**, replacing the earlier owner-level `OwnerSubscription` idea |
+| `BillingWebhookEvent` | B8: idempotency ledger of provider webhook event ids (identifiers only, no payloads) |
 | `MessageLog`       | Outbound WhatsApp messages for caps, audit and opt-outs (later)                               |
 
 Money: integer minor units plus currency. Optional phone contacts: E.164 where supplied; globally nonunique until independently verified. Timestamps: UTC.
@@ -102,7 +103,7 @@ Money: integer minor units plus currency. Optional phone contacts: E.164 where s
 - **Check-in:** QR carries a signed, short-lived token for the club; GPS compares coordinates to the club's radius on the server; manual is staff-only. All write a `Checkin`.
 - **Payment records:** staff record a payment against a member's `Membership`; the dues status is derived from it. No money moves through ClubKeep.
 - **Leaderboards:** scores are entered, then approved by club staff. Only approved scores count. Ranks are computed per club, season and activity and cached in Redis sorted sets; PostgreSQL is the record and the cache can always be rebuilt from it.
-- **Owner billing:** one billing interface with two providers, Razorpay for India and Stripe elsewhere, chosen by the owner's country. Webhooks update `OwnerSubscription`. Plan limits (members, staff, features) are read from the tier on the server.
+- **Owner billing (B8):** one billing interface with two providers, Razorpay for India and Stripe elsewhere, chosen by the club's country. Verified, idempotent webhooks update `ClubSubscription`; `effectiveTier()` decides the entitled tier and enforcement reads it directly. See [B8_BILLING.md](B8_BILLING.md).
 - **WhatsApp (later):** a channel interface with a Baileys implementation. A Redis counter per owner per day enforces the tier cap (Growth 50, Pro 200). Messages are AI-personalized from member data and can require approval before sending.
 
 ## Security checklist

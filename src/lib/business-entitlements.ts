@@ -1,4 +1,5 @@
 import type { BusinessTier, PrismaClient } from "@/generated/prisma/client";
+import { effectiveTier } from "@/lib/billing/policy";
 
 /** Approved member caps. Pro uses capacity/fair-use limits outside this numeric gate. */
 export const MEMBER_LIMITS: Record<BusinessTier, number | null> = {
@@ -30,10 +31,19 @@ type Client = Pick<PrismaClient, "club" | "$queryRaw">;
 export async function assertMemberSeatAvailable(tx: Client, clubId: string) {
   const club = await tx.club.findUnique({
     where: { id: clubId },
-    select: { businessTier: true, status: true },
+    select: {
+      businessTier: true,
+      status: true,
+      billingSubscription: {
+        select: { tier: true, status: true, currentPeriodEnd: true, pastDueSince: true },
+      },
+    },
   });
   if (!club || club.status !== "ACTIVE") throw new MemberLimitError(0);
-  const limit = MEMBER_LIMITS[club.businessTier];
+  // Read-through: a lapsed grace period or ended plan limits NEW members at once,
+  // without waiting for any webhook or timer. Existing data is never touched.
+  const limit =
+    MEMBER_LIMITS[effectiveTier(club.billingSubscription, club.businessTier, new Date())];
   if (limit === null) return;
   const counts = await tx.$queryRaw<{ used: number }[]>`
     SELECT (

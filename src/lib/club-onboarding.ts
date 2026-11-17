@@ -10,12 +10,12 @@ import {
 } from "@/lib/invite-token";
 
 export class OnboardingError extends Error {
-  constructor(
-    public readonly status: number,
-    message: string
-  ) {
+  // Explicit field (not a parameter property) so Node type stripping can load this module in tests.
+  readonly status: number;
+  constructor(status: number, message: string) {
     super(message);
     this.name = "OnboardingError";
+    this.status = status;
   }
 }
 

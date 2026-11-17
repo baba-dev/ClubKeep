@@ -82,6 +82,13 @@
 
 There are **no dedicated clinician accounts or clinician-specific portal subscriptions**. User-authored care plans and appointment notes may be designed in later phases. Any two-way clinical messaging would need a separately approved secure **external-recipient** mechanism; Phase 0 cannot add clinician identities.
 
+## Decided for Business billing (B8, owner decisions 17 Nov 2026)
+
+- Billed **per club**, monthly only (no Business annual discount is approved).
+- After a failed renewal the club keeps its paid tier for **7 days**, then drops to Free. Nothing is deleted; Free only blocks new members beyond the cap.
+- List prices are **tax-exclusive**: tax is added at checkout. The GST rate and rounding are still configured by the operator (`BILLING_TAX_BASIS_POINTS`) and need a tax adviser's confirmation before launch.
+- Plan changes (upgrade or downgrade) while a plan is running are **not** supported yet; cancel at period end and subscribe again.
+
 ## Not decided, by design
 
 Exact monthly Free club quotas, 1 staff owner counting, Growth/Pro sponsored seat quantities, Premium-exclusive non-AI benefits, premium wearable vendor list, offline conflict policy, full-storage abuse policy, AI request retry/refund, payment region/currency taxes, annual rounding, App Store/Play billing crossgrades, and family permissions remain **OPEN**. Do not silently invent values in implementation.

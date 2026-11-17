@@ -245,6 +245,11 @@ fi
 if [[ "$candidate_runtime" != "$previous_runtime" && "$schema_unchanged" != true ]]; then
   die "Node runtime transition cannot include database schema migrations"
 fi
+# A one-way Node24 downgrade must not masquerade as an ordinary new release.
+# The separately audited node24 rollback operator uses the pinned prior SHA.
+if [[ "$candidate_runtime" == node24 && "$previous_runtime" == node26 ]]; then
+  die "Node24 downgrade requires the dedicated root-only rollback operator"
+fi
 
 # Backup is independent of MenuMinute and captured BEFORE schema changes.
 install -d -m 0700 -o root -g root "$BACKUPS"
@@ -398,6 +403,23 @@ if [[ "$healthy" != 1 ]]; then
   false
 fi
 test "$(readlink -f "$current")" = "$release"
+# Keep the exact previous Node24 SHA outside the 14-day release pruner's
+# ordinary retention rules, until an explicit rollback-retirement review.
+if [[ "$candidate_runtime" == node26 && "$previous_runtime" == node24 ]]; then
+  pin_dir=/var/lib/clubkeep/rollback
+  pin="$pin_dir/node24-release-sha"
+  install -d -o root -g root -m 0700 "$pin_dir"
+  [[ ! -L "$pin" ]] || { echo 'CLUBKEEP_NODE24_PIN_INVALID' >&2; false; }
+  if [[ -f "$pin" ]]; then
+    [[ "$(cat "$pin")" == "$(basename "$previous")" ]] || {
+      echo 'CLUBKEEP_NODE24_PIN_CONFLICT' >&2; false;
+    }
+  else
+    printf '%s\n' "$(basename "$previous")" > "$pin"
+    chown root:root "$pin"
+    chmod 0600 "$pin"
+  fi
+fi
 trap - ERR
 echo "CLUBKEEP_DEPLOYED_NODE_RUNTIME sha=$sha runtime=$candidate_runtime"
 echo 'CLUBKEEP_DEPLOY_PASS sibling_services_healthy'

@@ -24,6 +24,7 @@ readonly ARCHIVE_MIN_AGE_DAYS=7
 readonly BACKUP_MIN_AGE_DAYS=30
 readonly KEEP_RELEASES=3
 readonly KEEP_BACKUPS=14
+readonly NODE24_ROLLBACK_PIN=/var/lib/clubkeep/rollback/node24-release-sha
 
 # Never race production deployment. Do not block releases waiting for cleanup.
 exec 9>/run/lock/clubkeep-release.lock
@@ -46,7 +47,24 @@ active="$(readlink -f "$CURRENT")"
   echo "Current release is not an exact valid ClubKeep SHA directory" >&2
   exit 1
 }
-echo "ClubKeep cleanup mode: $mode (active release protected)"
+# A Node26 cutover must not lose its verified Node24 rollback release
+# because the ordinary 14-day rotation timer fired. Root-only pin is exact.
+protected_rollback=""
+if [[ -e "$NODE24_ROLLBACK_PIN" || -L "$NODE24_ROLLBACK_PIN" ]]; then
+  [[ -f "$NODE24_ROLLBACK_PIN" && ! -L "$NODE24_ROLLBACK_PIN" &&
+     "$(stat -c '%U:%a' "$NODE24_ROLLBACK_PIN")" == "root:600" ]] || {
+       echo "Invalid Node24 rollback pin: refusing cleanup" >&2; exit 1;
+     }
+  legacy_sha="$(cat "$NODE24_ROLLBACK_PIN")"
+  [[ "$legacy_sha" =~ ^[0-9a-f]{40}$ ]] || {
+    echo "Invalid pinned Node24 rollback SHA: refusing cleanup" >&2; exit 1;
+  }
+  protected_rollback="$RELEASES/$legacy_sha"
+  [[ -d "$protected_rollback" && ! -L "$protected_rollback" ]] || {
+    echo "Pinned Node24 rollback release missing: refusing cleanup" >&2; exit 1;
+  }
+fi
+echo "ClubKeep cleanup mode: $mode (current and pinned Node24 rollback protected)"
 
 remove_path() {
   local kind="$1" path="$2"
@@ -85,7 +103,7 @@ now="$(date -u +%s)"
 echo "Eligible expired releases (newest $KEEP_RELEASES and current protected):"
 for ((i=KEEP_RELEASES; i<${#releases[@]}; i++)); do
   path="${releases[$i]}"
-  [[ "$path" != "$active" ]] || continue
+  [[ "$path" != "$active" && "$path" != "$protected_rollback" ]] || continue
   # Never follow symlinks, paths to unexpected filesystems, or directories
   # made recently during a deploy.
   [[ -d "$path" && ! -L "$path" ]] || continue

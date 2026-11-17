@@ -8,7 +8,7 @@ umask 077
 die() { printf 'CLUBKEEP DEPLOY STOP: %s\n' "$*" >&2; exit 1; }
 if [[ "$#" -eq 1 && "$1" == "--capabilities" ]]; then
   [[ "$EUID" -eq 0 ]] || die "Root required"
-  echo 'clubkeep-release-formats: 1,2'
+  echo 'clubkeep-release-formats: 1,2,3'
   exit 0
 fi
 [[ "$EUID" -eq 0 && "$#" -eq 2 ]] || die "Root and two validated arguments required"
@@ -17,6 +17,11 @@ sha="$1"; digest="$2"
 BASE=/var/www/clubkeep
 CONFIG=/etc/clubkeep
 NODE_BIN=/opt/menuminute/node24/bin
+NODE26_BIN=/opt/bababuilds/runtimes/node-v26.13.1-linux-arm64/bin
+NODE26_SHA256=de21e5b6e081aa16f86413aeba8c77fac44670cb6fe2748cc7c00329e6e6aa3a
+RUNTIME_DROPIN=/etc/systemd/system/clubkeep-web.service.d/50-bababuilds-node-runtime.conf
+# This is only a ClubKeep unit override; the shared runtime is never edited.
+CLUBKEEP_SERVER=/var/www/clubkeep/current/.next/standalone/server.js
 INCOMING=/var/lib/clubkeep/incoming
 BACKUPS=/var/lib/clubkeep/backups
 archive="$INCOMING/clubkeep-$sha-linux-arm64.tar.gz"
@@ -31,7 +36,9 @@ flock -n 9 || die "Another ClubKeep deployment is running"
 [[ ! -e "$release" && ! -e "$tmp" ]] || die "Release already exists; no overwrite"
 [[ -f "$archive" && ! -L "$archive" ]] || die "Missing regular staged release archive"
 [[ "$(stat -c %U "$archive")" == "clubkeep-deploy" ]] || die "Untrusted archive owner"
-[[ -x "$NODE_BIN/node" && -x "$NODE_BIN/npm" ]] || die "Node 24 runtime missing"
+[[ -x "$NODE_BIN/node" && -x "$NODE_BIN/npm" ]] || die "Node 24 rollback runtime missing"
+[[ "$("$NODE_BIN/node" -p 'process.versions.node.split(".")[0] + ":" + process.arch')" == "24:arm64" ]] ||
+  die "Expected existing Node24 ARM64 rollback runtime"
 [[ "$(uname -m)" == aarch64 ]] || die "ARM64 VPS required"
 systemctl is-active --quiet clubkeep-redis || die "ClubKeep Redis is down"
 systemctl is-active --quiet menuminute-web || die "MenuMinute web is not healthy"
@@ -126,6 +133,9 @@ runuser -u clubkeep -- tar --extract --gzip --file "$archive" --directory "$tmp"
 [[ "$(cat "$tmp/RELEASE-SHA")" == "$sha" ]] || die "Release marker mismatch"
 [[ -s "$tmp/.next/standalone/server.js" ]] ||
   die "Standalone server missing"
+# A release with a manifest must be the reviewed lean v2 (Node24) or v3
+# (exact Node26.13.1). Legacy format-1 remains Node24-only for rollback.
+candidate_runtime=node24
 if [[ "$format" == 2 ]]; then
   [[ -f "$tmp/release-manifest.json" &&
      -s "$tmp/migrate/node_modules/prisma/build/index.js" &&
@@ -133,15 +143,21 @@ if [[ "$format" == 2 ]]; then
      -f "$tmp/migrate/prisma/migrations/migration_lock.toml" &&
      -f "$tmp/migrate/prisma.config.ts" &&
      ! -e "$tmp/node_modules" ]] || die "Lean migration toolchain missing"
-  "$NODE_BIN/node" - "$tmp/release-manifest.json" "$sha" <<'NODE' ||
-    die "Lean release manifest invalid"
+  candidate_runtime="$("$NODE_BIN/node" - "$tmp/release-manifest.json" "$sha" <<'NODE'
 const fs = require("node:fs");
 const [,, file, sha] = process.argv;
 const m = JSON.parse(fs.readFileSync(file, "utf8"));
-if (m.format !== 2 || m.application !== "clubkeep" || m.sha !== sha ||
-    m.architecture !== "linux-arm64" || m.runtime !== "node24" ||
-    !/^[0-9a-f]{64}$/.test(m.packageLockSha256)) process.exit(1);
+const valid = m.application === "clubkeep" && m.sha === sha &&
+  m.architecture === "linux-arm64" && /^[0-9a-f]{64}$/.test(m.packageLockSha256);
+if (!valid) process.exit(1);
+if (m.format === 2 && m.runtime === "node24") process.stdout.write("node24");
+else if (m.format === 3 && m.runtime === "node26" &&
+         m.nodeVersion === "26.13.1") process.stdout.write("node26");
+else process.exit(1);
 NODE
+  )" || die "Lean v2/v3 release manifest invalid"
+  [[ "$candidate_runtime" == node24 || "$candidate_runtime" == node26 ]] ||
+    die "Unsupported release runtime"
   # Even if a producer included symlinks, do not allow links outside this release.
   while IFS= read -r -d '' link; do
     resolved="$(realpath -e -- "$link")" || die "Dangling symlink in artifact"
@@ -153,6 +169,59 @@ else
      die "Legacy migration toolchain missing"
 fi
 mv "$tmp" "$release"
+
+# Verify the versioned shared platform runtime only when using it.
+selected_node="$NODE_BIN/node"
+selected_bin="$NODE_BIN"
+if [[ "$candidate_runtime" == node26 ]]; then
+  [[ -f "$NODE26_BIN/node" && ! -L "$NODE26_BIN/node" && -x "$NODE26_BIN/node" &&
+     -x "$NODE26_BIN/npm" ]] || die "Approved shared Node26 runtime not installed"
+  [[ "$("$NODE26_BIN/node" -p 'process.version + ":" + process.platform + ":" + process.arch')" ==
+     "v26.13.1:linux:arm64" ]] || die "Shared Node26 runtime version mismatch"
+  printf '%s  %s\n' "$NODE26_SHA256" "$NODE26_BIN/node" |
+    sha256sum --check --status || die "Shared Node26 binary differs from verified PR A runtime"
+  selected_node="$NODE26_BIN/node"
+  selected_bin="$NODE26_BIN"
+fi
+
+# Previous immutable release determines the runtime to restore on failure.
+previous_runtime=node24
+if [[ -f "$previous/release-manifest.json" ]]; then
+  previous_runtime="$("$NODE_BIN/node" - "$previous/release-manifest.json" <<'NODE'
+const fs = require("node:fs");
+const m = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
+if (m.format === 2 && m.application === "clubkeep" && m.runtime === "node24") process.stdout.write("node24");
+else if (m.format === 3 && m.application === "clubkeep" &&
+         m.runtime === "node26" && m.nodeVersion === "26.13.1") process.stdout.write("node26");
+else process.exit(1);
+NODE
+  )" || die "Unsupported previous release runtime; rollback cannot be guaranteed"
+fi
+
+previous_node="$NODE_BIN/node"
+[[ "$previous_runtime" != node26 ]] || previous_node="$NODE26_BIN/node"
+unit_exec="$(systemctl show clubkeep-web.service --property=ExecStart --value)"
+[[ "$unit_exec" == *"$previous_node"* ]] ||
+  die "Live ClubKeep systemd ExecStart does not match previous release runtime"
+[[ "$unit_exec" == *".next/standalone/server.js"* ]] ||
+  die "Unexpected ClubKeep systemd entrypoint: refusing blind override"
+[[ -e "$CLUBKEEP_SERVER" && ! -L "$CLUBKEEP_SERVER" ]] ||
+  die "ClubKeep current server.js missing"
+
+# Runtime-only migration must not also introduce a database schema change.
+previous_migrations="$previous/migrate/prisma/migrations"
+[[ -d "$previous_migrations" ]] || previous_migrations="$previous/prisma/migrations"
+candidate_migrations="$release/migrate/prisma/migrations"
+[[ -d "$candidate_migrations" ]] || candidate_migrations="$release/prisma/migrations"
+[[ -d "$previous_migrations" && -d "$candidate_migrations" ]] ||
+  die "Cannot compare ClubKeep migration history"
+schema_unchanged=false
+if diff -qr -- "$previous_migrations" "$candidate_migrations" >/dev/null; then
+  schema_unchanged=true
+fi
+if [[ "$candidate_runtime" != "$previous_runtime" && "$schema_unchanged" != true ]]; then
+  die "Node runtime transition cannot include database schema migrations"
+fi
 
 # Backup is independent of MenuMinute and captured BEFORE schema changes.
 install -d -m 0700 -o root -g root "$BACKUPS"
@@ -175,10 +244,10 @@ fi
   source "$CONFIG/migrate.env"
   set +a
   cd "$migration_root"
-  runuser -u clubkeep -- env PATH="$NODE_BIN:/usr/bin:/bin" \
-    "$NODE_BIN/node" "$migration_cli" migrate deploy
-  runuser -u clubkeep -- env PATH="$NODE_BIN:/usr/bin:/bin" \
-    "$NODE_BIN/node" "$migration_cli" migrate status
+  runuser -u clubkeep -- env PATH="$selected_bin:/usr/bin:/bin" \
+    "$selected_node" "$migration_cli" migrate deploy
+  runuser -u clubkeep -- env PATH="$selected_bin:/usr/bin:/bin" \
+    "$selected_node" "$migration_cli" migrate status
 ) || die "Migrations failed; previous release still active"
 
 # Fresh tables from additive migrations need DML grants, not DDL.

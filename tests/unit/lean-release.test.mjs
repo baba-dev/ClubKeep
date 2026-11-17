@@ -91,7 +91,6 @@ test("altered architecture and malformed digest are rejected", () => {
   });
 });
 
-
 test("Node26.13.1 format-3 release passes strict lean validation", () => {
   fixture((root, put) => {
     put(

@@ -39,7 +39,8 @@ export async function ownerOverviewSnapshot(
             FROM "ClubPayment" p
             WHERE p."clubId" = ${clubId}
               AND p."receivedAt" >= ${revenueIndexCutoff} AND p."receivedAt" <= ${now}
-              AND to_char(p."receivedAt" AT TIME ZONE ${timeZone}, 'YYYY-MM') = ${month}
+              -- receivedAt is zone-less UTC: tag it as UTC first, then convert to club-local time.
+              AND to_char((p."receivedAt" AT TIME ZONE 'UTC') AT TIME ZONE ${timeZone}, 'YYYY-MM') = ${month}
               AND NOT EXISTS (
                 SELECT 1 FROM "ClubPaymentReversal" r
                 WHERE r."clubId" = p."clubId" AND r."paymentId" = p."id"

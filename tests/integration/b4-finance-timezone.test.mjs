@@ -9,7 +9,7 @@ register("./helpers/src-alias-hook.mjs", import.meta.url);
 const { PrismaClient } = await import("../../src/generated/prisma/client.ts");
 const { PrismaPg } = await import("@prisma/adapter-pg");
 const { ownerOverviewSnapshot } = await import("../../src/lib/owner-dashboard.ts");
-const { financeMonthlyTrend } = await import("../../src/lib/finance-service.ts");
+const { financeMonthlyTrend } = await import("../../src/lib/finance-trend.ts");
 
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 const db = new PrismaClient({ adapter: new PrismaPg(pool) });

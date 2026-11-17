@@ -246,7 +246,7 @@ jobs:
       - name: Validate B4 append-only payments, receipt uniqueness and tenant constraints on PG17
         run: node --test tests/integration/b4-finance-schema.test.mjs
       - name: Validate B4 club-local month bucketing of payments (UTC to Asia/Kolkata) on PG17
-        run: node --test tests/integration/b4-finance-timezone.test.mjs
+        run: node --experimental-transform-types --test tests/integration/b4-finance-timezone.test.mjs
       - name: Validate B5 renewal requests, tenant isolation and pending uniqueness on PG17
         run: node --test tests/integration/b5-renewal-schema.test.mjs
       - name: Validate B6 score immutability, consent, tenant isolation and challenges on PostgreSQL 17

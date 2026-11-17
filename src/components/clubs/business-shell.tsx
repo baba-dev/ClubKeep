@@ -13,6 +13,7 @@ import {
   Fingerprint,
   WalletCards,
   Trophy,
+  ChartColumn,
   ChevronRight,
 } from "lucide-react";
 import { requireSession } from "@/lib/required-session";
@@ -29,6 +30,7 @@ type Active =
   | "overview"
   | "attendance"
   | "finance"
+  | "insights"
   | "competition"
   | "profile"
   | "settings";
@@ -62,7 +64,10 @@ export async function BusinessShell({
     { key: "renewals", label: "Renewals", href: "/renewals", icon: CalendarClock },
     { key: "competition", label: "Sports & challenges", href: "/competition", icon: Trophy },
     ...(canManageFinance
-      ? [{ key: "finance", label: "Finance & dues", href: "/finance", icon: WalletCards }]
+      ? [
+          { key: "insights", label: "Insights", href: "/insights", icon: ChartColumn },
+          { key: "finance", label: "Finance & dues", href: "/finance", icon: WalletCards },
+        ]
       : []),
     ...(isOwner
       ? [

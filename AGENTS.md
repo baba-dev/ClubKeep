@@ -21,7 +21,7 @@ Read before coding:
 - `docs/PRODUCT.md`: decisions, pricing tiers, feature rules (the source of truth for behavior)
 - `docs/ARCHITECTURE.md`: stack, folder rules, proposed data model, security rules
 - `docs/ROADMAP.md`: the ordered month-1 task list; pick work from here
-- `docs/DESIGN.md`: approved design tokens and theme (Luxe: orange + gold, light and dark); follow it for all UI
+- `docs/DESIGN.md`: approved design system **Human Motion 2.0** (sage, terracotta and cocoa on warm cream or deep green-charcoal, light and dark; Luxe is superseded history); follow it for all UI
 - `docs/BUSINESS_SPEC.md`: authoritative **40 locked Round 1–2 choices**, privacy and unresolved conflicts
 - `docs/ENTITLEMENTS.md`: Personal and Business prices, caps, sponsorship and AI quotas
 - `docs/HEALTH_INTEGRATIONS.md`: medical, insurance, ABDM/ABHA, wearable, age and AI constraints

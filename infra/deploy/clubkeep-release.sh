@@ -257,29 +257,124 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO clubkeep_
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO clubkeep_app;
 SQL
 
+# Check existing drop-in provenance before touching the production unit.
+# The selected override changes ONLY ClubKeep's ExecStart; no other unit is edited.
+override_dir="$(dirname "$RUNTIME_DROPIN")"
+[[ ! -L "$override_dir" && ! -L "$RUNTIME_DROPIN" ]] ||
+  die "Unexpected symlink at ClubKeep runtime override"
+previous_override="$(mktemp /run/clubkeep-runtime-previous.XXXXXX)"
+had_override=false
+if [[ -e "$RUNTIME_DROPIN" ]]; then
+  [[ -f "$RUNTIME_DROPIN" ]] || die "Unexpected override type"
+  grep -Fxq '# ClubKeep Node runtime override; managed by clubkeep-release' "$RUNTIME_DROPIN" ||
+    die "Existing ClubKeep runtime override is not managed by this operator"
+  cp -- "$RUNTIME_DROPIN" "$previous_override"
+  had_override=true
+fi
+
+restore_prior_runtime() {
+  if [[ "$had_override" == true ]]; then
+    install -o root -g root -m 0644 "$previous_override" "$RUNTIME_DROPIN"
+  else
+    rm -f -- "$RUNTIME_DROPIN"
+  fi
+  systemctl daemon-reload
+}
+switch_to_node26() {
+  install -d -o root -g root -m 0755 "$override_dir"
+  [[ ! -L "$override_dir" ]] || die "ClubKeep runtime override directory is symlinked"
+  local staged="$override_dir/.50-bababuilds-node-runtime.$$"
+  printf '%s\n' \
+    '# ClubKeep Node runtime override; managed by clubkeep-release' \
+    '[Service]' \
+    'ExecStart=' \
+    "ExecStart=$selected_node $CLUBKEEP_SERVER" > "$staged"
+  chown root:root "$staged"
+  chmod 0644 "$staged"
+  mv -Tf -- "$staged" "$RUNTIME_DROPIN"
+  systemctl daemon-reload
+}
+runtime_process_ok() {
+  local pid exe
+  pid="$(systemctl show clubkeep-web.service --value --property=MainPID)" || return 1
+  [[ "$pid" =~ ^[1-9][0-9]*$ ]] || return 1
+  exe="$(readlink -f "/proc/$pid/exe" 2>/dev/null)" || return 1
+  [[ "$exe" == "$(readlink -f "$selected_node")" ]]
+}
+previous_process_ok() {
+  local pid exe
+  pid="$(systemctl show clubkeep-web.service --value --property=MainPID)" || return 1
+  [[ "$pid" =~ ^[1-9][0-9]*$ ]] || return 1
+  exe="$(readlink -f "/proc/$pid/exe" 2>/dev/null)" || return 1
+  [[ "$exe" == "$(readlink -f "$previous_node")" ]]
+}
+restore_previous_on_failure() {
+  local exit_code=$?
+  trap - ERR
+  if [[ "$schema_unchanged" != true ]]; then
+    echo 'CLUBKEEP_FORWARD_ONLY: migration history changed; manual incident recovery required' >&2
+  else
+    echo 'CLUBKEEP_RUNTIME_ROLLBACK: restoring previous release and interpreter' >&2
+    ln -s "$previous" "$BASE/.current-recover-$sha"
+    mv -Tf "$BASE/.current-recover-$sha" "$current"
+    restore_prior_runtime
+    systemctl reset-failed clubkeep-web.service || true
+    systemctl restart clubkeep-web.service || true
+    recovered=false
+    for _ in $(seq 1 30); do
+      if systemctl is-active --quiet clubkeep-web.service &&
+         previous_process_ok &&
+         curl -fsS --max-time 3 -o /dev/null http://127.0.0.1:3200/auth/sign-in &&
+         curl -fsS --max-time 3 -o /dev/null http://127.0.0.1:3200/api/auth/capabilities; then
+        recovered=true
+        break
+      fi
+      sleep 1
+    done
+    if [[ "$recovered" == true ]]; then
+      echo 'CLUBKEEP_RUNTIME_ROLLBACK_PASS code_and_node_restored' >&2
+    else
+      echo 'CLUBKEEP_RUNTIME_ROLLBACK_FAILED operator_intervention_required' >&2
+    fi
+  fi
+  exit "$exit_code"
+}
+trap 'rm -f -- "$previous_override"' EXIT
+
+# The rollback trap owns both the code pointer and the interpreter. It is
+# armed before the first pointer mutation and disarmed only after all probes.
+trap restore_previous_on_failure ERR
 ln -s "$release" "$BASE/.current-next-$sha"
 mv -Tf "$BASE/.current-next-$sha" "$current"
-systemctl restart clubkeep-web || true
+if [[ "$candidate_runtime" == node26 && "$previous_runtime" != node26 ]]; then
+  switch_to_node26
+elif [[ "$candidate_runtime" == node24 && "$previous_runtime" != node24 ]]; then
+  # Future explicit Node24 rollback is allowed only to an already-vetted
+  # legacy artifact, preserving the original service unit and its arguments.
+  restore_prior_runtime
+fi
+systemctl reset-failed clubkeep-web.service
+systemctl restart clubkeep-web.service
 
 healthy=0
 for i in $(seq 1 40); do
-  if systemctl is-active --quiet clubkeep-web &&
+  if systemctl is-active --quiet clubkeep-web.service &&
+     runtime_process_ok &&
      curl -fsS --max-time 3 -o /dev/null http://127.0.0.1:3200/auth/sign-in &&
      curl -fsS --max-time 3 -o /dev/null http://127.0.0.1:3200/api/auth/capabilities &&
      systemctl is-active --quiet menuminute-web &&
-     systemctl is-active --quiet menuminute-worker; then
+     systemctl is-active --quiet menuminute-worker &&
+     systemctl is-active --quiet clubkeep-redis; then
     healthy=1
     break
   fi
   sleep 1
 done
-
 if [[ "$healthy" != 1 ]]; then
-  echo "ClubKeep health failed: rolling back code symlink only" >&2
-  ln -s "$previous" "$BASE/.current-recover-$sha"
-  mv -Tf "$BASE/.current-recover-$sha" "$current"
-  systemctl restart clubkeep-web || true
-  die "Release not activated. Database schema is forward-only: restore requires a separate review."
+  echo 'CLUBKEEP_NODE26_HEALTH_BLOCKED: rollback is required' >&2
+  false
 fi
-
-echo "CLUBKEEP DEPLOYED: $sha; MenuMinute web/worker remain active"
+test "$(readlink -f "$current")" = "$release"
+trap - ERR
+echo "CLUBKEEP_DEPLOYED_NODE_RUNTIME sha=$sha runtime=$candidate_runtime"
+echo 'CLUBKEEP_DEPLOY_PASS sibling_services_healthy'

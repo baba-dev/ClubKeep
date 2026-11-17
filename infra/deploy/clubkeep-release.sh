@@ -18,8 +18,7 @@ if [[ "$#" -eq 1 && "$1" == "--node26-ready" ]]; then
   node26=/opt/bababuilds/runtimes/node-v26.13.1-linux-arm64/bin/node
   [[ -f "$node26" && ! -L "$node26" && -x "$node26" ]] ||
     die "Shared Node26 runtime missing"
-  [[ "$("$node26" -p 'process.version+":"+process.platform+":"+process.arch')" ==
-     "v26.13.1:linux:arm64" ]] || die "Node26 version or platform mismatch"
+  [[ "$("$node26" -p 'process.version+":"+process.platform+":"+process.arch')" == "v26.13.1:linux:arm64" ]] || die "Node26 version or platform mismatch"
   printf '%s  %s\n' \
     de21e5b6e081aa16f86413aeba8c77fac44670cb6fe2748cc7c00329e6e6aa3a \
     "$node26" | sha256sum --check --status || die "Shared runtime checksum mismatch"
@@ -199,8 +198,7 @@ selected_bin="$NODE_BIN"
 if [[ "$candidate_runtime" == node26 ]]; then
   [[ -f "$NODE26_BIN/node" && ! -L "$NODE26_BIN/node" && -x "$NODE26_BIN/node" &&
      -x "$NODE26_BIN/npm" ]] || die "Approved shared Node26 runtime not installed"
-  [[ "$("$NODE26_BIN/node" -p 'process.version + ":" + process.platform + ":" + process.arch')" ==
-     "v26.13.1:linux:arm64" ]] || die "Shared Node26 runtime version mismatch"
+  [[ "$("$NODE26_BIN/node" -p 'process.version + ":" + process.platform + ":" + process.arch')" == "v26.13.1:linux:arm64" ]] || die "Shared Node26 runtime version mismatch"
   printf '%s  %s\n' "$NODE26_SHA256" "$NODE26_BIN/node" |
     sha256sum --check --status || die "Shared Node26 binary differs from verified PR A runtime"
   selected_node="$NODE26_BIN/node"

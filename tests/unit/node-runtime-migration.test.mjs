@@ -33,7 +33,10 @@ test("root helper supports both old v2 and new v3 without cross-app systemd modi
   const helper = file("infra/deploy/clubkeep-release.sh");
   assert.match(helper, /clubkeep-release-formats: 1,2,3/);
   assert.match(helper, /--node26-ready/);
-  assert.match(helper, /NODE26_SHA256=de21e5b6e081aa16f86413aeba8c77fac44670cb6fe2748cc7c00329e6e6aa3a/);
+  assert.match(
+    helper,
+    /NODE26_SHA256=de21e5b6e081aa16f86413aeba8c77fac44670cb6fe2748cc7c00329e6e6aa3a/
+  );
   assert.match(helper, /candidate_runtime=node24/);
   assert.match(helper, /nodeVersion === "26\.13\.1"/);
   assert.match(helper, /Node runtime transition cannot include database schema migrations/);

@@ -45,7 +45,7 @@ GitHub, CI logs, chat or PR**:
    `X-ClubKeep-Client-IP` to the verified client IP at the trusted edge;
    block direct public access to the ClubKeep loopback port. Do not accept
    arbitrary `X-Forwarded-For` or assume Cloudflare overwrites all headers.
-7. Validate age/jurisdiction controls before opening signup publicly.
+7. Validate age/jurisdiction controls before opening signup publicly. (Owner decision 17 Nov 2026: pilot opens without them, accepted risk; see [PILOT_GO_LIVE.md](PILOT_GO_LIVE.md).)
 
 ## 3. Suggested protected environment (placeholders ONLY)
 

@@ -130,7 +130,16 @@ async function MembersContent({ params, searchParams }: Props) {
           label="Plan capacity"
           value={quota ?? "Unlimited"}
           detail={access.businessTier + " tier"}
-        />
+        >
+          {access.role === "OWNER" && (
+            <Link
+              href={`/clubs/${encodeURIComponent(clubId)}/settings/billing`}
+              className="mt-2 inline-block text-sm underline underline-offset-4"
+            >
+              Manage plan
+            </Link>
+          )}
+        </OperationsStat>
         <div className="hm-ops-stat flex flex-col justify-center gap-2">
           <p className="hm-kicker hm-page-eyebrow">Quick action</p>
           <Link

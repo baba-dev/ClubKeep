@@ -13,6 +13,8 @@ const { applyWebhookEvent, startCheckout, requestCancel, reconcileClubTier } =
 const { assertMemberSeatAvailable, MemberLimitError } =
   await import("../../src/lib/business-entitlements.ts");
 const { BillingError } = await import("../../src/lib/billing/provider.ts");
+const { billingSummary } = await import("../../src/lib/billing/summary.ts");
+const { countMemberSeats } = await import("../../src/lib/business-entitlements.ts");
 
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 const db = new PrismaClient({ adapter: new PrismaPg(pool) });
@@ -99,6 +101,7 @@ test.after(async () => {
     await run('DELETE FROM "SecurityEvent" WHERE "clubId" = ANY($1)', [clubs]);
     await run('DELETE FROM "ClubSubscription" WHERE "clubId" = ANY($1)', [clubs]);
     await run('DELETE FROM "BillingWebhookEvent" WHERE "providerEventId" LIKE $1', [`evt_${n}_%`]);
+    await run('DELETE FROM "ClubSetupProgress" WHERE "clubId" = ANY($1)', [clubs]);
     await run('DELETE FROM "ClubMemberRecord" WHERE "clubId" = ANY($1)', [clubs]);
     await run('DELETE FROM "ClubMembership" WHERE "clubId" = ANY($1)', [clubs]);
     await run('DELETE FROM "Club" WHERE "id" = ANY($1)', [clubs]);
@@ -456,4 +459,38 @@ test("an abandoned checkout never downgrades a hand-set tier or earns grace", as
   }
   assert.equal((await subOf(ids.legacy)).status, "PENDING");
   assert.equal(await tierOf(ids.legacy), "GROWTH");
+});
+
+test("billing summary reports the entitled tier, the enforced seat count and honest price context", async () => {
+  // legacy club: hand-set GROWTH, 100 members, no country yet, billing flag unset.
+  let summary = await billingSummary(db, ids.legacy, NOW);
+  assert.equal(summary.tier, "GROWTH");
+  assert.equal(summary.seatsUsed, 100);
+  assert.equal(
+    summary.seatsUsed,
+    await countMemberSeats(db, ids.legacy),
+    "meter equals enforcement"
+  );
+  assert.equal(summary.seatLimit, 300);
+  assert.equal(summary.view.subscribeBlock, "BILLING_OFF");
+  assert.deepEqual(summary.prices, []);
+
+  await db.clubSetupProgress.create({ data: { clubId: ids.legacy, countryCode: "IN" } });
+  summary = await billingSummary(db, ids.legacy, NOW);
+  assert.equal(summary.currency, "INR");
+  assert.deepEqual(
+    summary.prices.map((p) => [p.tier, p.listMinor, p.totalMinor]),
+    [
+      ["STARTER", 29900, null],
+      ["GROWTH", 74900, null],
+      ["PRO", 179900, null],
+    ],
+    "no total is shown until the operator configures tax"
+  );
+
+  // Club X ended up CANCELLED but paid-through (earlier test): FREE-looking tier would be wrong.
+  const x = await billingSummary(db, ids.x, NOW);
+  assert.equal(x.view.mode, "CANCELLED_PAID");
+  assert.equal(x.tier, "STARTER");
+  assert.equal(x.subscription.status, "CANCELLED");
 });

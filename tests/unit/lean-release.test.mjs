@@ -90,3 +90,60 @@ test("altered architecture and malformed digest are rejected", () => {
     assert.throws(() => verifyRelease(root, SHA), /unexpected architecture/);
   });
 });
+
+
+test("Node26.13.1 format-3 release passes strict lean validation", () => {
+  fixture((root, put) => {
+    put(
+      "release-manifest.json",
+      JSON.stringify({
+        format: 3,
+        application: "clubkeep",
+        sha: SHA,
+        architecture: "linux-arm64",
+        runtime: "node26",
+        nodeVersion: "26.13.1",
+        packageLockSha256: "b".repeat(64),
+      })
+    );
+    assert.equal(verifyRelease(root, SHA).format, 3);
+  });
+});
+
+test("Node26 format-3 releases reject drifting or unpinned runtimes", () => {
+  fixture((root, put) => {
+    for (const nodeVersion of ["26", "26.13.0", "26.14.0", null]) {
+      put(
+        "release-manifest.json",
+        JSON.stringify({
+          format: 3,
+          application: "clubkeep",
+          sha: SHA,
+          architecture: "linux-arm64",
+          runtime: "node26",
+          nodeVersion,
+          packageLockSha256: "b".repeat(64),
+        })
+      );
+      assert.throws(() => verifyRelease(root, SHA), /unsupported Node runtime/);
+    }
+  });
+});
+
+test("format-2 Node24 rollback remains accepted but format-3 cannot masquerade as Node24", () => {
+  fixture((root, put) => {
+    assert.equal(verifyRelease(root, SHA).runtime, "node24");
+    put(
+      "release-manifest.json",
+      JSON.stringify({
+        format: 3,
+        application: "clubkeep",
+        sha: SHA,
+        architecture: "linux-arm64",
+        runtime: "node24",
+        packageLockSha256: "b".repeat(64),
+      })
+    );
+    assert.throws(() => verifyRelease(root, SHA), /unsupported Node runtime/);
+  });
+});

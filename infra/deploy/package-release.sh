@@ -6,6 +6,7 @@ sha="$1"
 [[ "$sha" =~ ^[0-9a-f]{40}$ ]] || exit 2
 [[ "$(git rev-parse HEAD)" == "$sha" ]] || { echo "Source SHA mismatch" >&2; exit 1; }
 [[ "$(node -p 'process.arch')" == arm64 ]] || { echo "ARM64 build required" >&2; exit 1; }
+[[ "$(node -p 'process.versions.node')" == "26.13.1" ]] || { echo "Pinned Node.js 26.13.1 required to build v3 release" >&2; exit 1; }
 [[ -s .next/standalone/server.js && -d .next/static && -d public ]] || exit 1
 [[ -f prisma/migrations/migration_lock.toml && -x node_modules/.bin/prisma ]] || exit 1
 
@@ -23,11 +24,12 @@ node - "$sha" "$lock_sha" "$stage/release-manifest.json" <<'NODE'
 const fs = require("node:fs");
 const [, , commit, lockSha, output] = process.argv;
 fs.writeFileSync(output, JSON.stringify({
-  format: 2,
+  format: 3,
   application: "clubkeep",
   sha: commit,
   architecture: "linux-arm64",
-  runtime: "node24",
+  runtime: "node26",
+  nodeVersion: "26.13.1",
   packageLockSha256: lockSha,
 }, null, 2) + "\n");
 NODE
@@ -57,4 +59,4 @@ sha256sum "$archive" > "$archive.sha256"
 sha256sum --check --strict "$archive.sha256"
 test "$(tar -xOzf "$archive" ./RELEASE-SHA)" = "$sha"
 node infra/deploy/measure-release.mjs "$stage" "$archive"
-echo "Packaged verified ClubKeep lean release v2 $sha"
+echo "Packaged verified ClubKeep lean release v3 Node26.13.1 $sha"

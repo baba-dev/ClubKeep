@@ -20,10 +20,17 @@ export function verifyRelease(root, expectedSha) {
   const marker = readFileSync(join(dir, "RELEASE-SHA"), "utf8").trim();
   assert(marker === expectedSha, "release marker does not match SHA");
   const metadata = JSON.parse(readFileSync(join(dir, "release-manifest.json"), "utf8"));
-  assert(metadata.format === 2 && metadata.application === "clubkeep", "wrong release format");
+  assert([2, 3].includes(metadata.format) && metadata.application === "clubkeep", "wrong release format");
   assert(metadata.sha === expectedSha, "manifest SHA mismatch");
   assert(metadata.architecture === "linux-arm64", "unexpected architecture");
-  assert(metadata.runtime === "node24", "unsupported Node runtime");
+  // Existing format-2 Node24 releases remain verifiable for the rollback window.
+  // Format-3 is strictly Node26.13.1, never an unbounded major.
+  assert(
+    metadata.format === 2
+      ? metadata.runtime === "node24"
+      : metadata.runtime === "node26" && metadata.nodeVersion === "26.13.1",
+    "unsupported Node runtime"
+  );
   assert(hashPattern.test(metadata.packageLockSha256), "missing exact source lock digest");
 
   for (const entry of readdirSync(dir)) {
@@ -71,5 +78,5 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     process.exit(2);
   }
   verifyRelease(process.argv[2], process.argv[3]);
-  console.log("Verified standalone runtime, isolated migrations and v2 manifest");
+  console.log("Verified standalone runtime, isolated migrations and v2/v3 manifest");
 }

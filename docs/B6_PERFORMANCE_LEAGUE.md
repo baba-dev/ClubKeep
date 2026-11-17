@@ -1,6 +1,6 @@
 # B6 — ClubKeep Performance League, Challenge Season & Engagement
 
-Status: feature PR under review, not released. Built on B5 (#24) and existing B1–B4. **All five club verticals**, no auto-enabled public profiles.
+Status: merged in PR #25, not yet released to production. Built on B5 (#24) and existing B1–B4. **All five club verticals**, no auto-enabled public profiles.
 
 ## Locked safety and design principles
 
@@ -10,7 +10,7 @@ Status: feature PR under review, not released. Built on B5 (#24) and existing B1
 - Five curated KPI units: whole-kilogram strength lift (GYM), match points (SPORTS), judged routine score (DANCE), guided practice minutes (YOGA), training minutes (all). Bounds are server validated and database constrained. No body composition, body-fat, heart rate, clinical or Personal metrics.
 - Member or staff may propose a score; **OWNER/MANAGER approve or reject** only after the source is verified. Submitter cannot approve their own score. Approvals and rejections are auditable and one-way; no edits to verified values. Only APPROVED score per linked, opted-in, active member appears.
 - Ranking uses **best APPROVED score per member per metric per season**, descending numeric value; ties resolve by earliest approval and then immutable ID. Stable ranks never combine different units.
-- Challenges are private, club-scoped and member opt-in; progress calculated from authoritative B2 visits or approved B6 scores. Attendance challenges rely solely on recorded club check-ins; never self-asserted GPS, heart rate or health tracking. Badges are *computed*, not cash prizes.
+- Challenges are private, club-scoped and member opt-in; progress calculated from authoritative B2 visits or approved B6 scores. Attendance challenges rely solely on recorded club check-ins; never self-asserted GPS, heart rate or health tracking. Badges are _computed_, not cash prizes.
 - Club staff can assist submissions and view queues as appropriate. Challenges never charge, automatically extend a term, or modify B4 finances. Owners retain moderation control.
 - No ads, teen public discovery, public names, social sharing endpoint, Personal clinical data, AI scoring, leaderboards across clubs, or marketplace.
 - Privacy and mobile safety: no third-party image URLs, no personal scores in metadata, no analytics event payloads with names, no screenshots exported from server, no unverified external connections.

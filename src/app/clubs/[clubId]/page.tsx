@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
-import { ScanLine, ShieldCheck, ChevronDown } from "lucide-react";
+import { ScanLine, ShieldCheck, ChevronDown, ArrowRight } from "lucide-react";
 import { requireSession } from "@/lib/required-session";
 import { prisma } from "@/lib/prisma";
 import { requireActiveClubMembership } from "@/lib/club-access";
@@ -12,6 +12,7 @@ import { OwnerHero } from "@/components/human-motion/owner-hero";
 import { OwnerMetrics } from "@/components/human-motion/owner-metrics";
 import { OwnerEditorial } from "@/components/human-motion/owner-editorial";
 import { ownerOverviewSnapshot } from "@/lib/owner-dashboard";
+import { membershipHealth } from "@/lib/owner-insights";
 
 export const metadata: Metadata = { title: "Your club · ClubKeep", robots: { index: false } };
 export default function ClubPage({ params }: { params: Promise<{ clubId: string }> }) {
@@ -42,8 +43,9 @@ async function ClubContent({ params }: { params: Promise<{ clubId: string }> }) 
   if (context.role === "MEMBER") redirect("/clubs/" + encodeURIComponent(clubId) + "/my");
   const canInvite = context.role === "OWNER" || context.role === "MANAGER";
   const canSeeFinance = canInvite;
-  const [snapshot, members, invites] = await Promise.all([
+  const [snapshot, health, members, invites] = await Promise.all([
     ownerOverviewSnapshot(prisma, clubId, club.timeZone, canSeeFinance),
+    canInvite ? membershipHealth(prisma, clubId) : Promise.resolve(null),
     canInvite
       ? prisma.clubMembership.findMany({
           where: { clubId, status: "ACTIVE" },
@@ -89,6 +91,20 @@ async function ClubContent({ params }: { params: Promise<{ clubId: string }> }) 
         canInvite={canInvite}
         timeZone={club.timeZone}
       />
+      {health && (
+        <Link
+          href={"/clubs/" + encodeURIComponent(clubId) + "/insights"}
+          className="hm-surface mt-5 flex items-center justify-between gap-4 p-5"
+        >
+          <span>
+            <span className="hm-section-title block">Insights</span>
+            <span className="hm-section-subtitle block">
+              {health.counts.LAPSING} lapsing this week · {health.counts.LAPSED} recently lapsed
+            </span>
+          </span>
+          <ArrowRight className="size-5 shrink-0" aria-hidden="true" />
+        </Link>
+      )}
       {club.setupStatus === "LEGACY_ACTIVE" && context.role === "OWNER" && (
         <p
           className="mt-5 flex items-center gap-2 rounded-2xl border p-4 text-sm"

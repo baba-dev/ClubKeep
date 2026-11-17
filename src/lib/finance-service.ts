@@ -321,7 +321,8 @@ export async function clubDuesPage(db: PrismaClient, clubId: string, cursor?: st
 export async function financeMonthlyTrend(db: PrismaClient, clubId: string, timeZone: string) {
   const cutoff = new Date(Date.now() - 215 * 86400000);
   const rows = await db.$queryRaw<Array<{ month: string; currency: string; amount: bigint }>>`
-    SELECT to_char(p."receivedAt" AT TIME ZONE ${timeZone},'YYYY-MM') AS month,
+    -- receivedAt is zone-less UTC: tag it as UTC first, then convert to club-local time.
+    SELECT to_char((p."receivedAt" AT TIME ZONE 'UTC') AT TIME ZONE ${timeZone},'YYYY-MM') AS month,
       p."currency",SUM(p."amountMinor")::bigint AS amount
     FROM "ClubPayment" p LEFT JOIN "ClubPaymentReversal" r ON r."paymentId"=p."id"
     WHERE p."clubId"=${clubId} AND p."receivedAt">=${cutoff} AND r."id" IS NULL

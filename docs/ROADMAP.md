@@ -86,4 +86,4 @@ Cut from the bottom of this list first if time runs short (order of cuts: ID car
 - [x] Lean release artifacts v2 (#33, [LEAN_RELEASES_V2.md](LEAN_RELEASES_V2.md)) and Node 26 central runtime cutover (#34, [NODE26-CENTRAL-RUNTIME.md](NODE26-CENTRAL-RUNTIME.md)): deploy tooling only, no product change.
 - [x] B7 owner insights, merged PR #35 with a PG17 integration test ([B7_OWNER_INSIGHTS.md](B7_OWNER_INSIGHTS.md)). Deployed by CI on merge; phone and screen-reader QA still open.
 - [ ] **In progress:** pilot go-live gate, tracked in [PILOT_GO_LIVE.md](PILOT_GO_LIVE.md) (owner decisions 17 Nov: open sign-up with no gate, test on production, Google and email link together).
-- [ ] **Next after that:** B8 billing plan (needs plan mode and owner decisions on open entitlements).
+- [ ] **B8 club billing** (plan approved 17 Nov 2026, [B8_BILLING.md](B8_BILLING.md)): B8-1 engine implemented on a feature branch (flag off); next B8-2 owner billing UI, B8-3 complimentary-tier and reconcile tooling, B8-4 Stripe. Launch gates: tax adviser sign-off and a Razorpay test-mode end-to-end run.

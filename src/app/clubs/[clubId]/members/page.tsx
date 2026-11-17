@@ -6,6 +6,7 @@ import { requireSession } from "@/lib/required-session";
 import { requireClubActive } from "@/lib/member-service";
 import { prisma } from "@/lib/prisma";
 import { statusForTerm } from "@/lib/membership-dates";
+import { MEMBER_LIMITS } from "@/lib/business-entitlements";
 import { BusinessShell } from "@/components/clubs/business-shell";
 import {
   OperationsBanner,
@@ -100,14 +101,7 @@ async function MembersContent({ params, searchParams }: Props) {
     ["expired", "Expired"],
     ["archived", "Archived"],
   ];
-  const quota =
-    access.businessTier === "FREE"
-      ? 25
-      : access.businessTier === "STARTER"
-        ? 75
-        : access.businessTier === "GROWTH"
-          ? 300
-          : null;
+  const quota = MEMBER_LIMITS[access.businessTier];
   return (
     <BusinessShell
       clubId={clubId}

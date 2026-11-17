@@ -180,6 +180,9 @@ enum SecurityEventType {
   CLUB_CHALLENGE_CREATED
   CLUB_CHALLENGE_JOINED
   CLUB_CHALLENGE_LEFT
+  BILLING_SUBSCRIPTION_STARTED
+  BILLING_TIER_CHANGED
+  BILLING_CANCEL_REQUESTED
 }
 
 model Club {
@@ -221,6 +224,7 @@ model Club {
   rankingConsents ClubRankingConsent[]
   challenges ClubChallenge[]
   challengeEntries ClubChallengeEntry[]
+  billingSubscription ClubSubscription?
 }
 
 model ClubMembership {
@@ -775,4 +779,59 @@ model ClubChallengeEntry {
 
   @@id([clubId, challengeId, memberRecordId])
   @@index([clubId, memberRecordId, active])
+}
+
+enum BillingProvider {
+  RAZORPAY
+  STRIPE
+}
+
+enum ClubSubscriptionStatus {
+  PENDING
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  EXPIRED
+}
+
+// B8: what a club bought from ClubKeep and its payment state. One row per club.
+// Club.businessTier is the materialized entitlement; effectiveTier() in
+// src/lib/billing/policy.ts is what enforcement reads. ClubKeep never collects
+// club-member fees; this table is only the owner-to-ClubKeep subscription.
+model ClubSubscription {
+  id                     String   @id @default(cuid())
+  clubId                 String   @unique
+  tier                   BusinessTier
+  provider               BillingProvider
+  status                 ClubSubscriptionStatus @default(PENDING)
+  providerSubscriptionId String
+  currency               String   @db.VarChar(3)
+  // List price (tax-exclusive) and what the provider plan actually charges, minor units.
+  amountMinor            Int
+  chargeAmountMinor      Int
+  countryCode            String   @db.VarChar(2)
+  currentPeriodEnd       DateTime?
+  pastDueSince           DateTime?
+  cancelAtPeriodEnd      Boolean  @default(false)
+  // Provider event time of the last applied event; older events are ignored.
+  lastEventAt            DateTime?
+  createdByUserId        String
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  club Club @relation(fields: [clubId], references: [id], onDelete: Restrict)
+
+  @@unique([provider, providerSubscriptionId])
+}
+
+// Idempotency ledger for provider webhooks. Stores identifiers only, never payloads.
+model BillingWebhookEvent {
+  id              String   @id @default(cuid())
+  provider        BillingProvider
+  providerEventId String
+  eventType       String   @db.VarChar(80)
+  outcome         String   @db.VarChar(24)
+  receivedAt      DateTime @default(now())
+
+  @@unique([provider, providerEventId])
 }

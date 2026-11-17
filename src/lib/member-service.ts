@@ -2,6 +2,7 @@ import type { PrismaClient } from "@/generated/prisma/client";
 import { requireClubRole, AccessDeniedError } from "@/lib/club-access";
 import { OnboardingError } from "@/lib/club-onboarding";
 import { assertMemberSeatAvailable } from "@/lib/business-entitlements";
+import { effectiveTier } from "@/lib/billing/policy";
 
 type MemberInput = { displayName: string; phoneE164?: string };
 
@@ -14,10 +15,20 @@ export async function requireClubActive(
   const context = await requireClubRole(tx, actorId, clubId, roles);
   const club = await tx.club.findFirst({
     where: { id: clubId, status: "ACTIVE" },
-    select: { id: true, businessTier: true, setupStatus: true },
+    select: {
+      id: true,
+      businessTier: true,
+      setupStatus: true,
+      billingSubscription: {
+        select: { tier: true, status: true, currentPeriodEnd: true, pastDueSince: true },
+      },
+    },
   });
   if (!club || club.setupStatus === "IN_PROGRESS") throw new AccessDeniedError();
-  return { ...context, businessTier: club.businessTier };
+  return {
+    ...context,
+    businessTier: effectiveTier(club.billingSubscription, club.businessTier, new Date()),
+  };
 }
 
 export async function registerMember(

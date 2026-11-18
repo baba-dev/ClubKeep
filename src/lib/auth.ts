@@ -5,7 +5,7 @@ import { createAuthMiddleware, APIError } from "better-auth/api";
 import { mayRemovePasskey } from "@/lib/passkey-policy";
 import { isRecentProviderLinkSession } from "@/lib/provider-link-policy";
 import { createConfiguredLimiter } from "@/lib/auth-rate-limit";
-import { sendMagicLinkEmail } from "@/lib/mail-transport";
+import { sendMagicLinkEmail, sendPasswordResetEmail } from "@/lib/mail-transport";
 import { maySendLoginLink } from "@/lib/magic-link-policy";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "@/lib/prisma";
@@ -31,6 +31,15 @@ export const auth = betterAuth({
     enabled: true,
     disableSignUp: true,
     autoSignIn: false,
+    ...(config.features.passwordReset && config.smtp
+      ? {
+          resetPasswordTokenExpiresIn: 600,
+          revokeSessionsOnPasswordReset: true,
+          sendResetPassword: async ({ user, token }: { user: { email: string }; token: string }) => {
+            await sendPasswordResetEmail(user.email, token, config);
+          },
+        }
+      : {}),
   },
 
   socialProviders: getGoogleProvider(config),
@@ -79,6 +88,8 @@ export const auth = betterAuth({
       "/sign-in/passkey": { window: 300, max: 15 },
       "/passkey/*": { window: 60, max: 20 },
       "/sign-in/email": { window: 900, max: 15 },
+      "/request-password-reset": { window: 900, max: 10 },
+      "/reset-password": { window: 900, max: 10 },
     },
     ...(limiter ? { customStorage: limiter.customStorage } : {}),
   },
@@ -113,6 +124,22 @@ export const auth = betterAuth({
         if (!result.allowed) {
           throw new APIError("TOO_MANY_REQUESTS", { message: "Please try again later" });
         }
+      }
+      if (ctx.path === "/request-password-reset") {
+        if (!config.features.passwordReset || !limiter) {
+          throw new APIError("FORBIDDEN", { message: "Password recovery unavailable" });
+        }
+        const value = String(ctx.body?.email ?? "").trim().toLowerCase();
+        if (!value || value.length > 254) {
+          throw new APIError("BAD_REQUEST", { message: "Invalid email" });
+        }
+        const result = await limiter.consume("password-reset-request", value, 900, 3);
+        if (!result.allowed) {
+          throw new APIError("TOO_MANY_REQUESTS", { message: "Please try again later" });
+        }
+      }
+      if (ctx.path === "/reset-password" && (!config.features.passwordReset || !limiter)) {
+        throw new APIError("FORBIDDEN", { message: "Password recovery unavailable" });
       }
       if (ctx.path !== "/passkey/delete-passkey") return;
       // Every call to the underlying Better Auth deletion route is checked;

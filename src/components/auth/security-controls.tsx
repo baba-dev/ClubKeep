@@ -237,8 +237,8 @@ export function SecurityControls({
           devices
         </h2>
         <p className="mt-3">
-          These are active ClubKeep sessions. End any session you don&apos;t recognize. Revocation is
-          enforced by the server.
+          These are active ClubKeep sessions. End any session you don&apos;t recognize. Revocation
+          is enforced by the server.
         </p>
         <div className="hm-security-list">
           {sessions.map((session) => (

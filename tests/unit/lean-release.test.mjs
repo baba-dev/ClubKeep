@@ -3,6 +3,7 @@ import { mkdtempSync, mkdirSync, rmSync, symlinkSync, writeFileSync } from "node
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import test from "node:test";
+import { discoverPackages } from "../../infra/deploy/build-migration-kit.mjs";
 import { verifyRelease } from "../../infra/deploy/verify-lean-release.mjs";
 
 const SHA = "a".repeat(40);
@@ -35,6 +36,10 @@ function fixture(fn) {
     put("migrate/prisma/migrations/migration_lock.toml");
     put("migrate/prisma.config.ts");
     put("migrate/kit-manifest.json", JSON.stringify({ format: 2, packageCount: 2 }));
+    put("migrate/prisma/bootstrap-platform-admin.mjs");
+    put("migrate/prisma/bootstrap-admin-helpers.mjs");
+    put("migrate/node_modules/pg/package.json", "{}");
+    put("migrate/node_modules/better-auth/package.json", "{}");
     return fn(root, put);
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -145,4 +150,34 @@ test("format-2 Node24 rollback remains accepted but format-3 cannot masquerade a
     );
     assert.throws(() => verifyRelease(root, SHA), /unsupported Node runtime/);
   });
+});
+
+test("release without the operator bootstrap script or its dependencies is rejected", () => {
+  for (const missing of [
+    "migrate/prisma/bootstrap-platform-admin.mjs",
+    "migrate/node_modules/pg/package.json",
+    "migrate/node_modules/better-auth/package.json",
+  ]) {
+    fixture((root) => {
+      rmSync(join(root, missing));
+      assert.throws(
+        () => verifyRelease(root, SHA),
+        new RegExp("missing " + missing.replace(/\./g, "\\."))
+      );
+    });
+  }
+});
+
+test("migration kit closure includes everything bootstrap-platform-admin.mjs imports", () => {
+  const names = new Set(discoverPackages().map(([, meta]) => meta.name));
+  for (const required of [
+    "prisma",
+    "dotenv",
+    "pg",
+    "better-auth",
+    "@better-auth/utils",
+    "pg-pool",
+  ]) {
+    assert.ok(names.has(required), "kit lacks " + required);
+  }
 });

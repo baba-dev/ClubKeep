@@ -268,6 +268,17 @@ jobs:
           node --test tests/integration/demo-sandbox.test.mjs
       - name: One-time platform administrator provisioning on isolated PostgreSQL 17
         run: node --test tests/integration/platform-bootstrap.test.mjs
+      - name: Platform administrator bootstrap from the isolated migration kit on PostgreSQL 17
+        run: |
+          set -Eeuo pipefail
+          scratch="$(mktemp -d)"
+          trap 'rm -rf -- "$scratch"' EXIT
+          node infra/deploy/build-migration-kit.mjs "$scratch/migrate"
+          sudo -u postgres createdb -p "$PG17_PORT" -O clubkeep_ci clubkeep_ci_bootstrap_kit
+          export DATABASE_URL="postgresql://clubkeep_ci:ci-only-synthetic@127.0.0.1:$PG17_PORT/clubkeep_ci_bootstrap_kit?schema=public"
+          (cd "$scratch/migrate" && env -u NODE_PATH node node_modules/prisma/build/index.js migrate deploy)
+          CLUBKEEP_BOOTSTRAP_SCRIPT="$scratch/migrate/prisma/bootstrap-platform-admin.mjs" \
+            node --test tests/integration/platform-bootstrap.test.mjs
       - name: Legacy unversioned Better Auth baseline and populated upgrade
         run: |
           set -euo pipefail

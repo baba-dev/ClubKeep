@@ -10,7 +10,10 @@ import { fileURLToPath } from "node:url";
 
 const REPO = resolve(process.cwd());
 const ROOT_MODULES = join(REPO, "node_modules");
-const REQUIRED = ["prisma", "dotenv"];
+// pg and better-auth exist only so the operator-run, offline
+// migrate/prisma/bootstrap-platform-admin.mjs works on the VPS (docs/PLATFORM_ADMIN_BOOTSTRAP.md).
+// Both are already locked app dependencies; nothing new is resolved or installed.
+const REQUIRED = ["prisma", "dotenv", "pg", "better-auth"];
 
 function within(path, directory) {
   return path === directory || path.startsWith(directory + sep);

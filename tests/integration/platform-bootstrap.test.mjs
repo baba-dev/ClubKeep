@@ -1,25 +1,31 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { dirname } from "node:path";
 import { spawnSync } from "node:child_process";
 import pg from "pg";
 import { verifyPassword } from "better-auth/crypto";
 
 const password = "ci-only-example-password-not-production";
 const email = "bootstrap-admin-ci@example.invalid";
+// CI also points this at the script inside a freshly built migration kit (no repo node_modules).
+const script = process.env.CLUBKEEP_BOOTSTRAP_SCRIPT ?? "prisma/bootstrap-platform-admin.mjs";
+const expectedDb = new URL(process.env.DATABASE_URL ?? "postgresql://x/clubkeep_ci").pathname.slice(
+  1
+);
 const baseArgs = [
-  "prisma/bootstrap-platform-admin.mjs",
+  script,
   "--email",
   email,
   "--name",
   "CI Administrator",
   "--expect-db",
-  "clubkeep_ci",
+  expectedDb,
 ];
 
 function runBootstrap(args = baseArgs) {
   return spawnSync(process.execPath, args, {
-    cwd: process.cwd(),
-    env: process.env,
+    cwd: process.env.CLUBKEEP_BOOTSTRAP_SCRIPT ? dirname(script) : process.cwd(),
+    env: Object.fromEntries(Object.entries(process.env).filter(([key]) => key !== "NODE_PATH")),
     input: password + "\n",
     encoding: "utf8",
     timeout: 15000,

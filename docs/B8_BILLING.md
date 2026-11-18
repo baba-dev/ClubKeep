@@ -1,6 +1,6 @@
 # B8: Club subscription billing
 
-Status: **B8-1 engine implemented on a feature branch, not released.** No owner UI yet (B8-2) and no Stripe adapter yet (B8-4). Everything is behind `BILLING_ENABLED=false`. Approved plan: owner decisions of 17 Nov 2026. ClubKeep still never collects club-member fees (rule 2); this is only the owner-to-ClubKeep subscription.
+Status: **B8-1 engine merged (PR #38); B8-2 owner billing UI implemented on a feature branch.** No Stripe adapter yet (B8-4). Everything is behind `BILLING_ENABLED=false`. Approved plan: owner decisions of 17 Nov 2026. ClubKeep still never collects club-member fees (rule 2); this is only the owner-to-ClubKeep subscription.
 
 ## Decisions
 
@@ -37,6 +37,18 @@ Never in git, CI or chat. All in `/etc/clubkeep/web.env`; see `.env.example` for
 
 Create three **monthly** plans in the Razorpay dashboard (test mode first) with amounts, in paise: Starter `priceWithTax(29900)`, Growth `priceWithTax(74900)`, Pro `priceWithTax(179900)`. At 18%: 35,282, 88,382 and 212,282. Register the webhook URL above with the six events and the webhook secret.
 
+## Owner billing page (B8-2)
+
+`/clubs/[clubId]/settings/billing`, **OWNER only** (managers and staff get a 404), linked from Club settings and from the members page capacity tile.
+
+- Shows the entitled tier, a member-usage meter that uses the **same seat count as enforcement** (`countMemberSeats`), plan cards, and the situation the club is in: free, checkout pending, active (with renewal date), cancelling, payment retrying (with the grace end date), paused after grace, or cancelled but paid through.
+- Prices are list price plus tax. The tax-inclusive total is shown only when the operator has set `BILLING_TAX_BASIS_POINTS`; otherwise the page says tax is added.
+- Subscribe sends the owner to the provider's hosted checkout; cancel is two-step and runs to the end of the paid period. Both go through `POST /api/clubs/[clubId]/billing/checkout` and `.../cancel` (same-origin, owner-only, rate-limited, Redis-backed and fail-closed like other owner mutations).
+- Honest states: billing off, no country set (links to Club settings), and countries without a live provider all disable the buttons and say why. While a plan runs the page says plan changes are not available yet.
+- Plan cards list only what exists today (member cap, QR and manual check-in, ID cards, club leaderboard, payment records). GPS check-in, city leaderboards, WhatsApp, multi-location, export API and priority support are labelled **Coming soon**, never as included. A unit test enforces this and that the card copy matches `MEMBER_LIMITS`.
+- Cancel and checkout are unavailable while `BILLING_ENABLED=false` (the kill switch also stops them).
+- Not yet done: phone-width (360/390px) and screen-reader QA, and a real checkout round-trip (needs the operator's Razorpay test keys).
+
 ## Launch gates (outside the code)
 
 1. A tax adviser confirms GST treatment, seller registration, invoicing and the rate and rounding to configure. Razorpay subscriptions do not add tax themselves; nothing in this feature produces a GST invoice.
@@ -49,7 +61,7 @@ Create three **monthly** plans in the Razorpay dashboard (test mode first) with 
 - No plan changes while a plan runs; no refunds or proration logic beyond Razorpay's own defaults.
 - Staff caps, Free quotas, and feature gates (GPS, city leaderboards, WhatsApp) are not enforced; they are OPEN in ENTITLEMENTS.md.
 - Non-India clubs are told billing is not available until the Stripe adapter ships.
-- No owner UI, complimentary-tier script or reconcile timer yet (B8-2 and B8-3).
+- No complimentary-tier script or reconcile timer yet (B8-3).
 
 ## Verification
 

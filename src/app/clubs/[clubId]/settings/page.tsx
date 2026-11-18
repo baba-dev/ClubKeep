@@ -116,6 +116,18 @@ async function ClubSettingsContent({ params }: { params: Promise<{ clubId: strin
             </Link>
           </section>
           <section className="hm-ops-section mt-0">
+            <h2 className="hm-section-title">Plan &amp; billing</h2>
+            <p className="hm-small mt-3">
+              See your plan, how close you are to the member limit, and change plans.
+            </p>
+            <Link
+              href={`/clubs/${encodeURIComponent(clubId)}/settings/billing`}
+              className="hm-button hm-button-primary mt-5"
+            >
+              Manage plan
+            </Link>
+          </section>
+          <section className="hm-ops-section mt-0">
             <div className="flex items-center gap-2">
               <ShieldCheck className="size-5 text-[var(--hm-sage-deep)]" aria-hidden="true" />
               <h2 className="font-semibold">Owner-only controls</h2>

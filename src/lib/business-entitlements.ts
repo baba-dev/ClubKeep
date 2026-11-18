@@ -24,6 +24,26 @@ export class MemberLimitError extends Error {
 type Client = Pick<PrismaClient, "club" | "$queryRaw">;
 
 /**
+ * Seats in use: active roster records + active member identities without a
+ * currently active linked roster. Shared by the cap check and the billing page
+ * so the meter owners see is exactly what is enforced.
+ */
+export async function countMemberSeats(tx: Pick<PrismaClient, "$queryRaw">, clubId: string) {
+  const counts = await tx.$queryRaw<{ used: number }[]>`
+    SELECT (
+      (SELECT COUNT(*) FROM "ClubMemberRecord" WHERE "clubId" = ${clubId} AND "status" = 'ACTIVE') +
+      (SELECT COUNT(*) FROM "ClubMembership" AS m
+       WHERE m."clubId" = ${clubId} AND m."role" = 'MEMBER' AND m."status" = 'ACTIVE'
+       AND NOT EXISTS (
+         SELECT 1 FROM "ClubMemberRecord" AS r
+         WHERE r."clubId" = m."clubId" AND r."membershipId" = m."id" AND r."status" = 'ACTIVE'
+       ))
+    )::int AS "used"
+  `;
+  return counts[0]?.used ?? 0;
+}
+
+/**
  * Caller MUST already hold a write lock on the Club row in this transaction.
  * Counts: active roster records + active member identities without a currently
  * active linked roster. Never uses optional unverified phone as an identity.
@@ -45,16 +65,6 @@ export async function assertMemberSeatAvailable(tx: Client, clubId: string) {
   const limit =
     MEMBER_LIMITS[effectiveTier(club.billingSubscription, club.businessTier, new Date())];
   if (limit === null) return;
-  const counts = await tx.$queryRaw<{ used: number }[]>`
-    SELECT (
-      (SELECT COUNT(*) FROM "ClubMemberRecord" WHERE "clubId" = ${clubId} AND "status" = 'ACTIVE') +
-      (SELECT COUNT(*) FROM "ClubMembership" AS m
-       WHERE m."clubId" = ${clubId} AND m."role" = 'MEMBER' AND m."status" = 'ACTIVE'
-       AND NOT EXISTS (
-         SELECT 1 FROM "ClubMemberRecord" AS r
-         WHERE r."clubId" = m."clubId" AND r."membershipId" = m."id" AND r."status" = 'ACTIVE'
-       ))
-    )::int AS "used"
-  `;
-  if ((counts[0]?.used ?? limit) >= limit) throw new MemberLimitError(limit);
+  const used = await countMemberSeats(tx, clubId);
+  if (used >= limit) throw new MemberLimitError(limit);
 }

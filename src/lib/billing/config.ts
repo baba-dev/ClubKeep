@@ -58,3 +58,10 @@ export function requireRazorpayConfig(source: Source = process.env): RazorpayCon
   }
   return { keyId, keySecret, webhookSecret, plans, taxBasisPoints: Number(rawTax) };
 }
+
+/** Tax rate for display only; null when the operator has not configured it. Never throws. */
+export function readTaxBasisPoints(source: Source = process.env): number | null {
+  const raw = source.BILLING_TAX_BASIS_POINTS?.trim();
+  if (!raw || !/^\d{1,5}$/.test(raw) || Number(raw) > 10_000) return null;
+  return Number(raw);
+}

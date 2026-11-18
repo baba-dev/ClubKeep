@@ -96,7 +96,7 @@ Core club journey (B1 to B7), on a phone at 360 and 390px, light and dark:
 
 ## 7b. Billing (B8) is separate
 
-Paid plans are not part of this gate. Billing ships behind `BILLING_ENABLED=false`; its own launch gates (tax adviser, Razorpay test-mode run) are in [B8_BILLING.md](B8_BILLING.md). Until then pilot clubs run on the Free cap (25 members) or a hand-set tier.
+Paid plans are not part of this gate. Billing ships behind `BILLING_ENABLED=false`; its own launch gates (tax adviser, Razorpay test-mode run) are in [B8_BILLING.md](B8_BILLING.md). Until then pilot clubs run on the Free cap (25 members) or a **complimentary tier** granted with `clubkeep-billing-ops grant` (dry run first, audited, reversible with `revoke`); see the operator tooling section there.
 
 ## 8. Pilot success criteria (roadmap Phase 2 gate)
 

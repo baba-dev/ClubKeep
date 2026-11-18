@@ -1,0 +1,12 @@
+[Unit]
+Description=Daily ClubKeep billing tier reconcile
+Documentation=https://github.com/baba-dev/ClubKeep/blob/main/docs/B8_BILLING.md
+
+[Timer]
+OnCalendar=*-*-* 05:10:00 UTC
+RandomizedDelaySec=10m
+Persistent=true
+Unit=clubkeep-billing-reconcile.service
+
+[Install]
+WantedBy=timers.target

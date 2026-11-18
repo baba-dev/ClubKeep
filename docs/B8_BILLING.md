@@ -1,6 +1,6 @@
 # B8: Club subscription billing
 
-Status: **B8-1 engine merged (PR #38); B8-2 owner billing UI implemented on a feature branch.** No Stripe adapter yet (B8-4). Everything is behind `BILLING_ENABLED=false`. Approved plan: owner decisions of 17 Nov 2026. ClubKeep still never collects club-member fees (rule 2); this is only the owner-to-ClubKeep subscription.
+Status: **B8-1 engine (#38) and B8-2 owner billing page (#39) merged; B8-3 operator tooling implemented on a feature branch.** No Stripe adapter yet (B8-4). Everything is behind `BILLING_ENABLED=false`. Approved plan: owner decisions of 17 Nov 2026. ClubKeep still never collects club-member fees (rule 2); this is only the owner-to-ClubKeep subscription.
 
 ## Decisions
 
@@ -49,6 +49,45 @@ Create three **monthly** plans in the Razorpay dashboard (test mode first) with 
 - Cancel and checkout are unavailable while `BILLING_ENABLED=false` (the kill switch also stops them).
 - Not yet done: phone-width (360/390px) and screen-reader QA, and a real checkout round-trip (needs the operator's Razorpay test keys).
 
+## Operator tooling (B8-3)
+
+`infra/billing/clubkeep-billing-ops.sh`: root-only, pure SQL through `psql` as the `postgres` user, installed like the other host tools (`clubkeep-restore-drill`, `clubkeep-cleanup`). It is a shell script, not a Node script, because **lean releases ship only the standalone app and the migration kit**, so nothing under `prisma/*.mjs` exists on the host.
+
+```bash
+# From a trusted checkout of the reviewed, merged SHA:
+git rev-parse HEAD
+bash -n infra/billing/clubkeep-billing-ops.sh
+sudo install -o root -g root -m 0750 infra/billing/clubkeep-billing-ops.sh /usr/local/sbin/clubkeep-billing-ops
+```
+
+| Command                                                             | What it does                                                                                            |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `list`                                                              | Clubs with a paid tier or subscription, and whether the tier is `complimentary`, `subscription` or free |
+| `grant --club ID_OR_SLUG --tier STARTER\|GROWTH\|PRO --reason TEXT` | Gives a pilot club a complimentary paid tier, with no payment                                           |
+| `revoke --club ID_OR_SLUG --reason TEXT`                            | Returns a complimentary club to FREE                                                                    |
+| `reconcile`                                                         | Writes each subscribed club's entitled tier (grace expiry, paid-through end) and an audit row           |
+
+Rules:
+
+- **Dry run by default.** Each of `grant`, `revoke` and `reconcile` runs inside a transaction that is rolled back and prints what would change; add `--execute` to commit. Run the dry run first.
+- `grant` and `revoke` **refuse any club that has a paid subscription** (billing owns its tier), unknown or inactive clubs, and repeated or malformed flags. Nothing is ever deleted.
+- `reconcile` only touches clubs **with** a subscription row; hand-set and complimentary clubs are never changed by it. It mirrors `effectiveTier()` in SQL (UTC-safe), and `tests/integration/b8-billing-ops.test.mjs` compares the two across twelve states in CI so they cannot drift.
+- The database name must match `clubkeep` or `clubkeep_*` and the script refuses a database without the B8 tables. Defaults: `--db clubkeep --port 5432`.
+- Every change writes a `BILLING_TIER_CHANGED` audit row whose reference records the operator (`SUDO_USER`) and the reason, for example `operator-grant:STARTER:by=alice:pilot gym onboarding`. No new schema or migration.
+- A complimentary club that later subscribes is governed by its subscription from then on; if that subscription ends the club falls to FREE. Grant again after it ends if the pilot should continue.
+
+Optional daily reconcile (not required for correctness, since enforcement reads `effectiveTier()` directly; it only keeps the stored tier and audit trail tidy). Off until you install it, and not installed by any deploy:
+
+```bash
+sudo install -o root -g root -m 0644 infra/billing/clubkeep-billing-reconcile.service /etc/systemd/system/
+sudo install -o root -g root -m 0644 infra/billing/clubkeep-billing-reconcile.timer /etc/systemd/system/
+sudo systemd-analyze verify /etc/systemd/system/clubkeep-billing-reconcile.service
+sudo clubkeep-billing-ops reconcile          # dry run first
+sudo systemctl daemon-reload && sudo systemctl enable --now clubkeep-billing-reconcile.timer
+```
+
+The systemd units have not been run on the host; verify with `systemd-analyze verify` and one manual run before enabling.
+
 ## Launch gates (outside the code)
 
 1. A tax adviser confirms GST treatment, seller registration, invoicing and the rate and rounding to configure. Razorpay subscriptions do not add tax themselves; nothing in this feature produces a GST invoice.
@@ -61,9 +100,9 @@ Create three **monthly** plans in the Razorpay dashboard (test mode first) with 
 - No plan changes while a plan runs; no refunds or proration logic beyond Razorpay's own defaults.
 - Staff caps, Free quotas, and feature gates (GPS, city leaderboards, WhatsApp) are not enforced; they are OPEN in ENTITLEMENTS.md.
 - Non-India clubs are told billing is not available until the Stripe adapter ships.
-- No complimentary-tier script or reconcile timer yet (B8-3).
 
 ## Verification
 
+- Operator tools: `tests/integration/b8-billing-ops.test.mjs` runs the real script against a real database (argument rejection, dry run versus execute, audit rows, refusal of subscribed clubs, reconcile parity with `effectiveTier()`); `tests/unit/billing-ops-static.test.mjs` guards the script and units (strict mode, root-only, no eval, no deletes, UTC time maths).
 - Unit: `tests/unit/billing-policy.test.mjs`, `tests/unit/billing-razorpay.test.mjs` (price and tax maths, entitlement boundaries, state machine, signature checks, fake-`fetch` checkout and cancel).
 - PG17 integration: `tests/integration/b8-billing.test.mjs`, wired into CI: constraints, owner-only checkout, idempotent replay and concurrent duplicates, ordering under races, grace expiry limiting new members, cancel semantics, tenant mismatch, legacy and abandoned-checkout protection. Deliberately breaking the grace and stale-event rules makes these tests fail.

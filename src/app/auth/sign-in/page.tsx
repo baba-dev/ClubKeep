@@ -16,7 +16,7 @@ export default function SignInPage(props: SignInProps) {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-[#0b0705] p-8 text-[#fbf1e6]">
+        <main className="hm-app flex min-h-screen items-center justify-center p-8">
           <p role="status">Preparing sign in…</p>
         </main>
       }

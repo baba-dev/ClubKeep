@@ -5,6 +5,7 @@ type Env = Record<string, string | undefined>;
 export type AuthFeatures = Readonly<{
   google: boolean;
   emailLink: boolean;
+  passwordReset: boolean;
   passkey: boolean;
   legacyPassword: boolean;
 }>;
@@ -79,6 +80,7 @@ export function resolveAuthConfig(env: Env = process.env): AuthFeatureConfig {
   const features: AuthFeatures = {
     google: flag(env, "GOOGLE_AUTH_ENABLED"),
     emailLink: flag(env, "EMAIL_LINK_AUTH_ENABLED"),
+    passwordReset: flag(env, "PASSWORD_RESET_AUTH_ENABLED"),
     passkey: flag(env, "PASSKEY_AUTH_ENABLED"),
     legacyPassword: true,
   };
@@ -100,7 +102,7 @@ export function resolveAuthConfig(env: Env = process.env): AuthFeatureConfig {
     };
   }
 
-  if (features.emailLink) {
+  if (features.emailLink || features.passwordReset) {
     if (
       requireValue(env, "EMAIL_PROVIDER") !== "smtp" ||
       requireValue(env, "SMTP_HOST") !== "mx.bababuilds.com" ||
@@ -144,7 +146,8 @@ export function resolveAuthConfig(env: Env = process.env): AuthFeatureConfig {
   // modern authentication *even when all optional sign-in providers are off*.
   // Existing password-only production installs already have a ClubKeep-owned
   // REDIS_URL; use it only if no explicit auth limiter URL was configured.
-  const providerEnabled = features.google || features.emailLink || features.passkey;
+  const providerEnabled =
+    features.google || features.emailLink || features.passwordReset || features.passkey;
   const redis =
     env.AUTH_RATE_LIMIT_REDIS_URL?.trim() || (!providerEnabled ? env.REDIS_URL?.trim() : undefined);
   if (providerEnabled && !env.AUTH_RATE_LIMIT_REDIS_URL?.trim()) {

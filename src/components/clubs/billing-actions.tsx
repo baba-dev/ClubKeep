@@ -15,6 +15,7 @@ async function post(url: string, body?: unknown) {
   const result = (await response.json().catch(() => ({}))) as {
     error?: string;
     checkoutUrl?: string;
+    url?: string;
   };
   if (!response.ok) throw new Error(result.error ?? "Something went wrong. Please try again.");
   return result;
@@ -64,6 +65,48 @@ export function SubscribeButton({
           <ArrowUpRight className="size-4" aria-hidden="true" />
         )}
         {busy ? "Opening secure checkout…" : label}
+      </button>
+      {error && (
+        <p role="alert" className="mt-2 text-sm" style={{ color: "var(--hm-terracotta)" }}>
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** Opens the provider's hosted page to update the payment method (Stripe). */
+export function PaymentMethodButton({ clubId, urgent }: { clubId: string; urgent?: boolean }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  async function open() {
+    if (busy) return;
+    setBusy(true);
+    setError("");
+    try {
+      const result = (await post(
+        "/api/clubs/" + encodeURIComponent(clubId) + "/billing/portal"
+      )) as {
+        url?: string;
+      };
+      if (!result.url) throw new Error("This page is unavailable right now.");
+      window.location.assign(result.url);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Try again");
+      setBusy(false);
+    }
+  }
+  return (
+    <div>
+      <button
+        type="button"
+        className={"hm-button " + (urgent ? "hm-button-primary" : "hm-button-secondary")}
+        onClick={open}
+        disabled={busy}
+        aria-busy={busy}
+      >
+        {busy ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : null}
+        {busy ? "Opening secure page…" : "Update payment method"}
       </button>
       {error && (
         <p role="alert" className="mt-2 text-sm" style={{ color: "var(--hm-terracotta)" }}>

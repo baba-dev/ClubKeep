@@ -18,7 +18,14 @@ const sub = (over = {}) => ({
   ...over,
 });
 const view = (over = {}) =>
-  billingView({ enabled: true, countryCode: "IN", subscription: null, now, ...over });
+  billingView({
+    enabled: true,
+    countryCode: "IN",
+    subscription: null,
+    available: ["RAZORPAY"],
+    now,
+    ...over,
+  });
 
 test("a club with no subscription can subscribe when billing is on and the country is supported", () => {
   const v = view();
@@ -35,6 +42,15 @@ test("billing off wins over everything; missing or unsupported country is explai
     "COUNTRY_UNSUPPORTED",
     "Stripe is not live yet"
   );
+});
+
+test("a provider is offered only when it is configured", () => {
+  assert.equal(view({ countryCode: "US", available: ["RAZORPAY", "STRIPE"] }).subscribeBlock, null);
+  assert.equal(
+    view({ countryCode: "IN", available: ["STRIPE"] }).subscribeBlock,
+    "COUNTRY_UNSUPPORTED"
+  );
+  assert.equal(view({ countryCode: "US", available: [] }).subscribeBlock, "COUNTRY_UNSUPPORTED");
 });
 
 test("every running plan blocks a second subscription", () => {

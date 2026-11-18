@@ -35,6 +35,15 @@ export function normalizeCountry(countryCode: string): string {
 }
 
 /**
+ * What the provider plan charges per month, minor units. Razorpay plans are fixed
+ * amounts, so GST is computed into them (see priceWithTax). Stripe calculates and
+ * adds tax itself at checkout (Stripe Tax), so its Price is the list price.
+ */
+export function chargeAmount(provider: ProviderId, listMinor: number, taxBasisPoints: number) {
+  return provider === "RAZORPAY" ? priceWithTax(listMinor, taxBasisPoints) : listMinor;
+}
+
+/**
  * Tax is added on top of the list price (owner decision: tax-exclusive).
  * `taxBasisPoints` is 100ths of a percent (1800 = 18%) and is deliberately
  * required from configuration: the GST rate and rounding are OPEN until a tax
@@ -100,12 +109,22 @@ export function graceEndsAt(pastDueSince: Date | null): Date | null {
 
 /** Provider-agnostic webhook outcomes (see provider.ts for the event shape). */
 export type BillingEventKind =
-  "ACTIVATED" | "CHARGED" | "PAYMENT_PENDING" | "HALTED" | "CANCELLED" | "COMPLETED" | "IGNORED";
+  | "ACTIVATED"
+  | "CHARGED"
+  | "PAYMENT_PENDING"
+  | "HALTED"
+  | "CANCELLED"
+  | "COMPLETED"
+  /** No status change; only syncs cancel-at-period-end (e.g. the customer cancelled in the portal). */
+  | "SYNC"
+  | "IGNORED";
 
 export type SubscriptionPatch = {
   status: SubscriptionFacts["status"];
   currentPeriodEnd?: Date;
   pastDueSince: Date | null;
+  /** Set only by SYNC; other transitions leave the stored flag (CANCELLED clears it). */
+  cancelAtPeriodEnd?: boolean;
 };
 
 /**
@@ -122,7 +141,8 @@ export function transitionFor(
   current: Pick<SubscriptionFacts, "status" | "pastDueSince">,
   kind: BillingEventKind,
   occurredAt: Date,
-  periodEnd: Date | null
+  periodEnd: Date | null,
+  cancelAtPeriodEnd: boolean | null = null
 ): SubscriptionPatch | null {
   const keepEnd = periodEnd ? { currentPeriodEnd: periodEnd } : {};
   const paid = current.status === "ACTIVE" || current.status === "PAST_DUE";
@@ -145,6 +165,15 @@ export function transitionFor(
       return paid ? { status: "CANCELLED", ...keepEnd, pastDueSince: null } : null;
     case "COMPLETED":
       return paid ? { status: "EXPIRED", ...keepEnd, pastDueSince: null } : null;
+    case "SYNC":
+      // Only a running plan has a cancel flag to sync; status and grace never move.
+      return paid && cancelAtPeriodEnd !== null
+        ? {
+            status: current.status as "ACTIVE" | "PAST_DUE",
+            pastDueSince: current.pastDueSince,
+            cancelAtPeriodEnd,
+          }
+        : null;
     case "IGNORED":
       return null;
   }

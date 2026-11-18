@@ -1,9 +1,10 @@
 import type { PrismaClient } from "@/generated/prisma/client";
 import { countMemberSeats, MEMBER_LIMITS } from "@/lib/business-entitlements";
-import { billingEnabled, readTaxBasisPoints } from "@/lib/billing/config";
+import { availableProviders, billingEnabled, readTaxBasisPoints } from "@/lib/billing/config";
 import {
   BILLABLE_TIERS,
   currencyForCountry,
+  providerForCountry,
   effectiveTier,
   LIST_PRICE_MINOR,
   priceWithTax,
@@ -27,6 +28,7 @@ export async function billingSummary(db: PrismaClient, clubId: string, now = new
           currentPeriodEnd: true,
           pastDueSince: true,
           cancelAtPeriodEnd: true,
+          provider: true,
           currency: true,
           chargeAmountMinor: true,
         },
@@ -37,9 +39,17 @@ export async function billingSummary(db: PrismaClient, clubId: string, now = new
   const rawCountry = club.setupProgress?.countryCode ?? null;
   const countryCode = rawCountry && /^[A-Z]{2}$/.test(rawCountry) ? rawCountry : null;
   const tier = effectiveTier(sub, club.businessTier, now);
-  const view = billingView({ enabled: billingEnabled(), countryCode, subscription: sub, now });
+  const view = billingView({
+    enabled: billingEnabled(),
+    countryCode,
+    subscription: sub,
+    available: availableProviders(),
+    now,
+  });
   const currency: BillingCurrency | null = countryCode ? currencyForCountry(countryCode) : null;
-  const tax = readTaxBasisPoints();
+  const providerId = countryCode ? providerForCountry(countryCode) : null;
+  // Only Razorpay amounts include tax we compute; Stripe adds tax itself at checkout.
+  const tax = providerId === "RAZORPAY" ? readTaxBasisPoints() : null;
   return {
     clubName: club.name,
     timeZone: club.timeZone,
@@ -48,6 +58,7 @@ export async function billingSummary(db: PrismaClient, clubId: string, now = new
     seatLimit: MEMBER_LIMITS[tier],
     countryCode,
     currency,
+    providerId,
     taxBasisPoints: tax,
     prices: currency
       ? BILLABLE_TIERS.map((t) => {
@@ -62,6 +73,7 @@ export async function billingSummary(db: PrismaClient, clubId: string, now = new
     subscription: sub && {
       tier: sub.tier,
       status: sub.status,
+      provider: sub.provider,
       currency: sub.currency,
       chargeAmountMinor: sub.chargeAmountMinor,
     },

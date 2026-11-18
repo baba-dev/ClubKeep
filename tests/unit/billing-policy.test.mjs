@@ -6,6 +6,7 @@ import {
   currencyForCountry,
   effectiveTier,
   graceEndsAt,
+  chargeAmount,
   normalizeCountry,
   priceWithTax,
   providerForCountry,
@@ -174,4 +175,33 @@ test("a paid subscription can be cancelled or completed", () => {
     transitionFor({ status: "ACTIVE", pastDueSince: null }, "COMPLETED", now, null).status,
     "EXPIRED"
   );
+});
+
+test("only Razorpay amounts include tax we compute; Stripe's Price is the list price", () => {
+  assert.equal(chargeAmount("RAZORPAY", 29900, 1800), 35282);
+  assert.equal(chargeAmount("STRIPE", 500, 1800), 500);
+  assert.equal(chargeAmount("STRIPE", 500, 0), 500);
+});
+
+test("SYNC mirrors the cancel flag on a running plan and nothing else", () => {
+  const running = { status: "ACTIVE", pastDueSince: null };
+  const on = transitionFor(running, "SYNC", now, null, true);
+  assert.deepEqual(on, { status: "ACTIVE", pastDueSince: null, cancelAtPeriodEnd: true });
+  const pastDue = transitionFor(
+    { status: "PAST_DUE", pastDueSince: at(-2) },
+    "SYNC",
+    now,
+    null,
+    false
+  );
+  assert.equal(pastDue.status, "PAST_DUE");
+  assert.equal(pastDue.pastDueSince.getTime(), at(-2).getTime(), "grace clock untouched");
+  assert.equal(transitionFor(running, "SYNC", now, null, null), null, "no flag, no change");
+  for (const status of ["PENDING", "CANCELLED", "EXPIRED"]) {
+    assert.equal(
+      transitionFor({ status, pastDueSince: null }, "SYNC", now, null, true),
+      null,
+      status
+    );
+  }
 });

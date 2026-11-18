@@ -1,15 +1,16 @@
 import type { PrismaClient } from "@/generated/prisma/client";
 import { requireClubActive } from "@/lib/member-service";
 import {
+  chargeAmount,
   currencyForCountry,
   effectiveTier,
   isBillableTier,
   LIST_PRICE_MINOR,
   normalizeCountry,
-  priceWithTax,
   providerForCountry,
   transitionFor,
   type BillableTier,
+  type ProviderId,
 } from "@/lib/billing/policy";
 import { BillingError, type BillingEvent, type BillingProvider } from "@/lib/billing/provider";
 
@@ -62,11 +63,20 @@ export async function reconcileClubTier(tx: Tx, clubId: string, now: Date) {
 
 export type StartCheckoutInput = { tier: string; countryCode?: string };
 
+/** What a billing request needs from its environment; routes build it from configuration. */
+export type BillingContext = {
+  /** Builds the provider for an id, or throws BillingError(503) if it is not configured. */
+  providerFor: (id: ProviderId) => BillingProvider;
+  /** GST for Razorpay plan amounts (Stripe adds tax itself); null when the operator has not set it. */
+  taxBasisPoints: number | null;
+  /** The club's billing page URL, for providers that redirect back. */
+  returnUrl: string;
+};
+
 /** Owner starts a subscription. Returns the provider's hosted checkout URL. */
 export async function startCheckout(
   db: PrismaClient,
-  provider: BillingProvider,
-  taxBasisPoints: number,
+  ctx: BillingContext,
   actorId: string,
   clubId: string,
   input: StartCheckoutInput,
@@ -83,13 +93,12 @@ export async function startCheckout(
   const rawCountry = input.countryCode ?? setup?.countryCode;
   if (!rawCountry) throw new BillingError(400, "Choose your club's country to continue");
   const country = normalizeCountry(rawCountry);
-  if (providerForCountry(country) !== provider.id) {
-    throw new BillingError(409, "Plan billing is not available in your country yet.");
-  }
+  const providerId = providerForCountry(country);
+  const provider = ctx.providerFor(providerId);
 
   const existing = await db.clubSubscription.findUnique({
     where: { clubId },
-    select: SUBSCRIPTION_FACTS,
+    select: { ...SUBSCRIPTION_FACTS, provider: true, providerSubscriptionId: true },
   });
   if (
     existing &&
@@ -107,16 +116,20 @@ export async function startCheckout(
 
   const currency = currencyForCountry(country);
   const listMinor = LIST_PRICE_MINOR[currency][tier];
-  const chargeMinor = priceWithTax(listMinor, taxBasisPoints);
+  if (providerId === "RAZORPAY" && ctx.taxBasisPoints === null) {
+    throw new BillingError(503, "Paid plans are not available yet");
+  }
+  const chargeMinor = chargeAmount(providerId, listMinor, ctx.taxBasisPoints ?? 0);
 
   // External call first, outside any database transaction. An orphaned,
-  // never-authorised provider subscription expires on its own.
+  // never-authorised provider checkout expires on its own.
   const checkout = await provider.createCheckout({
     clubId,
     tier,
     currency,
     chargeAmountMinor: chargeMinor,
     now,
+    returnUrl: ctx.returnUrl,
   });
 
   await db.$transaction(async (tx) => {
@@ -127,6 +140,7 @@ export async function startCheckout(
       tier,
       provider: provider.id,
       status: "PENDING" as const,
+      // Stripe stores the Checkout Session id here until payment binds the subscription id.
       providerSubscriptionId: checkout.providerSubscriptionId,
       currency,
       amountMinor: listMinor,
@@ -153,13 +167,20 @@ export async function startCheckout(
       },
     });
   });
+  // A second checkout replaced a pending one: close the old session so it cannot
+  // be paid later (best effort; it also expires on its own).
+  if (existing?.status === "PENDING" && existing.provider === provider.id) {
+    await provider.abandonCheckout?.(existing.providerSubscriptionId);
+  }
   return { checkoutUrl: checkout.checkoutUrl };
 }
+
+const BOUND = /^sub_/;
 
 /** Owner cancels. An ACTIVE plan runs to the end of the paid period; a PAST_DUE one ends now. */
 export async function requestCancel(
   db: PrismaClient,
-  provider: BillingProvider,
+  providerFor: BillingContext["providerFor"],
   actorId: string,
   clubId: string
 ) {
@@ -168,13 +189,10 @@ export async function requestCancel(
     where: { clubId },
     select: { ...SUBSCRIPTION_FACTS, providerSubscriptionId: true, provider: true },
   });
-  if (
-    !sub ||
-    sub.provider !== provider.id ||
-    (sub.status !== "ACTIVE" && sub.status !== "PAST_DUE")
-  ) {
+  if (!sub || (sub.status !== "ACTIVE" && sub.status !== "PAST_DUE")) {
     throw new BillingError(409, "There is no active plan to cancel.");
   }
+  const provider = providerFor(sub.provider);
   await provider.cancelSubscription(sub.providerSubscriptionId, sub.status === "ACTIVE");
   await db.$transaction(async (tx) => {
     await lockClub(tx, clubId);
@@ -190,6 +208,36 @@ export async function requestCancel(
   });
 }
 
+/** A hosted page where the owner updates the payment method (Stripe). Owner only. */
+export async function createPortalLink(
+  db: PrismaClient,
+  providerFor: BillingContext["providerFor"],
+  actorId: string,
+  clubId: string,
+  returnUrl: string
+) {
+  await requireClubActive(db, actorId, clubId, ["OWNER"]);
+  const sub = await db.clubSubscription.findUnique({
+    where: { clubId },
+    select: { status: true, provider: true, providerSubscriptionId: true },
+  });
+  if (
+    !sub ||
+    (sub.status !== "ACTIVE" && sub.status !== "PAST_DUE") ||
+    !BOUND.test(sub.providerSubscriptionId)
+  ) {
+    throw new BillingError(409, "There is no active plan to manage.");
+  }
+  const provider = providerFor(sub.provider);
+  if (!provider.createPortalSession) {
+    throw new BillingError(
+      409,
+      "Payment details for this plan are updated from your payment provider's email."
+    );
+  }
+  return { url: await provider.createPortalSession(sub.providerSubscriptionId, returnUrl) };
+}
+
 export type WebhookOutcome =
   | "APPLIED"
   | "DUPLICATE"
@@ -202,10 +250,14 @@ export type WebhookOutcome =
 /**
  * Apply one verified provider event exactly once.
  * - Idempotent: the (provider, eventId) row is claimed first; a replay is a no-op.
- * - The club is found only through OUR stored provider subscription id. A club id
- *   in provider metadata is a hint that must match, never an instruction.
+ * - The club is found only through OUR stored provider id: the subscription id, or
+ *   (Stripe, first payment) the Checkout Session id we stored on the pending row.
+ *   A club id in provider metadata is a hint that must match, never an instruction.
  * - Serialized per club (Club row lock) so racing events apply in a defined order,
  *   and older events (by provider event time) cannot undo newer ones.
+ * - Stripe can deliver subscription events before the checkout event that binds the
+ *   subscription. Those are not ours to drop: they answer 503 (rolling back the
+ *   claim) so Stripe redelivers once the row is bound.
  * Any unexpected error rolls everything back, including the claim, so the
  * provider's retry processes the event again.
  */
@@ -242,37 +294,94 @@ export async function applyWebhookEvent(
     };
 
     if (event.kind === "IGNORED" || !event.providerSubscriptionId) return finish("IGNORED");
-    const where = {
-      provider_providerSubscriptionId: {
-        provider: event.provider,
-        providerSubscriptionId: event.providerSubscriptionId,
-      },
-    };
-    const located = await tx.clubSubscription.findUnique({ where, select: { clubId: true } });
-    if (!located) return finish("UNKNOWN_SUBSCRIPTION");
+    const byId = (providerSubscriptionId: string) => ({
+      provider_providerSubscriptionId: { provider: event.provider, providerSubscriptionId },
+    });
+    // An event carrying a Checkout Session id is decided by the row holding that
+    // session: it can only ever bind that club's pending subscription. Only if no
+    // row holds the session (a redelivery after binding) do we fall back to the
+    // subscription id.
+    let located = event.checkoutSessionId
+      ? await tx.clubSubscription.findUnique({
+          where: byId(event.checkoutSessionId),
+          select: { clubId: true },
+        })
+      : null;
+    located ??= await tx.clubSubscription.findUnique({
+      where: byId(event.providerSubscriptionId),
+      select: { clubId: true },
+    });
+    if (!located) {
+      if (event.checkoutSessionId) {
+        // A paid checkout whose pending row is gone (replaced or never stored): no
+        // retry can fix it, so surface it loudly for the operator instead.
+        console.error("billing: paid checkout has no matching pending subscription");
+      } else if (event.provider === "STRIPE" && event.notedClubId) {
+        // Ours by metadata but not bound yet: ask the provider to redeliver.
+        throw new BillingError(503, "Subscription not bound yet; retry later");
+      }
+      return finish("UNKNOWN_SUBSCRIPTION");
+    }
 
     await lockClub(tx, located.clubId);
     // Re-read after the lock: this is the state every racing event serializes on.
     const sub = await tx.clubSubscription.findUnique({
-      where,
-      select: { ...SUBSCRIPTION_FACTS, clubId: true, lastEventAt: true, cancelAtPeriodEnd: true },
+      where: { clubId: located.clubId },
+      select: {
+        ...SUBSCRIPTION_FACTS,
+        clubId: true,
+        lastEventAt: true,
+        cancelAtPeriodEnd: true,
+        providerSubscriptionId: true,
+      },
     });
     if (!sub) return finish("UNKNOWN_SUBSCRIPTION");
+    const binds =
+      !!event.checkoutSessionId &&
+      sub.status === "PENDING" &&
+      sub.providerSubscriptionId === event.checkoutSessionId;
+    // The row must still be the one we located (it may have been replaced meanwhile).
+    if (!binds && sub.providerSubscriptionId !== event.providerSubscriptionId) {
+      return finish("UNKNOWN_SUBSCRIPTION");
+    }
     if (event.notedClubId && event.notedClubId !== sub.clubId) return finish("CLUB_MISMATCH");
-    if (sub.lastEventAt && event.occurredAt.getTime() < sub.lastEventAt.getTime()) {
+    if (binds) {
+      const taken = await tx.clubSubscription.findUnique({
+        where: byId(event.providerSubscriptionId),
+        select: { clubId: true },
+      });
+      if (taken) return finish("CLUB_MISMATCH");
+    }
+    // SYNC only mirrors a flag: it neither obeys nor moves the ordering clock.
+    if (
+      event.kind !== "SYNC" &&
+      sub.lastEventAt &&
+      event.occurredAt.getTime() < sub.lastEventAt.getTime()
+    ) {
       return finish("STALE");
     }
-    const patch = transitionFor(sub, event.kind, event.occurredAt, event.periodEnd);
+    const patch = transitionFor(
+      sub,
+      event.kind,
+      event.occurredAt,
+      event.periodEnd,
+      event.cancelAtPeriodEnd ?? null
+    );
     if (!patch) return finish("NO_CHANGE");
+    if (event.kind === "SYNC" && patch.cancelAtPeriodEnd === sub.cancelAtPeriodEnd) {
+      return finish("NO_CHANGE");
+    }
 
     await tx.clubSubscription.update({
-      where,
+      where: { clubId: sub.clubId },
       data: {
         status: patch.status,
         pastDueSince: patch.pastDueSince,
         ...(patch.currentPeriodEnd ? { currentPeriodEnd: patch.currentPeriodEnd } : {}),
-        lastEventAt: event.occurredAt,
-        cancelAtPeriodEnd: patch.status === "CANCELLED" ? false : sub.cancelAtPeriodEnd,
+        ...(binds ? { providerSubscriptionId: event.providerSubscriptionId } : {}),
+        ...(event.kind === "SYNC" ? {} : { lastEventAt: event.occurredAt }),
+        cancelAtPeriodEnd:
+          patch.cancelAtPeriodEnd ?? (patch.status === "CANCELLED" ? false : sub.cancelAtPeriodEnd),
       },
     });
     await reconcileClubTier(tx, sub.clubId, now);

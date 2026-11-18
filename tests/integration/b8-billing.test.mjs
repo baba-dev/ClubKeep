@@ -34,6 +34,16 @@ const clubs = [ids.x, ids.y, ids.legacy];
 let seq = 0;
 const uniq = (prefix) => `${prefix}_${n}_${++seq}`;
 
+// Like the real factory: only the configured provider can be built, others are "not available yet".
+const ctxFor = (provider, taxBasisPoints = 1800) => ({
+  providerFor: (id) => {
+    if (id !== provider.id) throw new BillingError(503, "Paid plans are not available yet");
+    return provider;
+  },
+  taxBasisPoints,
+  returnUrl: "https://clubkeep.example.test/clubs/x/settings/billing",
+});
+
 function fakeProvider() {
   return {
     id: "RAZORPAY",
@@ -162,8 +172,7 @@ test("checkout is owner-only, needs a supported country, and stores the tax-incl
     () =>
       startCheckout(
         db,
-        provider,
-        1800,
+        ctxFor(provider),
         ids.staff,
         ids.x,
         { tier: "STARTER", countryCode: "IN" },
@@ -173,33 +182,38 @@ test("checkout is owner-only, needs a supported country, and stores the tax-incl
   );
   await assert.rejects(
     () =>
-      startCheckout(db, provider, 1800, ids.owner, ids.x, { tier: "FREE", countryCode: "IN" }, NOW),
+      startCheckout(
+        db,
+        ctxFor(provider),
+        ids.owner,
+        ids.x,
+        { tier: "FREE", countryCode: "IN" },
+        NOW
+      ),
     (error) => error instanceof BillingError && error.status === 400
   );
   await assert.rejects(
-    () => startCheckout(db, provider, 1800, ids.owner, ids.x, { tier: "STARTER" }, NOW),
+    () => startCheckout(db, ctxFor(provider), ids.owner, ids.x, { tier: "STARTER" }, NOW),
     (error) => error instanceof BillingError && /country/i.test(error.message)
   );
   await assert.rejects(
     () =>
       startCheckout(
         db,
-        provider,
-        1800,
+        ctxFor(provider),
         ids.owner,
         ids.x,
         { tier: "STARTER", countryCode: "US" },
         NOW
       ),
-    (error) => error instanceof BillingError && error.status === 409
+    (error) => error instanceof BillingError && error.status === 503
   );
   assert.equal(provider.checkouts.length, 0, "no provider call for any rejected request");
   assert.equal(await subOf(ids.x), null);
 
   const { checkoutUrl } = await startCheckout(
     db,
-    provider,
-    1800,
+    ctxFor(provider),
     ids.owner,
     ids.x,
     { tier: "STARTER", countryCode: "in" },
@@ -285,8 +299,7 @@ test("older events are ignored and unrelated, unknown or mismatched events chang
   // subscription must not be applied to either club.
   await startCheckout(
     db,
-    fakeProvider(),
-    1800,
+    ctxFor(fakeProvider()),
     ids.owner,
     ids.y,
     { tier: "GROWTH", countryCode: "IN" },
@@ -376,10 +389,10 @@ test("cancel: an active plan runs to its paid-through date; terminal states stay
   const provider = fakeProvider();
   const sub = await subOf(ids.x);
   await assert.rejects(
-    () => requestCancel(db, provider, ids.staff, ids.x),
+    () => requestCancel(db, () => provider, ids.staff, ids.x),
     (e) => e.name === "AccessDeniedError"
   );
-  await requestCancel(db, provider, ids.owner, ids.x);
+  await requestCancel(db, () => provider, ids.owner, ids.x);
   assert.deepEqual(provider.cancels, [[sub.providerSubscriptionId, true]]);
   assert.equal((await subOf(ids.x)).cancelAtPeriodEnd, true);
   assert.equal(await auditCount(ids.x, "BILLING_CANCEL_REQUESTED"), 1);
@@ -400,8 +413,7 @@ test("cancel: an active plan runs to its paid-through date; terminal states stay
     () =>
       startCheckout(
         db,
-        provider,
-        1800,
+        ctxFor(provider),
         ids.owner,
         ids.x,
         { tier: "GROWTH", countryCode: "IN" },
@@ -419,7 +431,7 @@ test("cancel: an active plan runs to its paid-through date; terminal states stay
   );
   assert.equal((await subOf(ids.x)).status, "CANCELLED");
   await assert.rejects(
-    () => requestCancel(db, provider, ids.owner, ids.x),
+    () => requestCancel(db, () => provider, ids.owner, ids.x),
     (e) => e.status === 409
   );
 });
@@ -442,8 +454,7 @@ test("an abandoned checkout never downgrades a hand-set tier or earns grace", as
   const provider = fakeProvider();
   await startCheckout(
     db,
-    provider,
-    1800,
+    ctxFor(provider),
     ids.owner,
     ids.legacy,
     { tier: "PRO", countryCode: "IN" },

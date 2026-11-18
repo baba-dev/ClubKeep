@@ -2,9 +2,6 @@
 // and whether a new subscription can be started. No database, clock or env access.
 import { GRACE_DAYS, graceEndsAt, providerForCountry, type ProviderId } from "@/lib/billing/policy";
 
-/** Providers that are live today. Stripe joins in B8-4. */
-export const AVAILABLE_PROVIDERS: readonly ProviderId[] = ["RAZORPAY"];
-
 export type BillingMode =
   "FREE" | "PENDING" | "ACTIVE" | "CANCELING" | "PAST_DUE" | "CANCELLED_PAID";
 
@@ -33,6 +30,8 @@ export function billingView(input: {
   enabled: boolean;
   countryCode: string | null;
   subscription: ViewSubscription | null;
+  /** Providers whose configuration is complete (see availableProviders). */
+  available: readonly ProviderId[];
   now: Date;
 }): BillingView {
   const { subscription: sub, now } = input;
@@ -70,7 +69,7 @@ export function billingView(input: {
   ) {
     subscribeBlock = "HAS_PLAN";
   } else if (!input.countryCode) subscribeBlock = "NO_COUNTRY";
-  else if (!AVAILABLE_PROVIDERS.includes(providerForCountry(input.countryCode))) {
+  else if (!input.available.includes(providerForCountry(input.countryCode))) {
     subscribeBlock = "COUNTRY_UNSUPPORTED";
   }
   return {

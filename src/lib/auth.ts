@@ -35,7 +35,13 @@ export const auth = betterAuth({
       ? {
           resetPasswordTokenExpiresIn: 600,
           revokeSessionsOnPasswordReset: true,
-          sendResetPassword: async ({ user, token }: { user: { email: string }; token: string }) => {
+          sendResetPassword: async ({
+            user,
+            token,
+          }: {
+            user: { email: string };
+            token: string;
+          }) => {
             await sendPasswordResetEmail(user.email, token, config);
           },
         }
@@ -129,7 +135,9 @@ export const auth = betterAuth({
         if (!config.features.passwordReset || !limiter) {
           throw new APIError("FORBIDDEN", { message: "Password recovery unavailable" });
         }
-        const value = String(ctx.body?.email ?? "").trim().toLowerCase();
+        const value = String(ctx.body?.email ?? "")
+          .trim()
+          .toLowerCase();
         if (!value || value.length > 254) {
           throw new APIError("BAD_REQUEST", { message: "Invalid email" });
         }

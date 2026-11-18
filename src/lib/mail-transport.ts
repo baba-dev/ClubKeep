@@ -99,19 +99,24 @@ export async function sendPasswordResetEmail(
   if (!config.smtp || !config.features.passwordReset) {
     throw new Error("Password recovery is not configured");
   }
-  const transporter: MailSender = sender ?? nodemailer.createTransport(mailInABoxTransportOptions(config));
+  const transporter: MailSender =
+    sender ?? nodemailer.createTransport(mailInABoxTransportOptions(config));
   const link = passwordResetLink(config.origin, token);
   const mail: SendMailOptions = {
     from: config.smtp.from,
     to: recipient,
     subject: "Reset your ClubKeep password",
-    text: "A password reset was requested for your ClubKeep account. This private link expires in 10 minutes:\n\n" +
-      link + "\n\nIf this was not you, ignore this email. Your current password remains unchanged.",
+    text:
+      "A password reset was requested for your ClubKeep account. This private link expires in 10 minutes:\n\n" +
+      link +
+      "\n\nIf this was not you, ignore this email. Your current password remains unchanged.",
     html:
       '<div style="font:16px/1.6 system-ui,sans-serif;max-width:520px;margin:auto">' +
       "<h2>Reset your ClubKeep password</h2>" +
       "<p>This private link expires in 10 minutes. Ignore this email if you did not request it.</p>" +
-      '<p><a href="' + link + '">Reset password</a></p></div>',
+      '<p><a href="' +
+      link +
+      '">Reset password</a></p></div>',
   };
   try {
     await transporter.sendMail(mail);

@@ -59,7 +59,10 @@ export default function ConfirmEmailPage() {
   return (
     <main className="hm-app hm-auth">
       <section className="hm-surface w-full max-w-md p-8">
-        <div className="mb-10 flex items-center justify-between gap-4"><ClubKeepBrand /><ClubThemeToggle /></div>
+        <div className="mb-10 flex items-center justify-between gap-4">
+          <ClubKeepBrand />
+          <ClubThemeToggle />
+        </div>
         <ShieldCheck aria-hidden="true" className="mb-5 size-9 text-[var(--hm-sage-deep)]" />
         <h1 className="hm-display text-3xl">Confirm your sign-in</h1>
         <p className="hm-muted mt-3 text-sm leading-6">
@@ -67,10 +70,7 @@ export default function ConfirmEmailPage() {
           requested access to ClubKeep.
         </p>
         {state === "ready" && (
-          <button
-            onClick={confirm}
-            className="hm-button hm-button-primary mt-7 w-full"
-          >
+          <button onClick={confirm} className="hm-button hm-button-primary mt-7 w-full">
             Continue securely <ArrowRight className="size-4" aria-hidden="true" />
           </button>
         )}

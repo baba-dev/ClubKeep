@@ -33,8 +33,14 @@ async function SecurityPageContent() {
   return (
     <main className="hm-app hm-account-security min-h-screen px-5 py-12">
       <div className="mx-auto max-w-3xl">
-        <div className="mb-8 flex items-center justify-between"><ClubKeepBrand /><ClubThemeToggle /></div>
-        <Link href="/home" className="text-sm font-semibold text-[var(--hm-sage-deep)] underline underline-offset-4">
+        <div className="mb-8 flex items-center justify-between">
+          <ClubKeepBrand />
+          <ClubThemeToggle />
+        </div>
+        <Link
+          href="/home"
+          className="text-sm font-semibold text-[var(--hm-sage-deep)] underline underline-offset-4"
+        >
           Back to your space
         </Link>
         <h1 className="hm-display mt-7 text-4xl tracking-tight">Account security</h1>

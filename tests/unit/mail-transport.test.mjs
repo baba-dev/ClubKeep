@@ -10,7 +10,13 @@ import {
 
 const config = {
   origin: "https://clubkeep.example.test",
-  features: { google: false, emailLink: true, passwordReset: false, passkey: false, legacyPassword: true },
+  features: {
+    google: false,
+    emailLink: true,
+    passwordReset: false,
+    passkey: false,
+    legacyPassword: true,
+  },
   smtp: {
     host: "mx.bababuilds.com",
     port: 587,
@@ -77,7 +83,6 @@ test("incomplete SMTP configuration never sends", async () => {
   );
 });
 
-
 test("reset token stays in a URL fragment and is not exposed to server access logs", () => {
   const token = "another_opaque_reset_token_0123456789";
   const url = new URL(passwordResetLink(config.origin, token));
@@ -94,16 +99,21 @@ test("reset emails require separately approved recovery feature and redact SMTP 
   };
   const mails = [];
   await sendPasswordResetEmail("recipient@example.test", "abcdef0123456789abcdefgh", recovery, {
-    async sendMail(mail) { mails.push(mail); },
+    async sendMail(mail) {
+      mails.push(mail);
+    },
   });
   assert.equal(mails.length, 1);
   assert.ok(mails[0].text.includes("/auth/reset-password#token="));
   assert.ok(!mails[0].text.includes("recipient@example.test"));
   assert.equal(mailInABoxTransportOptions(recovery).requireTLS, true);
   await assert.rejects(
-    () => sendPasswordResetEmail("recipient@example.test", "abcdef0123456789abcdefgh", recovery, {
-      async sendMail() { throw new Error("smtp-secret"); },
-    }),
+    () =>
+      sendPasswordResetEmail("recipient@example.test", "abcdef0123456789abcdefgh", recovery, {
+        async sendMail() {
+          throw new Error("smtp-secret");
+        },
+      }),
     (error) => error.message === "AUTH_EMAIL_DELIVERY_UNAVAILABLE"
   );
   await assert.rejects(

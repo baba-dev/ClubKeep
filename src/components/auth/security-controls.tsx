@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Fingerprint, KeyRound, Laptop2, LockKeyhole, Mail, Plus, ShieldCheck, Trash2 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import type { AuthFeatures } from "@/lib/auth-config";
@@ -138,7 +138,7 @@ export function SecurityControls({ features, email, verified }: {
     });
   }
 
-  function changePassword(event: React.FormEvent<HTMLFormElement>) {
+  function changePassword(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (newPassword !== confirmPassword || newPassword.length < 12 || newPassword.length > 128) {
       setNotice("Use 12–128 characters and matching new passwords.");

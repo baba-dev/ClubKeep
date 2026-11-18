@@ -93,7 +93,7 @@ Plan limits are stored per club and enforced on the server. Original paid featur
 
 ## Month-1 scope — Business track only
 
-Invite-link/passkey onboarding, members and plans, QR/GPS/manual check-in, payment records, digital and printable ID card, club leaderboard, member profile with bio stats, basic owner insights (membership health, attendance, growth and collections; see B7_OWNER_INSIGHTS.md), and owner subscription billing (per club, Razorpay first; see B8_BILLING.md). Everything else waits. Standalone Personal, native wearables, medical records and India ABHA belong to a separate gated development track in DELIVERY_PLAN.md, not this one-month club MVP.
+Invite-link/passkey onboarding (the sign-in page states agreement to the Terms of Use and Privacy Notice and that users are 13 or older; see LEGAL_DRAFTS.md), members and plans, QR/GPS/manual check-in, payment records, digital and printable ID card, club leaderboard, member profile with bio stats, basic owner insights (membership health, attendance, growth and collections; see B7_OWNER_INSIGHTS.md), and owner subscription billing (per club, Razorpay first; see B8_BILLING.md). Everything else waits. Standalone Personal, native wearables, medical records and India ABHA belong to a separate gated development track in DELIVERY_PLAN.md, not this one-month club MVP.
 
 ## Open decisions
 

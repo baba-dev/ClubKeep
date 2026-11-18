@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowRight, Eye, Fingerprint, KeyRound, Mail, ShieldCheck } from "lucide-react";
 import type { AuthFeatures } from "@/lib/auth-config";
 import { authClient } from "@/lib/auth-client";
+import { MINIMUM_ACCOUNT_AGE, PRIVACY_PATH, TERMS_PATH } from "@/lib/legal";
 
 type Mode = "email" | "password";
 export function SignInForm({
@@ -169,6 +170,17 @@ export function SignInForm({
           </h1>
           <p className="mt-3 text-sm leading-6 text-[#b8a08c]">
             Continue with an existing account or choose a secure sign-in method.
+          </p>
+          <p className="mt-3 text-sm leading-6 text-[#b8a08c]">
+            By continuing you agree to the{" "}
+            <Link href={TERMS_PATH} className="text-[#f1d58b] underline underline-offset-4">
+              Terms of Use
+            </Link>{" "}
+            and{" "}
+            <Link href={PRIVACY_PATH} className="text-[#f1d58b] underline underline-offset-4">
+              Privacy Notice
+            </Link>
+            , and confirm you are {MINIMUM_ACCOUNT_AGE} or older.
           </p>
           {!newMethodsAvailable && (
             <p

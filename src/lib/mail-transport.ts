@@ -5,7 +5,7 @@ import type { AuthFeatureConfig } from "@/lib/auth-config";
 type MailSender = { sendMail(message: SendMailOptions): Promise<unknown> };
 
 export function mailInABoxTransportOptions(config: AuthFeatureConfig) {
-  if (!config.features.emailLink || !config.smtp) {
+  if (!(config.features.emailLink || config.features.passwordReset) || !config.smtp) {
     throw new Error("Email authentication is not configured");
   }
   return {
@@ -75,6 +75,47 @@ export async function sendMagicLinkEmail(
     await transporter.sendMail(mail);
   } catch {
     // Do not expose SMTP credentials, recipients, raw server replies or tokens.
+    throw new Error("AUTH_EMAIL_DELIVERY_UNAVAILABLE");
+  }
+}
+
+/**
+ * Reset links do not put bearer tokens in GET URLs or reverse-proxy logs.
+ * The browser reads the fragment and sends the token only in a POST body.
+ */
+export function passwordResetLink(origin: string, token: string): string {
+  if (!/^[A-Za-z0-9._~-]{16,1024}$/.test(token)) throw new Error("Invalid reset token");
+  const url = new URL("/auth/reset-password", origin);
+  url.hash = "token=" + encodeURIComponent(token);
+  return url.toString();
+}
+
+export async function sendPasswordResetEmail(
+  recipient: string,
+  token: string,
+  config: AuthFeatureConfig,
+  sender?: MailSender
+): Promise<void> {
+  if (!config.smtp || !config.features.passwordReset) {
+    throw new Error("Password recovery is not configured");
+  }
+  const transporter: MailSender = sender ?? nodemailer.createTransport(mailInABoxTransportOptions(config));
+  const link = passwordResetLink(config.origin, token);
+  const mail: SendMailOptions = {
+    from: config.smtp.from,
+    to: recipient,
+    subject: "Reset your ClubKeep password",
+    text: "A password reset was requested for your ClubKeep account. This private link expires in 10 minutes:\n\n" +
+      link + "\n\nIf this was not you, ignore this email. Your current password remains unchanged.",
+    html:
+      '<div style="font:16px/1.6 system-ui,sans-serif;max-width:520px;margin:auto">' +
+      "<h2>Reset your ClubKeep password</h2>" +
+      "<p>This private link expires in 10 minutes. Ignore this email if you did not request it.</p>" +
+      '<p><a href="' + link + '">Reset password</a></p></div>',
+  };
+  try {
+    await transporter.sendMail(mail);
+  } catch {
     throw new Error("AUTH_EMAIL_DELIVERY_UNAVAILABLE");
   }
 }

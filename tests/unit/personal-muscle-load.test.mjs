@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { ACTIVITIES, MUSCLE_IDS, activitiesForMuscle, muscleLoad } from "../../src/lib/personal/muscle-map.ts";
+import {
+  ACTIVITIES,
+  MUSCLE_IDS,
+  activitiesForMuscle,
+  muscleLoad,
+} from "../../src/lib/personal/muscle-map.ts";
 
 test("every catalogue muscle id exists in the registry and has no duplicates", () => {
   for (const a of ACTIVITIES) {
@@ -11,7 +16,8 @@ test("every catalogue muscle id exists in the registry and has no duplicates", (
 });
 
 test("every muscle is loaded by at least one activity", () => {
-  for (const id of MUSCLE_IDS) assert.ok(activitiesForMuscle(id).length > 0, `${id} is unreachable`);
+  for (const id of MUSCLE_IDS)
+    assert.ok(activitiesForMuscle(id).length > 0, `${id} is unreachable`);
 });
 
 test("no activities gives zero load everywhere", () => {

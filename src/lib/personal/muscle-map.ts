@@ -158,7 +158,10 @@ export function muscleLoad(inputs: readonly ActivityFrequency[]): Record<MuscleI
   for (const input of inputs) {
     const def = byKey.get(input.key);
     if (!def) continue;
-    const freq = Math.min(14, Math.max(0, Number.isFinite(input.sessionsPerWeek) ? input.sessionsPerWeek : 0));
+    const freq = Math.min(
+      14,
+      Math.max(0, Number.isFinite(input.sessionsPerWeek) ? input.sessionsPerWeek : 0)
+    );
     for (const id of def.primary) raw[id] += freq * PRIMARY_WEIGHT;
     for (const id of def.secondary) raw[id] += freq * SECONDARY_WEIGHT;
   }
@@ -170,7 +173,9 @@ export function muscleLoad(inputs: readonly ActivityFrequency[]): Record<MuscleI
 }
 
 /** Activities that load a muscle, primary first, for the detail sheet. */
-export function activitiesForMuscle(id: MuscleId): { key: ActivityKey; label: string; role: "primary" | "secondary" }[] {
+export function activitiesForMuscle(
+  id: MuscleId
+): { key: ActivityKey; label: string; role: "primary" | "secondary" }[] {
   const out: { key: ActivityKey; label: string; role: "primary" | "secondary" }[] = [];
   for (const a of ACTIVITIES) {
     if (a.primary.includes(id)) out.push({ key: a.key, label: a.label, role: "primary" });

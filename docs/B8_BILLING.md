@@ -1,16 +1,16 @@
 # B8: Club subscription billing
 
-Status: **B8-1 engine (#38) and B8-2 owner billing page (#39) merged; B8-3 operator tooling implemented on a feature branch.** No Stripe adapter yet (B8-4). Everything is behind `BILLING_ENABLED=false`. Approved plan: owner decisions of 17 Nov 2026. ClubKeep still never collects club-member fees (rule 2); this is only the owner-to-ClubKeep subscription.
+Status: **B8-1 engine (#38), B8-2 owner billing page (#39) and B8-3 operator tooling (#40) merged; B8-4 Stripe adapter implemented on a feature branch.** Everything is behind `BILLING_ENABLED=false`. Approved plan: owner decisions of 17 Nov 2026. ClubKeep still never collects club-member fees (rule 2); this is only the owner-to-ClubKeep subscription.
 
 ## Decisions
 
-| Topic         | Decision                                                                                                      |
-| ------------- | ------------------------------------------------------------------------------------------------------------- |
-| Billed entity | One subscription **per club** (`ClubSubscription.clubId` is unique).                                          |
-| Providers     | Razorpay first (INR, India); Stripe later (USD, everywhere else) behind the same `BillingProvider` interface. |
-| Grace         | 7 days from the first failed renewal, then Free. Retries do not extend it.                                    |
-| Tax           | Tax-exclusive. Razorpay plans are fixed amounts, so each dashboard plan must equal list price + tax (below).  |
-| Cadence       | Monthly only. Annual Business pricing is not approved.                                                        |
+| Topic         | Decision                                                                                                                                                                      |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Billed entity | One subscription **per club** (`ClubSubscription.clubId` is unique).                                                                                                          |
+| Providers     | Razorpay (INR, India) and Stripe (USD, everywhere else) behind the same `BillingProvider` interface. A provider is offered to owners only when its configuration is complete. |
+| Grace         | 7 days from the first failed renewal, then Free. Retries do not extend it.                                                                                                    |
+| Tax           | Tax-exclusive. Razorpay plans are fixed amounts, so each dashboard plan must equal list price + tax (below).                                                                  |
+| Cadence       | Monthly only. Annual Business pricing is not approved.                                                                                                                        |
 
 ## How it works
 
@@ -29,11 +29,25 @@ Status: **B8-1 engine (#38) and B8-2 owner billing page (#39) merged; B8-3 opera
 - Events are serialized per club (Club row lock first, always) and ordered by the provider's event time; older events cannot undo newer ones. Any unexpected error rolls back everything, including the idempotency claim, so the provider's retry works.
 - Logs contain no payloads, emails, secrets or tokens; provider error bodies are never shown to users.
 
+## Stripe integration (B8-4)
+
+Uses the official `stripe` package, pinned exactly (`23.1.0`). Why a package here and not for Razorpay: Stripe's signed-timestamp webhook scheme (replay tolerance, several `v1` signatures during secret rotation) and its Checkout, Price and Billing Portal calls are easy to get subtly wrong by hand, and the typings settle API-version field differences. MIT licence, no runtime dependencies, about 0.4 MiB added to the standalone release (measured). The SDK is built in one place (`src/lib/billing/stripe-client.ts`) and injected into the adapter, so tests never touch the network.
+
+- **Checkout:** a Stripe Checkout Session in subscription mode, **card only**, returning to the club's billing page. Before creating it, ClubKeep fetches the configured Price and **refuses** unless it is active, USD, monthly, exactly the list price ($5, $15, $25) and, if Stripe Tax is on, tax-exclusive.
+- **Binding.** Stripe has no subscription id until the customer pays, so a pending row stores the **Checkout Session id** in `providerSubscriptionId`. `checkout.session.completed` (or `checkout.session.async_payment_succeeded`) for a paid subscription session carries both ids; the row holding that session id is rebound to the `sub_` id and activated, under the club lock. The session id (not metadata) is the only key for this step; an id already bound to another club is refused, and starting a second checkout expires the first session so it can no longer be paid.
+- **Events:** `invoice.paid` (charge, paid-through date from the invoice line periods), `invoice.payment_failed` (starts the 7-day grace), `customer.subscription.deleted` (cancelled, keeping the paid-through date), `customer.subscription.updated` (`unpaid` halts; otherwise only the cancel-at-period-end flag is mirrored, e.g. when a customer cancels in the portal). Mirroring the flag does not move the ordering clock, so it can never make a real event look stale.
+- **Early events are retried, not dropped.** Stripe may deliver `invoice.*` before the checkout event that binds the subscription. An unbound subscription whose metadata marks it as ours answers 503, which rolls back the idempotency claim so Stripe redelivers; events with no ClubKeep marker are recorded and ignored. A paid checkout with no matching pending row (for example an expired replacement) is logged loudly and recorded; it cannot be fixed by retrying.
+- **API versions:** the SDK pins `2026-10-28.endive`. The webhook **endpoint** has its own API version, so the parser reads both shapes (`invoice.parent.subscription_details` and the older top-level `subscription`). Create the endpoint on the pinned version anyway.
+- **Payment method updates:** owners with a Stripe plan get an **Update payment method** button (Stripe's hosted billing portal, which also shows invoices and lets customers cancel). Razorpay owners keep the email-link instruction. The portal needs a default portal configuration saved in the Stripe dashboard (test and live modes separately).
+- **Tax:** `STRIPE_AUTOMATIC_TAX=true|false` is **required with no default**, so billing cannot start until the operator chooses. `true` enables Stripe Tax at checkout (billing address required; set up Stripe Tax and registrations in the dashboard first); `false` charges the list price with no tax added. This is a launch gate, not a code default.
+
 ## Configuration (operator, host only)
 
 Never in git, CI or chat. All in `/etc/clubkeep/web.env`; see `.env.example` for placeholders.
 
-`BILLING_ENABLED`, `BILLING_TAX_BASIS_POINTS` (no default), `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET` (at least 16 characters, different from the API secret), `RAZORPAY_PLAN_STARTER`, `RAZORPAY_PLAN_GROWTH`, `RAZORPAY_PLAN_PRO`.
+`BILLING_ENABLED`, `BILLING_TAX_BASIS_POINTS` (no default; Razorpay GST only), `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET` (at least 16 characters, different from the API secret), `RAZORPAY_PLAN_STARTER`, `RAZORPAY_PLAN_GROWTH`, `RAZORPAY_PLAN_PRO`.
+
+Stripe: `STRIPE_SECRET_KEY` (`sk_test_`/`sk_live_`), `STRIPE_WEBHOOK_SECRET` (`whsec_`), `STRIPE_PRICE_STARTER`, `STRIPE_PRICE_GROWTH`, `STRIPE_PRICE_PRO` (`price_`), and `STRIPE_AUTOMATIC_TAX` (`true` or `false`, required). Create three **monthly USD** Prices ($5, $15, $25; tax behavior `exclusive` if Stripe Tax is on), a webhook endpoint at `/api/billing/webhooks/stripe` subscribed to exactly: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `invoice.paid`, `invoice.payment_failed`, `customer.subscription.updated`, `customer.subscription.deleted`, and save a default Billing Portal configuration.
 
 Create three **monthly** plans in the Razorpay dashboard (test mode first) with amounts, in paise: Starter `priceWithTax(29900)`, Growth `priceWithTax(74900)`, Pro `priceWithTax(179900)`. At 18%: 35,282, 88,382 and 212,282. Register the webhook URL above with the six events and the webhook secret.
 
@@ -99,10 +113,12 @@ The systemd units have not been run on the host; verify with `systemd-analyze ve
 
 - No plan changes while a plan runs; no refunds or proration logic beyond Razorpay's own defaults.
 - Staff caps, Free quotas, and feature gates (GPS, city leaderboards, WhatsApp) are not enforced; they are OPEN in ENTITLEMENTS.md.
-- Non-India clubs are told billing is not available until the Stripe adapter ships.
+- A provider is offered only when fully configured; until then clubs in its countries see "not available yet". Indian clubs are always Razorpay, everyone else Stripe.
+- Unlike the original plan, ClubKeep does not re-verify the Stripe line-item price at binding: the Price is validated (fail closed) when the session is created, the session is ours, and binding is keyed on the stored session id.
 
 ## Verification
 
 - Operator tools: `tests/integration/b8-billing-ops.test.mjs` runs the real script against a real database (argument rejection, dry run versus execute, audit rows, refusal of subscribed clubs, reconcile parity with `effectiveTier()`); `tests/unit/billing-ops-static.test.mjs` guards the script and units (strict mode, root-only, no eval, no deletes, UTC time maths).
+- Stripe: `tests/unit/billing-stripe.test.mjs` (the **real SDK's** signature verification with valid, tampered, wrong-secret, missing and stale cases; every event mapping in both API shapes; Price validation failing closed; checkout parameters; cancel, abandon and portal calls) and `tests/integration/b8-stripe.test.mjs` (binding exactly once under concurrent delivery, early events retried, forged or orphaned or replaced checkouts refused, ordering with `SYNC`, portal access, grace on a Stripe club). Deliberately removing the retry, making `SYNC` move the clock, or reverting the session-first lookup makes them fail.
 - Unit: `tests/unit/billing-policy.test.mjs`, `tests/unit/billing-razorpay.test.mjs` (price and tax maths, entitlement boundaries, state machine, signature checks, fake-`fetch` checkout and cancel).
 - PG17 integration: `tests/integration/b8-billing.test.mjs`, wired into CI: constraints, owner-only checkout, idempotent replay and concurrent duplicates, ordering under races, grace expiry limiting new members, cancel semantics, tenant mismatch, legacy and abandoned-checkout protection. Deliberately breaking the grace and stale-event rules makes these tests fail.

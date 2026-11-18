@@ -156,6 +156,8 @@ trust and Nginx's overwritten `X-ClubKeep-Client-IP` before enabling
 email/passkey rate limiting. Only operator-approved registration may be
 made public; CI/CD does **not** open enrollment by itself.
 
+Billing is a separate provider rollout too, and stays off (`BILLING_ENABLED` unset) until the operator completes the launch gates in [B8_BILLING.md](B8_BILLING.md). The two public webhook endpoints, `/api/billing/webhooks/razorpay` and `/api/billing/webhooks/stripe`, are signature-authenticated POST routes with no session; keep Nginx forwarding them (small bodies only) and never log request bodies. Billing secrets live only in `/etc/clubkeep/web.env`, and adding or changing them is a deliberate ClubKeep-only restart. Setting `BILLING_ENABLED=false` stops new checkouts and webhook processing without changing any stored tier.
+
 `/api/auth/capabilities` is deliberately dynamic to avoid freezing feature
 flags from synthetic GitHub build settings.
 

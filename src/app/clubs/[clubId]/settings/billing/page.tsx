@@ -11,7 +11,11 @@ import { BILLABLE_TIERS } from "@/lib/billing/policy";
 import { PLAN_COPY, type SubscribeBlock } from "@/lib/billing/view";
 import { formatMinorMoney } from "@/lib/money-format";
 import { BusinessShell } from "@/components/clubs/business-shell";
-import { CancelPlanButton, SubscribeButton } from "@/components/clubs/billing-actions";
+import {
+  CancelPlanButton,
+  PaymentMethodButton,
+  SubscribeButton,
+} from "@/components/clubs/billing-actions";
 import { OperationsSafetyNote } from "@/components/human-motion/operations-ui";
 
 export const metadata: Metadata = { title: "Plan & billing · ClubKeep", robots: { index: false } };
@@ -90,7 +94,7 @@ async function ClubBillingContent({ params }: { params: Promise<{ clubId: string
                 <p className="hm-small mt-2">
                   {view.graceExpired
                     ? `The ${view.graceDays}-day grace period ended on ${date(view.graceEndsAt)}. Your club is on the Free limit until payment succeeds. Nothing has been deleted.`
-                    : `Your plan stays fully active until ${date(view.graceEndsAt)} while payment is retried. Update your payment method using the link in your payment provider's email, or ask them to retry.`}
+                    : `Your plan stays fully active until ${date(view.graceEndsAt)} while payment is retried. ${s.subscription?.provider === "STRIPE" ? "Update your payment method below." : "Update your payment method using the link in your payment provider's email, or ask them to retry."}`}
                 </p>
               </div>
             </div>
@@ -189,8 +193,11 @@ async function ClubBillingContent({ params }: { params: Promise<{ clubId: string
                     ? `Renews on ${date(view.periodEnd)}.`
                     : "Renews monthly."}
                 {s.subscription &&
-                  ` ${formatMinorMoney(s.subscription.chargeAmountMinor, s.subscription.currency)} a month including tax.`}
+                  (s.subscription.provider === "STRIPE"
+                    ? ` ${formatMinorMoney(s.subscription.chargeAmountMinor, s.subscription.currency)} a month, plus tax where it applies.`
+                    : ` ${formatMinorMoney(s.subscription.chargeAmountMinor, s.subscription.currency)} a month including tax.`)}
               </p>
+              {s.subscription?.provider === "STRIPE" && <PaymentMethodButton clubId={clubId} />}
               {view.mode === "ACTIVE" && (
                 <CancelPlanButton
                   clubId={clubId}
@@ -200,7 +207,10 @@ async function ClubBillingContent({ params }: { params: Promise<{ clubId: string
             </div>
           )}
           {view.mode === "PAST_DUE" && (
-            <div className="mt-5 border-t pt-5" style={{ borderColor: "var(--hm-line)" }}>
+            <div className="mt-5 space-y-3 border-t pt-5" style={{ borderColor: "var(--hm-line)" }}>
+              {s.subscription?.provider === "STRIPE" && (
+                <PaymentMethodButton clubId={clubId} urgent />
+              )}
               <CancelPlanButton clubId={clubId} endsLabel="today" />
             </div>
           )}
@@ -213,9 +223,11 @@ async function ClubBillingContent({ params }: { params: Promise<{ clubId: string
             </h2>
             <p className="hm-small mt-2">
               Monthly billing
-              {s.taxBasisPoints === null
-                ? ", plus applicable tax"
-                : ", tax included in the total shown"}
+              {s.providerId === "STRIPE"
+                ? ". Tax is calculated at checkout where it applies"
+                : s.taxBasisPoints === null
+                  ? ", plus applicable tax"
+                  : ", tax included in the total shown"}
               . Cancel any time; your plan runs to the end of the period you paid for.
             </p>
             <div className="mt-4 grid gap-4 md:grid-cols-3">

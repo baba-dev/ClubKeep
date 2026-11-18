@@ -255,6 +255,10 @@ jobs:
         run: node --test tests/integration/b7-insights.test.mjs
       - name: Validate B8 billing constraints, idempotent webhooks, grace and tenant isolation on PG17
         run: node --test tests/integration/b8-billing.test.mjs
+      - name: Validate B8 operator billing tools (dry run, grant, revoke, reconcile parity) on PG17
+        run: |
+          bash -n infra/billing/clubkeep-billing-ops.sh
+          node --test tests/integration/b8-billing-ops.test.mjs
       - name: Verify isolated demo reviewer sandbox on clean PostgreSQL 17
         run: |
           set -Eeuo pipefail

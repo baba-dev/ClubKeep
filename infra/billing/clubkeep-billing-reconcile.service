@@ -1,0 +1,17 @@
+[Unit]
+Description=ClubKeep billing tier reconcile
+Documentation=https://github.com/baba-dev/ClubKeep/blob/main/docs/B8_BILLING.md
+After=postgresql.service
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/usr/local/sbin/clubkeep-billing-ops reconcile --execute
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectHome=yes
+Nice=10
+TimeoutStartSec=120
+StandardOutput=journal
+StandardError=journal

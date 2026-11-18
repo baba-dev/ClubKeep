@@ -143,7 +143,7 @@ export function PasswordRecovery({ enabled }: { enabled: boolean }) {
             <Mail className="size-7" aria-hidden="true" />
             <h2 className="hm-display">Check your inbox.</h2>
             <p>
-              If that address is eligible, you'll receive a one-time reset link valid for ten
+              If that address is eligible, you&apos;ll receive a one-time reset link valid for ten
               minutes. Check spam as well.
             </p>
           </div>

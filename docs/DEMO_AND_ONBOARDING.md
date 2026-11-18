@@ -36,7 +36,7 @@ For *real* route, API, permission, payment-record and score-verification testing
 - Separate public host `https://demo.<your-clubkeep-host>`, Better Auth origin and secret, dedicated PostgreSQL DB **`clubkeep_demo`**, ClubKeep-only non-evicting Redis, separate cookies/logs and separate service/ports. It may share a server only after capacity/isolation verification, not application DB or Redis keys with production.
 - `CLUBKEEP_DEMO_SANDBOX=true` **only in an operator's protected seed shell**. Do not set this variable for the public production `clubkeep-web`.
 - Copy of the migration set on this branch, applied to the **empty isolated demo database**. Never use `db push` on production.
-- The offline script `prisma/seed-demo-sandbox.mjs`, which refuses all databases except `clubkeep_demo` or `clubkeep_demo_ci`, requires explicit `--expect-db`, validates `current_database()`, refuses non-demo production origins and any preexisting user/club, and generates unique hashed password credentials from protected stdin. No passwords, hashes, raw connection strings or bearer values are logged.
+- The offline script `prisma/seed-demo-sandbox.mjs` (in a lean release it lives at `migrate/prisma/seed-demo-sandbox.mjs`, beside the `pg` and `better-auth` packages in `migrate/node_modules/`; see [PLATFORM_ADMIN_BOOTSTRAP.md](PLATFORM_ADMIN_BOOTSTRAP.md)), which refuses all databases except `clubkeep_demo` or `clubkeep_demo_ci`, requires explicit `--expect-db`, validates `current_database()`, refuses non-demo production origins and any preexisting user/club, and generates unique hashed password credentials from protected stdin. No passwords, hashes, raw connection strings or bearer values are logged.
 - Four verified fictional reviewer identities under `@demo.clubkeep.invalid`: **owner, member, manager, staff**. The two main reviewer identities are OWNER in different demo clubs and linked MEMBER in the other club so *both* can inspect full club operations and member experiences via the real `/home` club switcher. Reviewer owner has a platform admin role only in the sandbox; independent manager can approve scores that they did not submit. Every normal authorization check remains enabled.
 - Fictional plans, attendance, external-payment receipts, roster membership, approvals, consent, leaderboard and challenges are seeded. The script performs one atomic transaction and rolls back on failure.
 - Use distinct strong passwords via operator's hidden prompts (do not paste them into source/PR/GitHub logs/chat). The script accepts a single protected stdin JSON object with `owner`, `member`, `manager`, `staff` keys, each distinct 12–128 characters.
@@ -45,8 +45,10 @@ Protected example for a **separate demo sandbox database only** (Python `getpass
 
 ```bash
 # Load the isolated demo-only DATABASE_URL/BETTER_AUTH_URL securely first.
+# Run from the release's migrate/ directory: a lean release has no root prisma/ or node_modules/.
+cd <release-dir>/migrate
 python3 -c 'import getpass,json,sys; roles=("owner","member","manager","staff"); secrets={role:getpass.getpass("Sandbox "+role+" password: ") for role in roles}; sys.stdout.write(json.dumps(secrets))' |
-  CLUBKEEP_DEMO_SANDBOX=true /opt/menuminute/node24/bin/node prisma/seed-demo-sandbox.mjs --expect-db clubkeep_demo
+  CLUBKEEP_DEMO_SANDBOX=true env -u NODE_PATH <node-binary-for-the-release-runtime> prisma/seed-demo-sandbox.mjs --expect-db clubkeep_demo
 ```
 
 **Never execute this against production.** Public visitors should use the safe `/demo` tour; AI reviewers need approved sandbox accounts and independently delivered credentials through a protected channel, not a public URL or GitHub.

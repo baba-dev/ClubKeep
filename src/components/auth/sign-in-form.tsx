@@ -245,6 +245,11 @@ export function SignInForm({
               {notice}
             </p>
           )}
+          <p className="hm-auth-legal">
+            By continuing you agree to the <Link href={TERMS_PATH}>Terms of Use</Link> and
+            <Link href={PRIVACY_PATH}> Privacy Notice</Link>, and confirm you are{" "}
+            {MINIMUM_ACCOUNT_AGE} or older.
+          </p>
           {(features.google || features.passkey) && (
             <div className="hm-auth-methods">
               {features.google && (
@@ -421,11 +426,7 @@ export function SignInForm({
           <Link href="/demo?role=owner&view=overview" className="hm-auth-demo">
             <Eye className="size-4" aria-hidden="true" /> Explore ClubKeep without signing in
           </Link>
-          <p className="hm-auth-legal">
-            By continuing, you agree to the <Link href={TERMS_PATH}>Terms of Use</Link> and
-            <Link href={PRIVACY_PATH}> Privacy Notice</Link>, and confirm you are{" "}
-            {MINIMUM_ACCOUNT_AGE} or older.
-          </p>
+
           <p className="hm-auth-footnote">
             <LockKeyhole className="size-4" aria-hidden="true" />
             We never store passwords in your browser. A saved email is optional and can be removed

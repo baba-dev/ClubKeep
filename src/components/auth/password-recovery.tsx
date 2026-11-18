@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, LockKeyhole, Mail, ShieldCheck } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
@@ -28,7 +28,7 @@ export function PasswordRecovery({ enabled }: { enabled: boolean }) {
     });
   }, []);
 
-  async function requestLink(event: React.FormEvent<HTMLFormElement>) {
+  async function requestLink(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!enabled || busy) return;
     setBusy(true);
@@ -46,7 +46,7 @@ export function PasswordRecovery({ enabled }: { enabled: boolean }) {
     }
   }
 
-  async function reset(event: React.FormEvent<HTMLFormElement>) {
+  async function reset(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!enabled || busy || !token) return;
     if (password.length < 12 || password.length > 128 || password !== confirm) {

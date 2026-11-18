@@ -1,0 +1,137 @@
+/* Body map: tokens come from .hm-app (src/app/human-motion.css); never raw hex. */
+.hm-bodymap {
+  display: grid;
+  gap: 1rem;
+}
+.hm-bodymap-tabs {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: 14px;
+  background: color-mix(in oklab, var(--hm-cocoa) 8%, var(--hm-surface));
+  justify-self: center;
+}
+.hm-bodymap-tab {
+  min-height: 44px;
+  min-width: 96px;
+  padding: 0 1rem;
+  border: 0;
+  border-radius: 11px;
+  background: transparent;
+  color: var(--hm-muted);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.hm-bodymap-tab[aria-pressed="true"] {
+  background: var(--hm-action);
+  color: var(--hm-action-text);
+}
+.hm-bodymap-figure {
+  width: min(100%, 320px);
+  height: auto;
+  justify-self: center;
+  touch-action: manipulation;
+}
+.hm-bodymap-halo {
+  fill: color-mix(in oklab, var(--hm-cocoa) 10%, var(--hm-surface));
+  stroke: color-mix(in oklab, var(--hm-cocoa) 10%, var(--hm-surface));
+  stroke-width: 12;
+  stroke-linejoin: round;
+}
+.hm-bodymap-decor {
+  fill: color-mix(in oklab, var(--hm-cocoa) 14%, var(--hm-surface));
+  stroke: var(--hm-cocoa);
+  stroke-opacity: 0.35;
+  stroke-width: 0.8;
+}
+.hm-bodymap-muscle path {
+  fill: color-mix(
+    in oklab,
+    var(--hm-terracotta) calc(var(--load, 0) * 85%),
+    color-mix(in oklab, var(--hm-sage) 14%, var(--hm-surface))
+  );
+  stroke: var(--hm-cocoa);
+  stroke-opacity: 0.55;
+  stroke-width: 0.8;
+}
+.hm-bodymap-muscle {
+  cursor: pointer;
+  outline: none;
+}
+.hm-bodymap-muscle:focus-visible path,
+.hm-bodymap-muscle[aria-pressed="true"] path {
+  stroke: var(--hm-action);
+  stroke-opacity: 1;
+  stroke-width: 2;
+}
+.hm-bodymap-line {
+  fill: none;
+  stroke: var(--hm-cocoa);
+  stroke-opacity: 0.35;
+  stroke-width: 0.7;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hm-bodymap-muscle path {
+    transition:
+      fill 200ms ease,
+      stroke-width 120ms ease;
+  }
+}
+.hm-bodymap-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--hm-muted);
+  font-size: 0.8125rem;
+}
+.hm-bodymap-ramp {
+  width: 96px;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--hm-sage) 14%, var(--hm-surface)),
+    var(--hm-terracotta)
+  );
+}
+.hm-bodymap-detail {
+  padding: 1rem;
+  border-radius: 22px;
+  background: var(--hm-surface);
+  border: 1px solid var(--hm-line);
+}
+.hm-bodymap-detail h3 {
+  margin: 0 0 0.25rem;
+  font-family: var(--font-hm-display, inherit);
+}
+.hm-bodymap-detail p,
+.hm-bodymap-detail li {
+  color: var(--hm-muted);
+  font-size: 0.9375rem;
+}
+.hm-bodymap-detail ul,
+.hm-bodymap-all ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+}
+.hm-bodymap-all summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--hm-text);
+  font-weight: 600;
+}
+.hm-bodymap-all li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  list-style: none;
+  margin-left: -1.1rem;
+  padding: 0.25rem 0;
+  font-variant-numeric: tabular-nums;
+}

@@ -55,6 +55,7 @@ Cut from the bottom of this list first if time runs short (order of cuts: ID car
 
 - [ ] Shared identity; user-owned Personal domain separate from club tenancy; consent and sponsored entitlement isolation.
 - [ ] Personal Free/Pro/Premium-AI with 5/50/250 AI requests and subscription integrations.
+- [~] Personal bio, body measurements, self-declared activities and the muscle map: schema, validation, scoring and body-map component are in; server actions, the `/me` shell and consent controls are next (see ARCHITECTURE.md).
 - [ ] Personal first usable core: Free activity/sleep/nutrition plus limited insurance/blood-type/biological-instructions vault; Pro/Premium BP/glucose clinical histories, medications and medical documents; cloud encryption/offline queue; native Apple Health and Health Connect plus progressive direct vendors.
 - [ ] Medical OCR verification/FHIR, insurance vault, India ABHA opt-in consent-based record sync after official approval.
 - [ ] Groq/NVIDIA NIM routing with one-time explicit provider consent before identifiable medical payloads.

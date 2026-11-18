@@ -14,7 +14,7 @@ The `/demo` route is a **public, anonymous, entirely client-side fictional simul
 
 The original `src/lib/auth-config.ts` built `authLimiter` **only when an optional provider** (Google, email magic link, passkey) was active. Protected production has all three disabled. Thus `guardOnboardingPost` returned **503 "Onboarding is unavailable"**, despite a valid existing password session.
 
-The fix configures ClubKeep's rate limiter independently. If `AUTH_RATE_LIMIT_REDIS_URL` exists it takes precedence. **For password-only installs only**, `REDIS_URL` is an acceptable fallback *because it must already belong to ClubKeep's dedicated Redis instance*. Disabled providers remain disabled. Redis outage still denies mutations; no in-memory or no-limit fallback and no reuse of MenuMinute ports 6381/6382. Explicit OAuth/magic-link/passkey activation still requires separate `AUTH_RATE_LIMIT_REDIS_URL` and verified Nginx IP headers.
+The fix configures ClubKeep's rate limiter independently. If `AUTH_RATE_LIMIT_REDIS_URL` exists it takes precedence. **For password-only installs only**, `REDIS_URL` is an acceptable fallback _because it must already belong to ClubKeep's dedicated Redis instance_. Disabled providers remain disabled. Redis outage still denies mutations; no in-memory or no-limit fallback and no reuse of MenuMinute ports 6381/6382. Explicit OAuth/magic-link/passkey activation still requires separate `AUTH_RATE_LIMIT_REDIS_URL` and verified Nginx IP headers.
 
 For operators with root access on the ClubKeep VPS, verify **only safe booleans, never print URLs, secrets, or passwords**:
 
@@ -31,13 +31,13 @@ If security store missing, configure `REDIS_URL` or `AUTH_RATE_LIMIT_REDIS_URL` 
 
 ## Optional live-authenticated AI reviewer sandbox (separate instance)
 
-For *real* route, API, permission, payment-record and score-verification testing, use a dedicated isolated deployment with:
+For _real_ route, API, permission, payment-record and score-verification testing, use a dedicated isolated deployment with:
 
 - Separate public host `https://demo.<your-clubkeep-host>`, Better Auth origin and secret, dedicated PostgreSQL DB **`clubkeep_demo`**, ClubKeep-only non-evicting Redis, separate cookies/logs and separate service/ports. It may share a server only after capacity/isolation verification, not application DB or Redis keys with production.
 - `CLUBKEEP_DEMO_SANDBOX=true` **only in an operator's protected seed shell**. Do not set this variable for the public production `clubkeep-web`.
 - Copy of the migration set on this branch, applied to the **empty isolated demo database**. Never use `db push` on production.
-- The offline script `prisma/seed-demo-sandbox.mjs`, which refuses all databases except `clubkeep_demo` or `clubkeep_demo_ci`, requires explicit `--expect-db`, validates `current_database()`, refuses non-demo production origins and any preexisting user/club, and generates unique hashed password credentials from protected stdin. No passwords, hashes, raw connection strings or bearer values are logged.
-- Four verified fictional reviewer identities under `@demo.clubkeep.invalid`: **owner, member, manager, staff**. The two main reviewer identities are OWNER in different demo clubs and linked MEMBER in the other club so *both* can inspect full club operations and member experiences via the real `/home` club switcher. Reviewer owner has a platform admin role only in the sandbox; independent manager can approve scores that they did not submit. Every normal authorization check remains enabled.
+- The offline script `prisma/seed-demo-sandbox.mjs` (in a lean release it lives at `migrate/prisma/seed-demo-sandbox.mjs`, beside the `pg` and `better-auth` packages in `migrate/node_modules/`; see [PLATFORM_ADMIN_BOOTSTRAP.md](PLATFORM_ADMIN_BOOTSTRAP.md)), which refuses all databases except `clubkeep_demo` or `clubkeep_demo_ci`, requires explicit `--expect-db`, validates `current_database()`, refuses non-demo production origins and any preexisting user/club, and generates unique hashed password credentials from protected stdin. No passwords, hashes, raw connection strings or bearer values are logged.
+- Four verified fictional reviewer identities under `@demo.clubkeep.invalid`: **owner, member, manager, staff**. The two main reviewer identities are OWNER in different demo clubs and linked MEMBER in the other club so _both_ can inspect full club operations and member experiences via the real `/home` club switcher. Reviewer owner has a platform admin role only in the sandbox; independent manager can approve scores that they did not submit. Every normal authorization check remains enabled.
 - Fictional plans, attendance, external-payment receipts, roster membership, approvals, consent, leaderboard and challenges are seeded. The script performs one atomic transaction and rolls back on failure.
 - Use distinct strong passwords via operator's hidden prompts (do not paste them into source/PR/GitHub logs/chat). The script accepts a single protected stdin JSON object with `owner`, `member`, `manager`, `staff` keys, each distinct 12–128 characters.
 
@@ -45,8 +45,10 @@ Protected example for a **separate demo sandbox database only** (Python `getpass
 
 ```bash
 # Load the isolated demo-only DATABASE_URL/BETTER_AUTH_URL securely first.
+# Run from the release's migrate/ directory: a lean release has no root prisma/ or node_modules/.
+cd <release-dir>/migrate
 python3 -c 'import getpass,json,sys; roles=("owner","member","manager","staff"); secrets={role:getpass.getpass("Sandbox "+role+" password: ") for role in roles}; sys.stdout.write(json.dumps(secrets))' |
-  CLUBKEEP_DEMO_SANDBOX=true /opt/menuminute/node24/bin/node prisma/seed-demo-sandbox.mjs --expect-db clubkeep_demo
+  CLUBKEEP_DEMO_SANDBOX=true env -u NODE_PATH <node-binary-for-the-release-runtime> prisma/seed-demo-sandbox.mjs --expect-db clubkeep_demo
 ```
 
 **Never execute this against production.** Public visitors should use the safe `/demo` tour; AI reviewers need approved sandbox accounts and independently delivered credentials through a protected channel, not a public URL or GitHub.

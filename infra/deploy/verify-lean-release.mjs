@@ -46,6 +46,11 @@ export function verifyRelease(root, expectedSha) {
     "migrate/prisma/migrations/migration_lock.toml",
     "migrate/prisma.config.ts",
     "migrate/kit-manifest.json",
+    // Operator bootstrap (docs/PLATFORM_ADMIN_BOOTSTRAP.md) runs from the kit, not the app.
+    "migrate/prisma/bootstrap-platform-admin.mjs",
+    "migrate/prisma/bootstrap-admin-helpers.mjs",
+    "migrate/node_modules/pg/package.json",
+    "migrate/node_modules/better-auth/package.json",
   ]) assert(existsSync(join(dir, path)), "missing " + path);
   assert(!existsSync(join(dir, "node_modules")), "full build-time node_modules leaked");
   assert(!existsSync(join(dir, ".next/cache")), "Next.js build cache leaked");

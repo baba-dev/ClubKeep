@@ -9,6 +9,7 @@ The original release included the full npm-ci node_modules directory (about 1.1 
 - RELEASE-SHA and release-manifest.json (format 2, source SHA, ARM64, Node 24, lock digest)
 - .next/standalone with public/ and .next/static copied in
 - migrate/ (Prisma schema, migrations, prisma.config.ts, and precisely the installed CLI dependency closure copied from the checked-in package-lock build)
+  - The kit's roots are `prisma`, `dotenv`, `pg` and `better-auth` (the last two only for the offline operator script `migrate/prisma/bootstrap-platform-admin.mjs`; see [PLATFORM_ADMIN_BOOTSTRAP.md](PLATFORM_ADMIN_BOOTSTRAP.md)). They add about 22 MiB unpacked and 3.6 MB compressed. The web server does not use the kit.
 
 There is **no** root node_modules and **no** npm install, Prisma generate, or build on the production VPS. The Prisma migration kit is not used by the web server. The application runs via the existing Node 24 systemd service. No changes to the ClubKeep DB schema, Redis, MenuMinute, ERP, Nginx or credentials are part of this migration.
 

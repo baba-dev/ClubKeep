@@ -185,3 +185,19 @@ export function activitiesForMuscle(
   }
   return out;
 }
+
+/**
+ * Combines self-declared frequencies with ones derived from the user's own club attendance.
+ * The higher value wins per activity, so attending a gym you also declared never double counts.
+ */
+export function mergeFrequencies(
+  declared: readonly ActivityFrequency[],
+  derived: readonly ActivityFrequency[]
+): ActivityFrequency[] {
+  const best = new Map<ActivityKey, number>();
+  for (const f of [...declared, ...derived]) {
+    if (!Number.isFinite(f.sessionsPerWeek) || f.sessionsPerWeek <= 0) continue;
+    best.set(f.key, Math.max(best.get(f.key) ?? 0, f.sessionsPerWeek));
+  }
+  return [...best].map(([key, sessionsPerWeek]) => ({ key, sessionsPerWeek }));
+}

@@ -35,7 +35,11 @@ Current environment variables (`.env.example`): `DATABASE_URL`, `REDIS_URL`, `BE
 
 ## Standalone Personal — bio, measurements and muscle map (partly implemented)
 
-Migration `20261118120000_personal_bio_activities` adds the user-owned bio, measurement and activity tables above. Pure rules live in `src/lib/personal/` (`muscle-map.ts`: 20 muscle groups, 12 activities, 0-1 load scoring; `measurements.ts`: unit conversion, plausibility ranges, adult gate). Body measurements require a known birth year and an age of at least 19 by year arithmetic (conservative, because only the year is stored) until guardian rules exist. The body map is `src/components/personal/body-map/`. Everything else in this section is still proposed.
+Migration `20261118120000_personal_bio_activities` adds the user-owned bio, measurement and activity tables above. Pure rules live in `src/lib/personal/` (`muscle-map.ts`: 20 muscle groups, 12 activities, 0-1 load scoring; `measurements.ts`: unit conversion, plausibility ranges, adult gate). Body measurements require a known birth year and an age of at least 19 by year arithmetic (conservative, because only the year is stored) until guardian rules exist. The body map is `src/components/personal/body-map/`.
+
+**Routes and service.** All logic is in `src/lib/personal/personal-service.ts` and takes only the verified session user id; no function accepts an owner id from a client. Mutations are route handlers under `/api/me/` (`bio`, `measurements`, `measurements/remove`, `activities`, `club-signals`, `data/delete`) built on `personalPost` (`personal-http.ts`), which reuses `guardOnboardingPost` (same-origin and fetch-site check, verified session, fail-closed Redis rate limit), a 4 KB JSON cap and strict Zod schemas. `GET /api/me/data/export` downloads the user's own data. Pages are `/me`, `/me/body`, `/me/activity`, `/me/progress`, `/me/profile`; the `/me` layout is a static shell, so **every `/me` page must call `requireSession()` itself** and each tab has a `loading.tsx`. Integration coverage: `tests/integration/personal-service.test.mjs` (cross-user isolation, age gate, consent, own-visits-only, erase).
+
+Everything else in this section is still proposed.
 
 
 - One account can have a Personal profile independent of zero or more club memberships. Club-owned rows remain `clubId` scoped; Personal observations, medication, documents, insurance, ABHA link and user-created care plans are **user-owned** and never accessible merely via club membership.

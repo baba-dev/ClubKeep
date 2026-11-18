@@ -1,0 +1,128 @@
+/* Personal shell. Tokens come from .hm-app; never raw hex. Phone first, bottom tab bar. */
+.hm-me-main {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 1rem 1rem 6.5rem;
+  display: grid;
+  gap: 1rem;
+}
+.hm-me-tabs {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 0.25rem 0.5rem calc(0.25rem + env(safe-area-inset-bottom));
+  background: var(--hm-surface);
+  border-top: 1px solid var(--hm-line);
+}
+.hm-me-tab {
+  min-height: 56px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.125rem;
+  border-radius: 14px;
+  color: var(--hm-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.hm-me-tab[aria-current="page"] {
+  color: var(--hm-action);
+  background: color-mix(in oklab, var(--hm-sage) 14%, var(--hm-surface));
+}
+@media (min-width: 900px) {
+  .hm-me-main {
+    padding-bottom: 2rem;
+  }
+  .hm-me-tabs {
+    position: sticky;
+    top: 0;
+    inset: 0 0 auto 0;
+    max-width: 44rem;
+    margin: 0 auto;
+    border: 0;
+    background: transparent;
+  }
+}
+.hm-me-card {
+  padding: 1rem;
+  border-radius: 22px;
+  background: var(--hm-surface);
+  border: 1px solid var(--hm-line);
+  display: grid;
+  gap: 0.75rem;
+}
+.hm-me-card h2,
+.hm-me-card h3 {
+  margin: 0;
+  font-family: var(--font-hm-display, inherit);
+}
+.hm-me-field {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.hm-me-field input,
+.hm-me-field select {
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 0 0.75rem;
+  border-radius: 14px;
+  border: 1px solid var(--hm-line);
+  background: var(--hm-bg);
+  color: var(--hm-text);
+  font: inherit;
+  font-weight: 400;
+}
+.hm-me-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(9rem, 100%), 1fr));
+}
+.hm-me-stats {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.hm-me-num {
+  width: 64px;
+  min-height: 44px;
+  padding: 0 0.5rem;
+  border-radius: 14px;
+  border: 1px solid var(--hm-line);
+  background: var(--hm-bg);
+  color: var(--hm-text);
+  font: inherit;
+}
+.hm-me-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 44px;
+}
+.hm-me-error {
+  color: var(--hm-terracotta);
+  font-size: 0.875rem;
+}
+.hm-me-ok {
+  color: var(--hm-sage-deep);
+  font-size: 0.875rem;
+}
+.hm-me-spark {
+  width: 96px;
+  height: 28px;
+  flex: none;
+}
+.hm-me-spark polyline {
+  fill: none;
+  stroke: var(--hm-action);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

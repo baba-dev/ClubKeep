@@ -50,3 +50,9 @@ export const setActivitiesInput = z
   .strict();
 
 export const clubSignalConsentInput = z.object({ enabled: z.boolean() }).strict();
+
+export const removeMeasurementInput = z.object({ id: z.string().min(10).max(128) }).strict();
+export const clubSignalInput = z
+  .object({ clubId: z.string().min(10).max(128), enabled: z.boolean() })
+  .strict();
+export const deleteAllInput = z.object({ confirm: z.literal(true) }).strict();

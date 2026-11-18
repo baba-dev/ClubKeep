@@ -5,6 +5,8 @@ import type { Metadata } from "next";
 import { publicAuthFeatures } from "@/lib/auth-config";
 import { requireSession } from "@/lib/required-session";
 import { SecurityControls } from "@/components/auth/security-controls";
+import { ClubThemeToggle } from "@/components/clubs/theme-toggle";
+import { ClubKeepBrand } from "@/components/human-motion/media-components";
 
 export const metadata: Metadata = {
   title: "Account security · ClubKeep",
@@ -15,7 +17,7 @@ export default function SecurityPage() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-[#0b0705] p-8 text-[#fbf1e6]">
+        <main className="hm-app min-h-screen p-8">
           <p role="status">Checking your account…</p>
         </main>
       }
@@ -29,13 +31,20 @@ async function SecurityPageContent() {
   const session = await requireSession();
   if (!session.user) redirect("/auth/sign-in");
   return (
-    <main className="min-h-screen bg-[#0b0705] px-5 py-12 text-[#fbf1e6]">
+    <main className="hm-app hm-account-security min-h-screen px-5 py-12">
       <div className="mx-auto max-w-3xl">
-        <Link href="/home" className="text-sm text-[#f1d58b] underline underline-offset-4">
+        <div className="mb-8 flex items-center justify-between">
+          <ClubKeepBrand />
+          <ClubThemeToggle />
+        </div>
+        <Link
+          href="/home"
+          className="text-sm font-semibold text-[var(--hm-sage-deep)] underline underline-offset-4"
+        >
           Back to your space
         </Link>
-        <h1 className="mt-7 text-4xl font-semibold tracking-tight">Account security</h1>
-        <p className="mt-3 text-sm leading-6 text-[#b8a08c]">
+        <h1 className="hm-display mt-7 text-4xl tracking-tight">Account security</h1>
+        <p className="hm-muted mt-3 text-sm leading-6">
           Manage trusted ways to access your account. Club staff cannot recover your Personal
           identity.
         </p>

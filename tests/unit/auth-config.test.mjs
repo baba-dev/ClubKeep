@@ -13,6 +13,7 @@ test("disabled providers expose only existing password sign-in", () => {
   assert.deepEqual(result.features, {
     google: false,
     emailLink: false,
+    passwordReset: false,
     passkey: false,
     legacyPassword: true,
   });
@@ -83,6 +84,31 @@ test("Mail-in-a-Box cannot silently fall back to insecure SMTP", () => {
   assert.throws(() => resolveAuthConfig({ ...active, SMTP_REQUIRE_TLS: "false" }), /STARTTLS/);
   assert.throws(() => resolveAuthConfig({ ...active, SMTP_HOST: "smtp.other.test" }), /STARTTLS/);
   assert.throws(() => resolveAuthConfig({ ...active, SMTP_PASSWORD: undefined }), /SMTP_PASSWORD/);
+});
+
+test("password reset can be enabled independently of magic links with protected SMTP and Redis", () => {
+  const enabled = {
+    ...base,
+    PASSWORD_RESET_AUTH_ENABLED: "true",
+    EMAIL_PROVIDER: "smtp",
+    SMTP_HOST: "mx.bababuilds.com",
+    SMTP_PORT: "587",
+    SMTP_SECURE: "false",
+    SMTP_REQUIRE_TLS: "true",
+    SMTP_USER: "clubkeep@example.test",
+    SMTP_PASSWORD: "a-nonproduction-fixture",
+    EMAIL_FROM: "clubkeep@example.test",
+    AUTH_RATE_LIMIT_REDIS_URL: "redis://127.0.0.1:6399",
+  };
+  const config = resolveAuthConfig(enabled);
+  assert.equal(config.features.emailLink, false);
+  assert.equal(config.features.passwordReset, true);
+  assert.equal(config.smtp?.host, "mx.bababuilds.com");
+  assert.throws(() => resolveAuthConfig({ ...enabled, SMTP_REQUIRE_TLS: "false" }), /STARTTLS/);
+  assert.throws(
+    () => resolveAuthConfig({ ...enabled, AUTH_RATE_LIMIT_REDIS_URL: undefined }),
+    /AUTH_RATE_LIMIT_REDIS_URL/
+  );
 });
 
 test("passkey origin must match the current deployment", () => {

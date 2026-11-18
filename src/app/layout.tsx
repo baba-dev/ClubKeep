@@ -8,6 +8,7 @@ import "./human-motion-motion.css";
 import "./human-motion-operations.css";
 import "./human-motion-community.css";
 import "./human-motion-demo.css";
+import "./human-motion-auth.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

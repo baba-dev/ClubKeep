@@ -29,3 +29,15 @@ Built to avoid Codex's in-flight work: it imports P1-B code but edits none of it
 ## Known limits
 - The exercise catalogue covers common lifts and cardio only; unusual names go to "not counted". A user-editable mapping is a possible follow-up.
 - Set-equivalents are a descriptive volume count, not a validated training-load model.
+
+## Illustration v2 (19 Nov 2026)
+- **Art:** shaded, outlined front and back figure with fibre lines and anatomical landmarks. Five muscles added (neck, serratus, rhomboids, hip abductors, soleus), 25 in all. Existing ids are never renamed or split, and no stored data refers to muscle ids, so nothing needed migrating.
+- **Colour coding:** five load bands (none, light, moderate, high, peak) with hatch patterns and text labels, so colour is never the only signal. A second mode colours by **last worked** (today, 1–2, 3–6, 7+ days, not in period). Both are descriptive; neither says anything about recovery or readiness. Pure rules: `src/lib/personal/load-bands.ts`.
+- **Motion** (all inside `prefers-reduced-motion: no-preference`): muscles fill in head to feet; colour glides between bands; the figure turns in 3D between front and back (tap or swipe); the heaviest muscles breathe a slow warm glow; selecting a muscle pulses once; hover or focus shows a caption chip. With reduced motion everything is static and the turn is instant.
+- **Replay:** a scrubbable, playable time-lapse of the last four weeks. Each day shows the trailing seven days of the user's own training, on one shared scale (`muscle-timeline.ts`). Dates are UTC.
+- **Same privacy as before:** own rows only, behind P1-B's wellness gate and adult rule; absent when the gate is off. No schema change.
+
+### Known limits
+- Replay day labels are UTC calendar dates, so they can differ by a day from the user's local date.
+- Hatch patterns and glow are tuned for the two shipped themes; a third theme would need re-tuning `--bm-*`.
+- Saving or sharing the map as an image is not built (CSS-variable styling needs inlining first); a possible follow-up.

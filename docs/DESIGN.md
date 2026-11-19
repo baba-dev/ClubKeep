@@ -64,6 +64,7 @@ Rules:
 ## Motion
 
 - Subtle only (`human-motion-motion.css`). Everything is disabled under `prefers-reduced-motion` (see the media query at the end of `human-motion.css`).
+- **Exception, owner decision 19 Nov 2026:** the Personal body map (`src/components/personal/body-map/`) may use expressive motion because it is a signature feature. The limits still hold: every animation must communicate something (what is loaded, what changed, what is selected), stay inside the warm sage, terracotta and cocoa palette, and sit entirely inside `@media (prefers-reduced-motion: no-preference)`. With reduced motion the map must remain fully usable and static, and no information may exist only in motion.
 
 ## Theme switching
 
@@ -110,7 +111,8 @@ The separate Personal health experience (see [DELIVERY_PLAN.md](DELIVERY_PLAN.md
 - Regions are keyboard-focusable buttons (Enter/Space); the mirrored half is hidden from assistive tech.
 - Colour transitions run only under `prefers-reduced-motion: no-preference`.
 - Illustration is decorative anatomy, not medical imagery, and never implies diagnosis or injury.
-- The map is interactive (Planned / Logged / Preview, with a 7, 28 or 90 day period): see [P1_MUSCLE_EXPLORER.md](P1_MUSCLE_EXPLORER.md). Segmented controls reuse the Front/Back tab styling with 44px targets; the figure never moves when controls change.
+- The map is interactive (Planned / Logged / Preview, a 7, 28 or 90 day period, colour by how much or last worked, and a four-week replay): see [P1_MUSCLE_EXPLORER.md](P1_MUSCLE_EXPLORER.md). Segmented controls reuse the Front/Back tab styling with 44px targets.
+- **Colour coding** uses five bands (none, light, moderate, high, peak) on a sage, amber, terracotta, deep terracotta ramp. Colour is never the only signal: each band has a text label, its own hatch pattern, and appears in the text list.
 
 ## History: Luxe (superseded)
 

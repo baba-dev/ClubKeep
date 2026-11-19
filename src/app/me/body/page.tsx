@@ -8,7 +8,7 @@ import { MuscleExplorer } from "@/components/personal/body-map/muscle-explorer";
 
 export default async function BodyPage() {
   const session = await requireSession();
-  const { overview: o, logged } = await getMuscleExplorer(prisma, session.user.id);
+  const { overview: o, logged, timeline } = await getMuscleExplorer(prisma, session.user.id);
 
   // Latest logged girth per muscle, across left and right.
   const notes: Partial<Record<MuscleId, string>> = {};
@@ -31,7 +31,12 @@ export default async function BodyPage() {
         <h1 style={{ margin: 0, fontFamily: "var(--font-hm-display, inherit)" }}>My muscle map</h1>
         <p className="hm-small">Tap a muscle to see what trains it.</p>
       </header>
-      <MuscleExplorer planned={o.load} logged={logged} measurementNotes={notes} />
+      <MuscleExplorer
+        planned={o.load}
+        logged={logged}
+        timeline={timeline}
+        measurementNotes={notes}
+      />
     </>
   );
 }

@@ -1,6 +1,7 @@
 import type { PrismaClient } from "@/generated/prisma/client";
 import { OnboardingError } from "@/lib/club-onboarding";
 import { getOverview } from "./personal-service";
+import { muscleTimeline, type MuscleTimeline } from "./muscle-timeline";
 import { trainingFromWorkouts, type MuscleTraining } from "./muscle-training";
 import { assertWellnessAdult, assertWellnessEnabled } from "./wellness-policy";
 
@@ -8,6 +9,8 @@ export const EXPLORER_WINDOWS = [7, 28, 90] as const;
 export type ExplorerWindow = (typeof EXPLORER_WINDOWS)[number];
 
 const MAX_WORKOUTS = 400;
+const TIMELINE_DAYS = 28;
+const TIMELINE_TRAILING_DAYS = 7;
 
 /**
  * Everything the interactive muscle map needs, for the signed-in user only.
@@ -16,14 +19,15 @@ const MAX_WORKOUTS = 400;
  */
 export async function getMuscleExplorer(db: PrismaClient, userId: string, now = new Date()) {
   const overview = await getOverview(db, userId, now);
-  return { overview, logged: await loggedTraining(db, userId, now) };
+  const result = await loggedTraining(db, userId, now);
+  return { overview, logged: result?.windows ?? null, timeline: result?.timeline ?? null };
 }
 
 async function loggedTraining(
   db: PrismaClient,
   userId: string,
   now: Date
-): Promise<Record<ExplorerWindow, MuscleTraining> | null> {
+): Promise<{ windows: Record<ExplorerWindow, MuscleTraining>; timeline: MuscleTimeline } | null> {
   try {
     assertWellnessEnabled();
     await assertWellnessAdult(db, userId, now);
@@ -51,7 +55,11 @@ async function loggedTraining(
       },
     },
   });
-  return Object.fromEntries(
+  const windows = Object.fromEntries(
     EXPLORER_WINDOWS.map((days) => [days, trainingFromWorkouts(rows, days, now)])
   ) as Record<ExplorerWindow, MuscleTraining>;
+  return {
+    windows,
+    timeline: muscleTimeline(rows, TIMELINE_DAYS, TIMELINE_TRAILING_DAYS, now),
+  };
 }

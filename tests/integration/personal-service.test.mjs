@@ -271,3 +271,25 @@ test("the muscle explorer maps only the signed-in user's own workouts", async ()
     });
   });
 });
+
+test("the replay timeline covers 28 days for the user's own workouts and is absent when gated off", async () => {
+  await inRolledBackTx(async (tx) => {
+    const me = await newUser(tx, "tl");
+    const other = await newUser(tx, "tlo");
+    for (const u of [me, other]) await svc.updateBio(tx, u.id, { birthYear: 1990 });
+    await addWorkout(tx, me.id, 3, ["Bench press"]);
+    for (let i = 0; i < 6; i++) await addWorkout(tx, other.id, i, ["Pull-up"]); // never mine
+
+    await withWellness("false", async () => {
+      assert.equal((await explorer.getMuscleExplorer(tx, me.id, NOW)).timeline, null);
+    });
+    await withWellness("true", async () => {
+      const { timeline } = await explorer.getMuscleExplorer(tx, me.id, NOW);
+      assert.equal(timeline.days.length, 28);
+      assert.equal(timeline.days[27].date, "2026-11-18");
+      assert.ok(timeline.max > 0);
+      assert.ok(timeline.days.every((d) => d.setEquivalents.lats === 0)); // the other user's pull-ups
+      assert.ok(timeline.days[27].setEquivalents.pectorals > 0);
+    });
+  });
+});

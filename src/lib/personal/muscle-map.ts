@@ -22,6 +22,12 @@ export const MUSCLE_GROUPS = [
   { id: "hamstrings", label: "Hamstrings", side: "back", region: "lower" },
   { id: "tibialis", label: "Shins", side: "front", region: "lower" },
   { id: "calves", label: "Calves", side: "back", region: "lower" },
+  // Added in v2 of the illustration. Existing ids are never renamed or split.
+  { id: "neck", label: "Neck", side: "front", region: "upper" },
+  { id: "serratus", label: "Serratus", side: "front", region: "core" },
+  { id: "rhomboids", label: "Rhomboids", side: "back", region: "upper" },
+  { id: "hip-abductors", label: "Hip abductors", side: "back", region: "lower" },
+  { id: "soleus", label: "Soleus", side: "back", region: "lower" },
 ] as const;
 
 export type MuscleId = (typeof MUSCLE_GROUPS)[number]["id"];
@@ -62,43 +68,52 @@ export const ACTIVITIES: readonly ActivityDef[] = [
     key: "gym-lifting",
     label: "Gym / strength",
     primary: ["pectorals", "lats", "quadriceps", "glutes", "deltoid-front"],
-    secondary: ["biceps", "triceps", "hamstrings", "abs", "lower-back", "trapezius"],
+    secondary: [
+      "biceps",
+      "triceps",
+      "hamstrings",
+      "abs",
+      "lower-back",
+      "trapezius",
+      "rhomboids",
+      "serratus",
+    ],
   },
   {
     key: "running",
     label: "Running",
     primary: ["quadriceps", "hamstrings", "calves", "glutes"],
-    secondary: ["hip-flexors", "tibialis", "abs"],
+    secondary: ["hip-flexors", "tibialis", "abs", "soleus", "hip-abductors"],
   },
   {
     key: "cycling",
     label: "Cycling",
     primary: ["quadriceps", "glutes", "calves"],
-    secondary: ["hamstrings", "hip-flexors", "lower-back"],
+    secondary: ["hamstrings", "hip-flexors", "lower-back", "soleus"],
   },
   {
     key: "swimming",
     label: "Swimming",
     primary: ["lats", "deltoid-front", "deltoid-rear", "pectorals"],
-    secondary: ["triceps", "abs", "quadriceps", "calves"],
+    secondary: ["triceps", "abs", "quadriceps", "calves", "serratus", "rhomboids"],
   },
   {
     key: "yoga",
     label: "Yoga",
     primary: ["abs", "hamstrings", "hip-flexors", "lower-back"],
-    secondary: ["deltoid-side", "quadriceps", "glutes", "adductors", "triceps"],
+    secondary: ["deltoid-side", "quadriceps", "glutes", "adductors", "triceps", "hip-abductors"],
   },
   {
     key: "dance",
     label: "Dance",
     primary: ["quadriceps", "calves", "glutes", "abs"],
-    secondary: ["hamstrings", "adductors", "obliques", "tibialis"],
+    secondary: ["hamstrings", "adductors", "obliques", "tibialis", "hip-abductors", "soleus"],
   },
   {
     key: "football",
     label: "Football",
     primary: ["quadriceps", "hamstrings", "calves", "hip-flexors"],
-    secondary: ["glutes", "adductors", "abs", "tibialis"],
+    secondary: ["glutes", "adductors", "abs", "tibialis", "hip-abductors", "soleus"],
   },
   {
     key: "cricket",
@@ -116,19 +131,19 @@ export const ACTIVITIES: readonly ActivityDef[] = [
     key: "tennis",
     label: "Tennis",
     primary: ["forearms-front", "obliques", "deltoid-side", "quadriceps"],
-    secondary: ["lats", "glutes", "calves", "triceps"],
+    secondary: ["lats", "glutes", "calves", "triceps", "serratus"],
   },
   {
     key: "boxing",
     label: "Boxing",
     primary: ["deltoid-front", "triceps", "obliques", "pectorals"],
-    secondary: ["abs", "lats", "calves", "forearms-front", "trapezius"],
+    secondary: ["abs", "lats", "calves", "forearms-front", "trapezius", "neck", "serratus"],
   },
   {
     key: "climbing",
     label: "Climbing",
     primary: ["lats", "forearms-front", "biceps", "forearms-back"],
-    secondary: ["deltoid-rear", "abs", "trapezius", "quadriceps"],
+    secondary: ["deltoid-rear", "abs", "trapezius", "quadriceps", "rhomboids"],
   },
 ];
 

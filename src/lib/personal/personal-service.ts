@@ -219,7 +219,18 @@ export async function setClubSignalConsent(
 
 export async function exportPersonalData(db: PrismaClient, userId: string, now = new Date()) {
   const profile = await ensureProfile(db, userId);
-  const [measurements, activities, consents] = await Promise.all([
+  const [
+    measurements,
+    activities,
+    consents,
+    goals,
+    workouts,
+    sleep,
+    meals,
+    hydration,
+    recovery,
+    sources,
+  ] = await Promise.all([
     db.personalMeasurement.findMany({
       where: { userId },
       orderBy: { measuredAt: "asc" },
@@ -233,6 +244,16 @@ export async function exportPersonalData(db: PrismaClient, userId: string, now =
       where: { userId },
       select: { clubId: true, enabled: true },
     }),
+    db.personalGoalInstance.findMany({ where: { userId } }),
+    db.workoutSession.findMany({
+      where: { userId },
+      include: { exercises: { include: { sets: true } } },
+    }),
+    db.sleepSession.findMany({ where: { userId } }),
+    db.mealEntry.findMany({ where: { userId }, include: { items: true } }),
+    db.hydrationEntry.findMany({ where: { userId } }),
+    db.recoveryCheckIn.findMany({ where: { userId } }),
+    db.wellnessSourceRecord.findMany({ where: { userId } }),
   ]);
   const units = profile.units as Units;
   return {
@@ -253,6 +274,7 @@ export async function exportPersonalData(db: PrismaClient, userId: string, now =
     })),
     activities,
     clubSignalConsents: consents,
+    wellness: { goals, workouts, sleep, meals, hydration, recovery, sources },
   };
 }
 
@@ -262,9 +284,25 @@ export async function deleteAllPersonalData(db: PrismaClient, userId: string) {
     db.personalMeasurement.deleteMany({ where: { userId } }),
     db.personalActivity.deleteMany({ where: { userId } }),
     db.personalClubSignalConsent.deleteMany({ where: { userId } }),
+    // Child exercise/meal rows cascade; keep account and club membership intact.
+    db.personalGoalInstance.deleteMany({ where: { userId } }),
+    db.workoutSession.deleteMany({ where: { userId } }),
+    db.sleepSession.deleteMany({ where: { userId } }),
+    db.mealEntry.deleteMany({ where: { userId } }),
+    db.hydrationEntry.deleteMany({ where: { userId } }),
+    db.recoveryCheckIn.deleteMany({ where: { userId } }),
+    db.wellnessSourceRecord.deleteMany({ where: { userId } }),
     db.personalProfile.updateMany({
       where: { userId },
-      data: { birthYear: null, heightMm: null, goal: null, units: "METRIC" },
+      data: {
+        displayName: null,
+        birthYear: null,
+        heightMm: null,
+        goal: null,
+        units: "METRIC",
+        locale: "en",
+        timezone: "UTC",
+      },
     }),
   ]);
 }

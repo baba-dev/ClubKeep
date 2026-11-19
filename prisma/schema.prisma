@@ -35,6 +35,13 @@ model User {
   personalMeasurements PersonalMeasurement[]
   personalActivities  PersonalActivity[]
   personalClubSignals PersonalClubSignalConsent[]
+  wellnessGoals PersonalGoalInstance[]
+  wellnessWorkouts WorkoutSession[]
+  wellnessSleep SleepSession[]
+  wellnessMeals MealEntry[]
+  wellnessHydration HydrationEntry[]
+  wellnessRecovery RecoveryCheckIn[]
+  wellnessSources WellnessSourceRecord[]
   clubMemberships     ClubMembership[]
   issuedInvites       ClubInvite[] @relation("InviteIssuer")
   claimedInvites      ClubInvite[] @relation("InviteClaimant")
@@ -206,6 +213,181 @@ model PersonalClubSignalConsent {
   updatedAt DateTime @updatedAt
 
   @@id([userId, clubId])
+}
+
+
+// Wellness records are owned by the global identity, never a club or its staff.
+// P1-B is adult-only until the regional guardian/teen policy is approved.
+enum WellnessGoalMetric {
+  WORKOUT_SESSIONS
+  ACTIVITY_MINUTES
+  SLEEP_MINUTES
+  HYDRATION_ML
+}
+enum WellnessGoalCadence {
+  WEEKLY
+  TOTAL
+}
+enum WellnessGoalStatus {
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+enum WellnessSource {
+  MANUAL
+  HEALTHKIT
+  HEALTH_CONNECT
+}
+enum WellnessMealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+}
+
+model PersonalGoalInstance {
+  id        String @id @default(cuid())
+  userId    String
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String @db.VarChar(80)
+  metric    WellnessGoalMetric
+  cadence   WellnessGoalCadence @default(WEEKLY)
+  target    Int
+  status    WellnessGoalStatus @default(ACTIVE)
+  startsAt  DateTime @default(now())
+  endsAt    DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([userId, status, startsAt])
+}
+
+model WorkoutSession {
+  id              String @id @default(cuid())
+  userId          String
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  requestId       String @db.VarChar(80)
+  title           String @db.VarChar(100)
+  activityKey     String @db.VarChar(40)
+  startedAt       DateTime
+  endedAt         DateTime
+  durationMinutes Int
+  distanceMeters  Int?
+  notes           String? @db.VarChar(500)
+  source          WellnessSource @default(MANUAL)
+  exercises       WorkoutExercise[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  @@unique([userId, requestId])
+  @@index([userId, endedAt])
+}
+
+model WorkoutExercise {
+  id        String @id @default(cuid())
+  workoutId String
+  workout   WorkoutSession @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  name      String @db.VarChar(100)
+  position  Int
+  sets      WorkoutSet[]
+  @@index([workoutId, position])
+}
+
+model WorkoutSet {
+  id              String @id @default(cuid())
+  exerciseId      String
+  exercise        WorkoutExercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  position        Int
+  reps            Int?
+  weightGrams     Int?
+  durationSeconds Int?
+  distanceMeters  Int?
+  @@index([exerciseId, position])
+}
+
+model SleepSession {
+  id        String @id @default(cuid())
+  userId    String
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  requestId String @db.VarChar(80)
+  startedAt DateTime
+  endedAt   DateTime
+  quality   Int?
+  isNap     Boolean @default(false)
+  source    WellnessSource @default(MANUAL)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([userId, requestId])
+  @@index([userId, endedAt])
+}
+
+model MealEntry {
+  id        String @id @default(cuid())
+  userId    String
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  requestId String @db.VarChar(80)
+  mealType  WellnessMealType
+  eatenAt   DateTime
+  notes     String? @db.VarChar(300)
+  items     MealItem[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([userId, requestId])
+  @@index([userId, eatenAt])
+}
+
+model MealItem {
+  id           String @id @default(cuid())
+  mealId       String
+  meal         MealEntry @relation(fields: [mealId], references: [id], onDelete: Cascade)
+  name         String @db.VarChar(100)
+  portionGrams Int?
+  caloriesKcal Int?
+  proteinGrams Int?
+  carbsGrams   Int?
+  fatGrams     Int?
+  position     Int
+  @@index([mealId, position])
+}
+
+model HydrationEntry {
+  id        String @id @default(cuid())
+  userId    String
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  requestId String @db.VarChar(80)
+  volumeMl  Int
+  takenAt   DateTime
+  createdAt DateTime @default(now())
+  @@unique([userId, requestId])
+  @@index([userId, takenAt])
+}
+
+model RecoveryCheckIn {
+  id           String @id @default(cuid())
+  userId       String
+  user         User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  localDate    String @db.VarChar(10)
+  energy       Int?
+  soreness     Int?
+  stress       Int?
+  satisfaction Int?
+  notes        String? @db.VarChar(300)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  @@unique([userId, localDate])
+}
+
+model WellnessSourceRecord {
+  id              String @id @default(cuid())
+  userId          String
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider        String @db.VarChar(40)
+  externalId      String @db.VarChar(200)
+  recordType      String @db.VarChar(40)
+  sourceUpdatedAt DateTime?
+  deletedAt       DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  @@unique([userId, provider, recordType, externalId])
+  @@index([userId, provider])
 }
 
 enum PlatformRole {

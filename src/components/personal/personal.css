@@ -126,3 +126,61 @@
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+
+.hm-me-field textarea {
+  width: 100%;
+  min-height: 92px;
+  box-sizing: border-box;
+  padding: 0.75rem;
+  border-radius: 14px;
+  border: 1px solid var(--hm-line);
+  background: var(--hm-bg);
+  color: var(--hm-text);
+  font: inherit;
+  font-weight: 400;
+}
+.hm-me-launch-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.625rem;
+}
+.hm-me-launch-grid a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0.5rem;
+  border: 1px solid var(--hm-line);
+  border-radius: 14px;
+  text-decoration: none;
+  color: var(--hm-text);
+  background: var(--hm-raised);
+  font-weight: 600;
+}
+.hm-me-launch-grid a:focus-visible {
+  outline: 3px solid var(--hm-action);
+  outline-offset: 2px;
+}
+.hm-me-card progress {
+  width: 100%;
+  height: 12px;
+  accent-color: var(--hm-sage-deep);
+}
+.hm-me-insight-days {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.hm-me-insight-days li {
+  min-height: 36px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--hm-line);
+}
+@media (min-width: 620px) {
+  .hm-me-launch-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

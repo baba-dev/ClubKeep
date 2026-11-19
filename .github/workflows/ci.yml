@@ -259,6 +259,8 @@ jobs:
         run: node --test tests/integration/b8-stripe.test.mjs
       - name: Validate Personal bio, measurement privacy, consent and erase paths on PG17
         run: node --test tests/integration/personal-service.test.mjs
+      - name: Validate P1-B wellness privacy, idempotency, export and erase on PG17
+        run: node --test tests/integration/p1b-wellness.test.mjs
       - name: Validate B8 operator billing tools (dry run, grant, revoke, reconcile parity) on PG17
         run: |
           bash -n infra/billing/clubkeep-billing-ops.sh

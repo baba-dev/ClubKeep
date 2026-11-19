@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { ArrowLeft } from "lucide-react";
 import { ClubKeepBrand } from "@/components/human-motion/media-components";
 import { ClubThemeToggle } from "@/components/clubs/theme-toggle";
@@ -24,7 +25,9 @@ export function PersonalShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
-      <PersonalNav />
+      <Suspense fallback={null}>
+        <PersonalNav />
+      </Suspense>
       <main id="me-content" className="hm-me-main">
         {children}
       </main>

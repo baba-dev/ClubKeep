@@ -184,3 +184,15 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+.hm-hc-pair-code {
+  display: block;
+  overflow-wrap: anywhere;
+  padding: 1rem;
+  border-radius: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 1.1rem;
+  background: var(--hm-raised);
+  border: 1px dashed var(--hm-line);
+  user-select: all;
+}

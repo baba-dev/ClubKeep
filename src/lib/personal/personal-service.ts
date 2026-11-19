@@ -230,6 +230,8 @@ export async function exportPersonalData(db: PrismaClient, userId: string, now =
     hydration,
     recovery,
     sources,
+    importedFitness,
+    connectedDevices,
   ] = await Promise.all([
     db.personalMeasurement.findMany({
       where: { userId },
@@ -254,6 +256,19 @@ export async function exportPersonalData(db: PrismaClient, userId: string, now =
     db.hydrationEntry.findMany({ where: { userId } }),
     db.recoveryCheckIn.findMany({ where: { userId } }),
     db.wellnessSourceRecord.findMany({ where: { userId } }),
+    db.healthConnectRecord.findMany({ where: { userId }, orderBy: { endedAt: "asc" } }),
+    db.healthConnectConnection.findMany({
+      where: { userId },
+      select: {
+        id: true,
+        label: true,
+        installationId: true,
+        grantedTypes: true,
+        lastSyncAt: true,
+        revokedAt: true,
+        createdAt: true,
+      },
+    }),
   ]);
   const units = profile.units as Units;
   return {
@@ -275,6 +290,7 @@ export async function exportPersonalData(db: PrismaClient, userId: string, now =
     activities,
     clubSignalConsents: consents,
     wellness: { goals, workouts, sleep, meals, hydration, recovery, sources },
+    healthConnect: { importedFitness, connectedDevices },
   };
 }
 
@@ -292,6 +308,10 @@ export async function deleteAllPersonalData(db: PrismaClient, userId: string) {
     db.hydrationEntry.deleteMany({ where: { userId } }),
     db.recoveryCheckIn.deleteMany({ where: { userId } }),
     db.wellnessSourceRecord.deleteMany({ where: { userId } }),
+    // Erasure also invalidates native credentials; related batches cascade.
+    db.healthConnectRecord.deleteMany({ where: { userId } }),
+    db.healthConnectPairing.deleteMany({ where: { userId } }),
+    db.healthConnectConnection.deleteMany({ where: { userId } }),
     db.personalProfile.updateMany({
       where: { userId },
       data: {

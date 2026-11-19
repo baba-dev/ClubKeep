@@ -1,0 +1,9 @@
+<resources>
+    <style name="Theme.ClubKeep" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/forest</item>
+        <item name="colorPrimaryVariant">@color/forest</item>
+        <item name="colorSecondary">@color/sage</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:fontFamily">sans</item>
+    </style>
+</resources>

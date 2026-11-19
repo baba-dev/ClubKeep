@@ -160,6 +160,34 @@ jobs:
           echo "Archive: $(du -h "$archive" | cut -f1)" >> "$GITHUB_STEP_SUMMARY"
           echo "Prisma migration kit and standalone server verified in isolation." >> "$GITHUB_STEP_SUMMARY"
 
+  android-health-connect:
+    name: Android Health Connect debug compilation and unit tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Install Android SDK 36 using hosted runner tools
+        run: |
+          set -euo pipefail
+          SDK_MANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -path '*/bin/sdkmanager' | head -n1)"
+          test -x "$SDK_MANAGER"
+          "$SDK_MANAGER" --install "platforms;android-36" "build-tools;36.0.0"
+      - name: Gradle 8.13
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.13"
+      - name: Compile read-only companion and run JVM tests
+        working-directory: android-health-connect
+        run: gradle --no-daemon :app:assembleDebug :app:testDebugUnitTest -PclubkeepBaseUrl=https://ci.clubkeep.invalid
+
   migrations:
     name: PostgreSQL 17 baseline and identity migrations (native)
     runs-on: ubuntu-24.04
@@ -261,6 +289,8 @@ jobs:
         run: node --test tests/integration/personal-service.test.mjs
       - name: Validate P1-B wellness privacy, idempotency, export and erase on PG17
         run: node --test tests/integration/p1b-wellness.test.mjs
+      - name: Validate P1-C Health Connect pairing, provenance, tombstones, export and erase on PG17
+        run: node --test tests/integration/p1c-health-connect.test.mjs
       - name: Validate B8 operator billing tools (dry run, grant, revoke, reconcile parity) on PG17
         run: |
           bash -n infra/billing/clubkeep-billing-ops.sh

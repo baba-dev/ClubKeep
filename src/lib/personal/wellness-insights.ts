@@ -3,7 +3,7 @@ import { localDate, mondayUtc, safeRate, sleepMinutes } from "./wellness-rules";
 
 export async function wellnessInsights(db: PrismaClient, userId: string, now = new Date()) {
   const since = new Date(now.getTime() - 90 * 86400000);
-  const [profile, workouts, sleeps, waters, meals, recovery, goals] = await Promise.all([
+  const [profile, workouts, sleeps, waters, meals, recovery, goals, imports] = await Promise.all([
     db.personalProfile.findUnique({ where: { userId }, select: { timezone: true } }),
     db.workoutSession.findMany({
       where: { userId, endedAt: { gte: since, lte: now } },
@@ -31,6 +31,11 @@ export async function wellnessInsights(db: PrismaClient, userId: string, now = n
       select: { localDate: true, energy: true, soreness: true, stress: true, satisfaction: true },
     }),
     db.personalGoalInstance.findMany({ where: { userId, status: "ACTIVE" }, take: 20 }),
+    db.healthConnectRecord.findMany({
+      where: { userId, deletedAt: null, endedAt: { gte: since, lte: now } },
+      select: { recordType: true, externalId: true, endedAt: true, value: true },
+      take: 15000,
+    }),
   ]);
   const zone = profile?.timezone ?? "UTC";
   const days = new Map<
@@ -43,6 +48,10 @@ export async function wellnessInsights(db: PrismaClient, userId: string, now = n
       hydrationMl: number | null;
       meals: number;
       energy: number | null;
+      importedSteps: number | null;
+      importedWorkouts: number;
+      importedSleepMinutes: number | null;
+      importedWaterMl: number | null;
     }
   >();
   const day = (d: string) => {
@@ -56,6 +65,10 @@ export async function wellnessInsights(db: PrismaClient, userId: string, now = n
         hydrationMl: null,
         meals: 0,
         energy: null,
+        importedSteps: null,
+        importedWorkouts: 0,
+        importedSleepMinutes: null,
+        importedWaterMl: null,
       };
       days.set(d, entry);
     }
@@ -77,6 +90,21 @@ export async function wellnessInsights(db: PrismaClient, userId: string, now = n
   }
   for (const m of meals) day(localDate(m.eatenAt, zone)).meals += 1;
   for (const r of recovery) day(r.localDate).energy = r.energy;
+  // Raw imported sources remain separate from manual metrics to avoid pretending
+  // that mirrored device workouts are necessarily distinct sessions.
+  for (const r of imports) {
+    const date = r.recordType === "STEPS_DAILY" ? r.externalId : localDate(r.endedAt, zone);
+    const d = day(date);
+    if (r.recordType === "STEPS_DAILY") d.importedSteps = r.value;
+    if (r.recordType === "WORKOUT") d.importedWorkouts += 1;
+    if (r.recordType === "SLEEP") {
+      // Duration for imported sleep is deliberately shown only in Connection history
+      // until source-comparability and nap semantics are fully reconciled.
+      d.importedSleepMinutes = null;
+    }
+    if (r.recordType === "HYDRATION") d.importedWaterMl = (d.importedWaterMl ?? 0) + (r.value ?? 0);
+  }
+
   const today = localDate(now, zone);
   const weekStart = mondayUtc(new Date(today + "T12:00:00Z"))
     .toISOString()
@@ -90,6 +118,14 @@ export async function wellnessInsights(db: PrismaClient, userId: string, now = n
       hydrationMl: a.hydrationMl + (x.hydrationMl ?? 0),
     }),
     { workouts: 0, activityMinutes: 0, sleepMinutes: 0, hydrationMl: 0 }
+  );
+  const importedThisWeek = weekly.reduce(
+    (a, d) => ({
+      steps: a.steps + (d.importedSteps ?? 0),
+      workoutRecords: a.workoutRecords + d.importedWorkouts,
+      waterMl: a.waterMl + (d.importedWaterMl ?? 0),
+    }),
+    { steps: 0, workoutRecords: 0, waterMl: 0 }
   );
   const goalProgress = await Promise.all(
     goals.map(async (goal) => {
@@ -136,12 +172,13 @@ export async function wellnessInsights(db: PrismaClient, userId: string, now = n
     today,
     timezone: zone,
     thisWeek,
+    importedThisWeek,
     goals: goalProgress,
     days: [...days.values()]
       .filter((x) => x.date <= today)
       .sort((a, b) => a.date.localeCompare(b.date))
       .slice(-90),
     disclosure:
-      "Manual observations and completed workouts only. Missing data is not zero. No clinical recovery score.",
+      "Manual goal progress is kept separate from imported device observations to prevent unverified double counts. Missing data is not zero. No clinical recovery score.",
   };
 }

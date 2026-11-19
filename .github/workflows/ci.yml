@@ -257,6 +257,8 @@ jobs:
         run: node --test tests/integration/b8-billing.test.mjs
       - name: Validate B8 Stripe binding, retries, ordering and portal on PG17
         run: node --test tests/integration/b8-stripe.test.mjs
+      - name: Validate Personal bio, measurement privacy, consent and erase paths on PG17
+        run: node --test tests/integration/personal-service.test.mjs
       - name: Validate B8 operator billing tools (dry run, grant, revoke, reconcile parity) on PG17
         run: |
           bash -n infra/billing/clubkeep-billing-ops.sh

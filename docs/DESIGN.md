@@ -100,7 +100,16 @@ Brand logo and icon SVGs contain raster pixels (approved artwork, not pure vecto
 
 ## Personal product
 
-The separate Personal health experience (see [DELIVERY_PLAN.md](DELIVERY_PLAN.md)) should share these tokens and components but present a distinct health-focused layout rather than a copy of the club dashboard. Its detailed design is not yet specified.
+The separate Personal health experience (see [DELIVERY_PLAN.md](DELIVERY_PLAN.md)) shares these tokens and components but presents a distinct health-focused layout rather than a copy of the club dashboard.
+
+**Layout.** Phone first and one-handed: a bottom tab bar (Today, Body, Activity, Progress, Profile) with 44px targets; a sidebar on wide screens. Personal never shows club branding or club data on these screens.
+
+**Body map** (`src/components/personal/body-map/`). Stylised front and back figure in inline SVG, 20 tappable muscle groups, left half drawn and mirrored. Fill ramps from a faint sage tint to terracotta by training load; cocoa line-work at low contrast gives fibre definition, and a skin-toned halo joins the parts into one silhouette. Rules:
+- Colours come only from `--hm-*` tokens, so light and dark both work.
+- Load is never encoded by colour alone: every muscle exposes its percentage in its accessible name, in the detail panel and in an "All muscles" text list.
+- Regions are keyboard-focusable buttons (Enter/Space); the mirrored half is hidden from assistive tech.
+- Colour transitions run only under `prefers-reduced-motion: no-preference`.
+- Illustration is decorative anatomy, not medical imagery, and never implies diagnosis or injury.
 
 ## History: Luxe (superseded)
 

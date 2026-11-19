@@ -33,7 +33,14 @@ Design tokens, theme and the `/design` mockup routes are documented in `docs/DES
 
 Current environment variables (`.env.example`): `DATABASE_URL`, `REDIS_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `NEXT_PUBLIC_APP_URL`.
 
-## Standalone Personal — proposed, not implemented
+## Standalone Personal — bio, measurements and muscle map (partly implemented)
+
+Migration `20261118120000_personal_bio_activities` adds the user-owned bio, measurement and activity tables above. Pure rules live in `src/lib/personal/` (`muscle-map.ts`: 20 muscle groups, 12 activities, 0-1 load scoring; `measurements.ts`: unit conversion, plausibility ranges, adult gate). Body measurements require a known birth year and an age of at least 19 by year arithmetic (conservative, because only the year is stored) until guardian rules exist. The body map is `src/components/personal/body-map/`.
+
+**Routes and service.** All logic is in `src/lib/personal/personal-service.ts` and takes only the verified session user id; no function accepts an owner id from a client. Mutations are route handlers under `/api/me/` (`bio`, `measurements`, `measurements/remove`, `activities`, `club-signals`, `data/delete`) built on `personalPost` (`personal-http.ts`), which reuses `guardOnboardingPost` (same-origin and fetch-site check, verified session, fail-closed Redis rate limit), a 4 KB JSON cap and strict Zod schemas. `GET /api/me/data/export` downloads the user's own data. Pages are `/me`, `/me/body`, `/me/activity`, `/me/progress`, `/me/profile`; the `/me` layout is a static shell, so **every `/me` page must call `requireSession()` itself** and each tab has a `loading.tsx`. Integration coverage: `tests/integration/personal-service.test.mjs` (cross-user isolation, age gate, consent, own-visits-only, erase).
+
+Everything else in this section is still proposed.
+
 
 - One account can have a Personal profile independent of zero or more club memberships. Club-owned rows remain `clubId` scoped; Personal observations, medication, documents, insurance, ABHA link and user-created care plans are **user-owned** and never accessible merely via club membership.
 - Store metric-scoped, explicit, revocable grants for any Personal-to-club sharing; sponsored Personal Pro entitlements change features, not permissions.
@@ -62,7 +69,10 @@ transactional `20261109000000_identity_foundation` additive migration.
 | `User` | One global identity; email remains required/unique. Deprecated `role` is **not** club authorization and legacy `phoneNumber` is nonunique/unverified |
 | `Account` | Unique `(providerId, accountId)` for a provider's stable Google/credential subject |
 | `Passkey` | Unique `credentialID`, linked to User; no private key |
-| `PersonalProfile` | `userId` primary key, independent of club, nonmedical |
+| `PersonalProfile` | `userId` primary key, independent of club. Optional bio: `birthYear`, `heightMm`, `units`, `goal`. Fitness-adjacent only, never medical |
+| `PersonalMeasurement` | User-owned dated body measurement (`kind`, integer `value`: weight g, body fat basis points, girths mm), cascade-deleted with the user. No `clubId`; never readable by club code |
+| `PersonalActivity` | User-owned self-declared activity (`activityKey`, `sessionsPerWeek` 0-14), unique per user and key |
+| `PersonalClubSignalConsent` | `(userId, clubId)` revocable opt-in letting the user's own attendance suggest muscle load on their map. `clubId` is a plain column, deliberately **not** a relation, so Personal tables never join to Club. Club-derived load is computed on read and never stored |
 | `Club` | Unique slug; standalone business tenant |
 | `ClubMembership` | Unique `(clubId, userId)`, role OWNER/MANAGER/STAFF/MEMBER, status ACTIVE/SUSPENDED/LEFT |
 | `ClubInvite` | Club-scoped, unique keyed token hash, issuer/claimant and expiry/revocation timestamps; **0D redemption and revocation are implemented in PR #15 (unmerged)** |

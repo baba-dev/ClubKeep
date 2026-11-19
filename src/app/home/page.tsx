@@ -59,6 +59,12 @@ async function ClubKeepHomeContent() {
           </Link>
           <div className="flex flex-wrap gap-3 text-sm">
             <Link
+              href="/me"
+              className="rounded-full border border-[#f6dc9b]/25 px-4 py-2 hover:bg-[#211710]"
+            >
+              My space
+            </Link>
+            <Link
               href="/account/security"
               className="rounded-full border border-[#f6dc9b]/25 px-4 py-2 hover:bg-[#211710]"
             >

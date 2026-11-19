@@ -32,6 +32,9 @@ model User {
   accounts            Account[]
   passkeys            Passkey[]
   personalProfile     PersonalProfile?
+  personalMeasurements PersonalMeasurement[]
+  personalActivities  PersonalActivity[]
+  personalClubSignals PersonalClubSignalConsent[]
   clubMemberships     ClubMembership[]
   issuedInvites       ClubInvite[] @relation("InviteIssuer")
   claimedInvites      ClubInvite[] @relation("InviteClaimant")
@@ -121,14 +124,88 @@ model Passkey {
 }
 
 // Never joins to a Club: private Personal ownership remains independent.
+// Bio fields are optional, user-entered and health-adjacent: never logged, never shared with clubs.
 model PersonalProfile {
-  userId      String   @id
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  locale      String   @default("en")
-  timezone    String   @default("UTC")
+  userId      String        @id
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  locale      String        @default("en")
+  timezone    String        @default("UTC")
   displayName String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  birthYear   Int?
+  heightMm    Int?
+  units       PersonalUnits @default(METRIC)
+  goal        PersonalGoal?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+enum PersonalUnits {
+  METRIC
+  IMPERIAL
+}
+
+enum PersonalGoal {
+  STRENGTH
+  ENDURANCE
+  FLEXIBILITY
+  WEIGHT_MANAGEMENT
+  GENERAL_FITNESS
+}
+
+// Girths are stored in millimetres, weight in grams, body fat in basis points: integers only.
+enum PersonalMeasurementKind {
+  WEIGHT
+  BODY_FAT
+  NECK
+  SHOULDER
+  CHEST
+  WAIST
+  HIP
+  BICEP_L
+  BICEP_R
+  FOREARM_L
+  FOREARM_R
+  THIGH_L
+  THIGH_R
+  CALF_L
+  CALF_R
+}
+
+model PersonalMeasurement {
+  id         String                  @id @default(cuid())
+  userId     String
+  user       User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind       PersonalMeasurementKind
+  value      Int
+  measuredAt DateTime
+  createdAt  DateTime                @default(now())
+
+  @@index([userId, kind, measuredAt])
+}
+
+// Self-declared activities only. Club-derived load is computed on read and never stored.
+model PersonalActivity {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activityKey     String   @db.VarChar(40)
+  sessionsPerWeek Int      @default(1)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([userId, activityKey])
+}
+
+// One-way, revocable: lets the user's own attendance at a club suggest muscle load on their map.
+// clubId is deliberately a plain column (no relation) so Personal tables never join to Club.
+model PersonalClubSignalConsent {
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clubId    String
+  enabled   Boolean  @default(false)
+  updatedAt DateTime @updatedAt
+
+  @@id([userId, clubId])
 }
 
 enum PlatformRole {

@@ -42,6 +42,9 @@ model User {
   wellnessHydration HydrationEntry[]
   wellnessRecovery RecoveryCheckIn[]
   wellnessSources WellnessSourceRecord[]
+  healthConnectConnections HealthConnectConnection[]
+  healthConnectPairings HealthConnectPairing[]
+  healthConnectRecords HealthConnectRecord[]
   clubMemberships     ClubMembership[]
   issuedInvites       ClubInvite[] @relation("InviteIssuer")
   claimedInvites      ClubInvite[] @relation("InviteClaimant")
@@ -388,6 +391,82 @@ model WellnessSourceRecord {
   updatedAt       DateTime @updatedAt
   @@unique([userId, provider, recordType, externalId])
   @@index([userId, provider])
+}
+
+
+// Health Connect supplies only consented nonclinical fitness data.  Never
+// join provider records to Club or use their fields for club authorization.
+enum HealthConnectRecordType {
+  STEPS_DAILY
+  WORKOUT
+  SLEEP
+  ACTIVE_CALORIES
+  HYDRATION
+}
+
+model HealthConnectPairing {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash  String   @unique @db.VarChar(64)
+  expiresAt DateTime
+  claimedAt DateTime?
+  createdAt DateTime @default(now())
+  @@index([userId, expiresAt])
+}
+
+model HealthConnectConnection {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  installationId  String    @db.VarChar(64)
+  label           String    @db.VarChar(80)
+  tokenHash       String    @unique @db.VarChar(64)
+  tokenExpiresAt  DateTime
+  grantedTypes    String[]  @default([])
+  lastSeenAt      DateTime?
+  lastSyncAt      DateTime?
+  revokedAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  batches         HealthConnectSyncBatch[]
+  @@unique([userId, installationId])
+  @@index([userId, revokedAt])
+}
+
+model HealthConnectSyncBatch {
+  id              String    @id @default(cuid())
+  connectionId    String
+  connection      HealthConnectConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  requestId       String    @db.Uuid
+  contentHash     String    @db.VarChar(64)
+  importedCount   Int
+  deletedCount    Int
+  createdAt       DateTime  @default(now())
+  @@unique([connectionId, requestId], map: "hcb_connection_request_key")
+  @@index([connectionId, createdAt])
+}
+
+model HealthConnectRecord {
+  id               String    @id @default(cuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recordType       HealthConnectRecordType
+  externalId       String    @db.VarChar(160)
+  sourcePackage    String    @db.VarChar(160)
+  startedAt        DateTime
+  endedAt          DateTime
+  // STEPS_DAILY=count, ACTIVE_CALORIES=kcal, HYDRATION=mL.
+  // WORKOUT/SLEEP duration is derived from start/end; unknown amounts are null.
+  value            Int?
+  exerciseType     Int?
+  deletedAt        DateTime?
+  lastDeviceId     String    @db.VarChar(64)
+  lastSeenAt       DateTime  @default(now())
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  @@unique([userId, recordType, sourcePackage, externalId], map: "hcr_dedup")
+  @@index([userId, recordType, endedAt], map: "hcr_user_kind_end")
 }
 
 enum PlatformRole {

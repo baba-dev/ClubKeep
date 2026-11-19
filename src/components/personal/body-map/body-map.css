@@ -135,3 +135,25 @@
   padding: 0.25rem 0;
   font-variant-numeric: tabular-nums;
 }
+
+/* Interactive explorer controls (source, period, preview). */
+.hm-explorer {
+  display: grid;
+  gap: 0.75rem;
+}
+.hm-explorer-controls {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: center;
+}
+.hm-explorer-controls .hm-me-field {
+  width: min(100%, 20rem);
+}
+.hm-explorer-summary {
+  text-align: center;
+  margin: 0;
+}
+.hm-bodymap-tab:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

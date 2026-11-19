@@ -110,6 +110,7 @@ The separate Personal health experience (see [DELIVERY_PLAN.md](DELIVERY_PLAN.md
 - Regions are keyboard-focusable buttons (Enter/Space); the mirrored half is hidden from assistive tech.
 - Colour transitions run only under `prefers-reduced-motion: no-preference`.
 - Illustration is decorative anatomy, not medical imagery, and never implies diagnosis or injury.
+- The map is interactive (Planned / Logged / Preview, with a 7, 28 or 90 day period): see [P1_MUSCLE_EXPLORER.md](P1_MUSCLE_EXPLORER.md). Segmented controls reuse the Front/Back tab styling with 44px targets; the figure never moves when controls change.
 
 ## History: Luxe (superseded)
 

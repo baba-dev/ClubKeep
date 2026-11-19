@@ -8,7 +8,7 @@ CREATE TABLE "HealthConnectPairing" (
   "expiresAt" TIMESTAMP(3) NOT NULL,
   "claimedAt" TIMESTAMP(3),
   "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT "HealthConnectPairing_user_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT "HealthConnectPairing_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 CREATE UNIQUE INDEX "HealthConnectPairing_codeHash_key" ON "HealthConnectPairing"("codeHash");
 CREATE INDEX "HealthConnectPairing_userId_expiresAt_idx" ON "HealthConnectPairing"("userId","expiresAt");
@@ -26,7 +26,7 @@ CREATE TABLE "HealthConnectConnection" (
   "revokedAt" TIMESTAMP(3),
   "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updatedAt" TIMESTAMP(3) NOT NULL,
-  CONSTRAINT "HealthConnectConnection_user_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT "HealthConnectConnection_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 CREATE UNIQUE INDEX "HealthConnectConnection_tokenHash_key" ON "HealthConnectConnection"("tokenHash");
 CREATE UNIQUE INDEX "HealthConnectConnection_userId_installationId_key" ON "HealthConnectConnection"("userId","installationId");
@@ -40,7 +40,7 @@ CREATE TABLE "HealthConnectSyncBatch" (
   "importedCount" INTEGER NOT NULL,
   "deletedCount" INTEGER NOT NULL,
   "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT "HealthConnectSyncBatch_connection_fkey" FOREIGN KEY ("connectionId") REFERENCES "HealthConnectConnection"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "HealthConnectSyncBatch_connectionId_fkey" FOREIGN KEY ("connectionId") REFERENCES "HealthConnectConnection"("id") ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT "HealthConnectSyncBatch_counts_check" CHECK ("importedCount" >= 0 AND "deletedCount" >= 0)
 );
 CREATE UNIQUE INDEX "hcb_connection_request_key" ON "HealthConnectSyncBatch"("connectionId","requestId");
@@ -61,7 +61,7 @@ CREATE TABLE "HealthConnectRecord" (
   "lastSeenAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updatedAt" TIMESTAMP(3) NOT NULL,
-  CONSTRAINT "HealthConnectRecord_user_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "HealthConnectRecord_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT "HealthConnectRecord_window_check" CHECK ("endedAt" > "startedAt"),
   CONSTRAINT "HealthConnectRecord_value_check" CHECK ("value" IS NULL OR "value" BETWEEN 0 AND 5000000),
   CONSTRAINT "HealthConnectRecord_steps_check" CHECK (

@@ -6,8 +6,11 @@ export async function GET(request: NextRequest) {
   try {
     const d = await requireHealthDevice(request);
     await prisma.healthConnectConnection.updateMany({
-      where: { id: d.id, revokedAt: null }, data: { lastSeenAt: new Date() },
+      where: { id: d.id, revokedAt: null },
+      data: { lastSeenAt: new Date() },
     });
     return jsonPrivate({ ok: true, connectionId: d.id, label: d.label });
-  } catch (error) { return onboardingFailure(error); }
+  } catch (error) {
+    return onboardingFailure(error);
+  }
 }

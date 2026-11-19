@@ -16,7 +16,8 @@ export async function limitNativeRequest(request: NextRequest, scope: string, ma
   if (!authLimiter) throw new OnboardingError(503, "Security service unavailable.");
   const config = resolveAuthConfig();
   const ip = config.trustedIpHeader
-    ? (request.headers.get(config.trustedIpHeader) ?? "unknown") : "unknown";
+    ? (request.headers.get(config.trustedIpHeader) ?? "unknown")
+    : "unknown";
   const result = await authLimiter.consume("hc-native:" + scope, ip, 3600, max);
   if (result.unavailable) throw new OnboardingError(503, "Security service unavailable.");
   if (!result.allowed) throw new OnboardingError(429, "Too many requests.");
@@ -39,12 +40,17 @@ export async function requireHealthDevice(request: NextRequest) {
 }
 export async function nativePost(
   request: NextRequest,
-  handler: (device: Awaited<ReturnType<typeof requireHealthDevice>>, body: unknown) => Promise<unknown>
+  handler: (
+    device: Awaited<ReturnType<typeof requireHealthDevice>>,
+    body: unknown
+  ) => Promise<unknown>
 ): Promise<Response> {
   try {
     const device = await requireHealthDevice(request);
     const body = await readOnboardingBody(request);
     const result = await handler(device, body);
-    return jsonPrivate({ ok: true, ...((result && typeof result === "object") ? result : {}) });
-  } catch (error) { return onboardingFailure(error); }
+    return jsonPrivate({ ok: true, ...(result && typeof result === "object" ? result : {}) });
+  } catch (error) {
+    return onboardingFailure(error);
+  }
 }

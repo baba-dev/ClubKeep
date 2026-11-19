@@ -258,9 +258,15 @@ export async function exportPersonalData(db: PrismaClient, userId: string, now =
     db.wellnessSourceRecord.findMany({ where: { userId } }),
     db.healthConnectRecord.findMany({ where: { userId }, orderBy: { endedAt: "asc" } }),
     db.healthConnectConnection.findMany({
-      where: { userId }, select: {
-        id: true, label: true, installationId: true, grantedTypes: true, lastSyncAt: true,
-        revokedAt: true, createdAt: true,
+      where: { userId },
+      select: {
+        id: true,
+        label: true,
+        installationId: true,
+        grantedTypes: true,
+        lastSyncAt: true,
+        revokedAt: true,
+        createdAt: true,
       },
     }),
   ]);

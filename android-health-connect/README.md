@@ -15,3 +15,9 @@ Connect declarations.
 
 **No APK is released by merging this source PR.** Device tests and platform
 approval must precede enabling the server-side connector gate.
+
+Native source is developed alongside `docs/P1C_HEALTH_CONNECT.md`; Play
+declarations, physical-device permission testing and signing are release gates.
+The server stores only SHA-256 hashes of the one-time pairing and device
+capabilities. Do not submit any Android Health Connect permissions declaration
+until the privacy and Play policy review is completed.

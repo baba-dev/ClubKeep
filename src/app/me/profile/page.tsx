@@ -17,8 +17,12 @@ export default async function ProfilePage() {
       {process.env.PERSONAL_HEALTH_CONNECT_ENABLED === "true" && (
         <section className="hm-me-card">
           <h2>Connected sources</h2>
-          <p className="hm-small">Choose the Android fitness categories you allow and manage your imported copies.</p>
-          <Link href="/me/connections" className="hm-button hm-button-secondary">Manage Health Connect</Link>
+          <p className="hm-small">
+            Choose the Android fitness categories you allow and manage your imported copies.
+          </p>
+          <Link href="/me/connections" className="hm-button hm-button-secondary">
+            Manage Health Connect
+          </Link>
         </section>
       )}
       <DataControls />

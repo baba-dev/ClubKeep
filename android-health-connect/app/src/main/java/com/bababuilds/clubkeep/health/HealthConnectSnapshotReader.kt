@@ -1,7 +1,7 @@
 package com.bababuilds.clubkeep.health
 
 import androidx.health.connect.client.HealthConnectClient
-import androidx.health.connect.client.aggregate.AggregateRequest
+import androidx.health.connect.client.request.AggregateRequest
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.HydrationRecord

@@ -122,7 +122,7 @@ class HealthConnectSyncEngine(
             return SyncReport(count, 0, "initial snapshot")
         }
 
-        var cursor = previous
+        var cursor: String = requireNotNull(previous)
         var count = 0
         var removed = 0
         do {

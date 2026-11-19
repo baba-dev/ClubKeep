@@ -10,5 +10,7 @@ export async function POST(request: NextRequest) {
       data: { revokedAt: new Date(), grantedTypes: [] },
     });
     return jsonPrivate({ ok: true, revoked: true });
-  } catch (error) { return onboardingFailure(error); }
+  } catch (error) {
+    return onboardingFailure(error);
+  }
 }

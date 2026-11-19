@@ -35,14 +35,28 @@ export async function WellnessInsightsSection({ userId }: { userId: string }) {
         <div className="hm-me-card" aria-label="Imported device fitness">
           <div className="hm-me-row">
             <h3>Health Connect</h3>
-            <Link href="/me/connections" className="hm-button hm-button-secondary">Manage sources</Link>
+            <Link href="/me/connections" className="hm-button hm-button-secondary">
+              Manage sources
+            </Link>
           </div>
           <div className="hm-me-grid">
-            <p><strong>{insights.importedThisWeek.steps}</strong><span className="hm-small"> steps reported this week</span></p>
-            <p><strong>{insights.importedThisWeek.workoutRecords}</strong><span className="hm-small"> imported exercise records</span></p>
-            <p><strong>{insights.importedThisWeek.waterMl}</strong><span className="hm-small"> mL imported hydration</span></p>
+            <p>
+              <strong>{insights.importedThisWeek.steps}</strong>
+              <span className="hm-small"> steps reported this week</span>
+            </p>
+            <p>
+              <strong>{insights.importedThisWeek.workoutRecords}</strong>
+              <span className="hm-small"> imported exercise records</span>
+            </p>
+            <p>
+              <strong>{insights.importedThisWeek.waterMl}</strong>
+              <span className="hm-small"> mL imported hydration</span>
+            </p>
           </div>
-          <p className="hm-small">Imported workouts can overlap across source apps and are not added to manual goals automatically.</p>
+          <p className="hm-small">
+            Imported workouts can overlap across source apps and are not added to manual goals
+            automatically.
+          </p>
         </div>
       )}
       <h3>Active goals</h3>

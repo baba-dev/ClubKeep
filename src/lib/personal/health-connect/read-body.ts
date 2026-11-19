@@ -8,7 +8,8 @@ export async function readNativeBatch(request: NextRequest): Promise<unknown> {
   const reader = request.body?.getReader();
   if (!reader) throw new OnboardingError(400, "Body required.");
   const decoder = new TextDecoder("utf-8", { fatal: true });
-  let body = "", bytes = 0;
+  let body = "",
+    bytes = 0;
   try {
     for (;;) {
       const part = await reader.read();
@@ -25,5 +26,7 @@ export async function readNativeBatch(request: NextRequest): Promise<unknown> {
   } catch (error) {
     if (error instanceof OnboardingError) throw error;
     throw new OnboardingError(400, "Invalid JSON.");
-  } finally { reader.releaseLock(); }
+  } finally {
+    reader.releaseLock();
+  }
 }

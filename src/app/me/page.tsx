@@ -40,9 +40,9 @@ export default async function TodayPage() {
               <Link href="/me/nutrition">Nutrition</Link>
               <Link href="/me/recovery">Recovery</Link>
               <Link href="/me/insights">Insights</Link>
-                {process.env.PERSONAL_HEALTH_CONNECT_ENABLED === "true" && (
-                  <Link href="/me/connections">Connected sources</Link>
-                )}
+              {process.env.PERSONAL_HEALTH_CONNECT_ENABLED === "true" && (
+                <Link href="/me/connections">Connected sources</Link>
+              )}
             </nav>
           </section>
           <WellnessInsightsSection userId={session.user.id} />

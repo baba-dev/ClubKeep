@@ -10,17 +10,28 @@ const MAX_DEVICES = 4;
 export function hashCapability(value: string): string {
   return createHash("sha256").update(value, "utf8").digest("hex");
 }
-export function newCapability(): string { return randomBytes(32).toString("base64url"); }
+export function newCapability(): string {
+  return randomBytes(32).toString("base64url");
+}
 
 /** Public device state only: never expose bearer tokens or capability hashes. */
 export async function listHealthConnections(db: PrismaClient, userId: string) {
   assertHealthConnectEnabled();
   await assertWellnessAdult(db, userId);
   return db.healthConnectConnection.findMany({
-    where: { userId }, select: {
-      id: true, label: true, grantedTypes: true, createdAt: true,
-      lastSyncAt: true, lastSeenAt: true, revokedAt: true, tokenExpiresAt: true,
-    }, orderBy: { createdAt: "desc" }, take: 20,
+    where: { userId },
+    select: {
+      id: true,
+      label: true,
+      grantedTypes: true,
+      createdAt: true,
+      lastSyncAt: true,
+      lastSeenAt: true,
+      revokedAt: true,
+      tokenExpiresAt: true,
+    },
+    orderBy: { createdAt: "desc" },
+    take: 20,
   });
 }
 
@@ -42,7 +53,8 @@ export async function beginHealthPairing(db: PrismaClient, userId: string) {
 }
 
 export async function claimHealthPairing(
-  db: PrismaClient, input: { pairCode: string; installationId: string; label: string }
+  db: PrismaClient,
+  input: { pairCode: string; installationId: string; label: string }
 ) {
   assertHealthConnectEnabled();
   const codeHash = hashCapability(input.pairCode);
@@ -55,7 +67,8 @@ export async function claimHealthPairing(
     if (!pair || pair.claimedAt || pair.expiresAt <= now)
       throw new OnboardingError(401, "Pairing code is invalid or expired.");
     const profile = await tx.personalProfile.findUnique({
-      where: { userId: pair.userId }, select: { birthYear: true },
+      where: { userId: pair.userId },
+      select: { birthYear: true },
     });
     if (!profile?.birthYear || now.getUTCFullYear() - profile.birthYear < 19)
       throw new OnboardingError(403, "Adult Personal access required.");
@@ -65,7 +78,9 @@ export async function claimHealthPairing(
     });
     if (consumed.count !== 1) throw new OnboardingError(401, "Pairing code already used.");
     const previous = await tx.healthConnectConnection.findUnique({
-      where: { userId_installationId: { userId: pair.userId, installationId: input.installationId } },
+      where: {
+        userId_installationId: { userId: pair.userId, installationId: input.installationId },
+      },
     });
     if (!previous) {
       const active = await tx.healthConnectConnection.count({
@@ -74,14 +89,23 @@ export async function claimHealthPairing(
       if (active >= MAX_DEVICES) throw new OnboardingError(409, "Device limit reached.");
     }
     const connection = await tx.healthConnectConnection.upsert({
-      where: { userId_installationId: { userId: pair.userId, installationId: input.installationId } },
+      where: {
+        userId_installationId: { userId: pair.userId, installationId: input.installationId },
+      },
       create: {
-        userId: pair.userId, installationId: input.installationId,
-        label: input.label, tokenHash, tokenExpiresAt: expiresAt,
+        userId: pair.userId,
+        installationId: input.installationId,
+        label: input.label,
+        tokenHash,
+        tokenExpiresAt: expiresAt,
       },
       update: {
-        label: input.label, tokenHash, tokenExpiresAt: expiresAt,
-        revokedAt: null, grantedTypes: [], lastSyncAt: null,
+        label: input.label,
+        tokenHash,
+        tokenExpiresAt: expiresAt,
+        revokedAt: null,
+        grantedTypes: [],
+        lastSyncAt: null,
       },
       select: { id: true },
     });

@@ -119,11 +119,14 @@ export async function wellnessInsights(db: PrismaClient, userId: string, now = n
     }),
     { workouts: 0, activityMinutes: 0, sleepMinutes: 0, hydrationMl: 0 }
   );
-  const importedThisWeek = weekly.reduce((a, d) => ({
-    steps: a.steps + (d.importedSteps ?? 0),
-    workoutRecords: a.workoutRecords + d.importedWorkouts,
-    waterMl: a.waterMl + (d.importedWaterMl ?? 0),
-  }), { steps: 0, workoutRecords: 0, waterMl: 0 });
+  const importedThisWeek = weekly.reduce(
+    (a, d) => ({
+      steps: a.steps + (d.importedSteps ?? 0),
+      workoutRecords: a.workoutRecords + d.importedWorkouts,
+      waterMl: a.waterMl + (d.importedWaterMl ?? 0),
+    }),
+    { steps: 0, workoutRecords: 0, waterMl: 0 }
+  );
   const goalProgress = await Promise.all(
     goals.map(async (goal) => {
       // TOTAL goals must not silently truncate to the 90-day chart horizon.

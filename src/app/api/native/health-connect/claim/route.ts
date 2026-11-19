@@ -15,9 +15,16 @@ export async function POST(request: NextRequest) {
     const result = healthPairClaimInput.safeParse(await readOnboardingBody(request));
     if (!result.success) throw new OnboardingError(400, "Invalid pairing request.");
     if (!authLimiter) throw new OnboardingError(503, "Security service unavailable.");
-    const decision = await authLimiter.consume("hc-pair-hash", hashCapability(result.data.pairCode), 600, 5);
+    const decision = await authLimiter.consume(
+      "hc-pair-hash",
+      hashCapability(result.data.pairCode),
+      600,
+      5
+    );
     if (decision.unavailable) throw new OnboardingError(503, "Security service unavailable.");
     if (!decision.allowed) throw new OnboardingError(429, "Too many attempts.");
     return jsonPrivate({ ok: true, ...(await claimHealthPairing(prisma, result.data)) });
-  } catch (error) { return onboardingFailure(error); }
+  } catch (error) {
+    return onboardingFailure(error);
+  }
 }

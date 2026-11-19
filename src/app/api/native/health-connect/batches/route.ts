@@ -13,5 +13,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     const input = healthBatchInput.safeParse(await readNativeBatch(request));
     if (!input.success) throw new OnboardingError(400, "Invalid fitness sync batch.");
     return jsonPrivate({ ok: true, ...(await acceptHealthBatch(prisma, device, input.data)) });
-  } catch (error) { return onboardingFailure(error); }
+  } catch (error) {
+    return onboardingFailure(error);
+  }
 }

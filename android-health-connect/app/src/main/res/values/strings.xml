@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">ClubKeep Health</string>
+    <string name="screen_title">Your health, your choice</string>
+    <string name="pair_hint">Paste the one-time code from ClubKeep Personal</string>
+    <string name="connect">Connect my account</string>
+    <string name="permissions">Choose data to share</string>
+    <string name="sync_now">Sync permitted fitness data</string>
+    <string name="disconnect">Disconnect this device</string>
+    <string name="privacy">Why we ask for fitness data</string>
+    <string name="privacy_description">Only categories you approve are read on this device and sent to your own ClubKeep Personal account. Clinic records are never requested. Disconnect stops uploads; you can delete imported copies in Personal. No ads or club staff receive these records.</string>
+</resources>

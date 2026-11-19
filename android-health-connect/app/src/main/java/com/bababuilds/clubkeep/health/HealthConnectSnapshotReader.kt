@@ -27,6 +27,27 @@ class HealthConnectSnapshotReader(private val client: HealthConnectClient) {
                 if (exerciseType != null) put("exerciseType", exerciseType)
             }
 
+    /** Changes API carries typed upserts; deletions have only an id. */
+    fun changed(source: androidx.health.connect.client.records.Record): JSONObject? =
+        when (source) {
+            is ExerciseSessionRecord -> record("WORKOUT", source.metadata.id,
+                source.metadata.dataOrigin.packageName, source.startTime, source.endTime,
+                exerciseType = source.exerciseType)
+            is SleepSessionRecord -> record("SLEEP", source.metadata.id,
+                source.metadata.dataOrigin.packageName, source.startTime, source.endTime)
+            is HydrationRecord -> {
+                val ml = source.volume.inMilliliters.roundToInt()
+                if (ml in 1..5000) record("HYDRATION", source.metadata.id,
+                    source.metadata.dataOrigin.packageName, source.startTime, source.endTime, ml) else null
+            }
+            is ActiveCaloriesBurnedRecord -> {
+                val kcal = source.energy.inKilocalories.roundToInt()
+                if (kcal in 0..5000000) record("ACTIVE_CALORIES", source.metadata.id,
+                    source.metadata.dataOrigin.packageName, source.startTime, source.endTime, kcal) else null
+            }
+            else -> null // No clinical record type is supported.
+        }
+
     suspend fun snapshot(grants: Set<String>, from: Instant, until: Instant,
                          emit: suspend (List<JSONObject>) -> Unit) {
         val filter = TimeRangeFilter.between(from, until)

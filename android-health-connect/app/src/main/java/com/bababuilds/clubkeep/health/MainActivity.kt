@@ -34,7 +34,7 @@ class MainActivity : ComponentActivity() {
         vault = CredentialVault(applicationContext)
         views.connect.setOnClickListener { connect() }
         views.permissions.setOnClickListener { requestPermissions() }
-        views.sync.setOnClickListener { showStatus("Sync is not yet configured for this build.") }
+        views.sync.setOnClickListener { syncNow() }
         views.disconnect.setOnClickListener { disconnect() }
         views.privacy.setOnClickListener {
             startActivity(Intent(this, PrivacyRationaleActivity::class.java))
@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
         val linked = configured() && vault.get("token") != null
         views.connect.isEnabled = !working && configured()
         views.permissions.isEnabled = !working && linked && HealthPermissions.available(this)
-        views.sync.isEnabled = false // Activated with the real incremental sync engine.
+        views.sync.isEnabled = !working && linked && HealthPermissions.available(this)
         views.disconnect.isEnabled = !working && linked
     }
     private fun showStatus(value: String) { views.status.text = value }
@@ -78,6 +78,7 @@ class MainActivity : ComponentActivity() {
                 vault.put("connectionId", response.getString("connectionId"))
                 vault.remove("changesToken")
                 vault.remove("sourceIndex")
+                vault.remove("changesScope")
                 views.pairCode.text?.clear()
                 showStatus("Account paired. Choose the permissions you want to grant.")
             } catch (_: Exception) {
@@ -107,4 +108,23 @@ class MainActivity : ComponentActivity() {
             } finally { working = false; updateControls() }
         }
     }
+    private fun syncNow() {
+        val token = vault.get("token") ?: return
+        if (working || !HealthPermissions.available(this)) return
+        working = true; updateControls()
+        showStatus("Reading authorized fitness data. Do not close this screen until sync completes.")
+        lifecycleScope.launch {
+            try {
+                val result = HealthConnectSyncEngine(
+                    HealthPermissions.client(this@MainActivity),
+                    ClubKeepApi(BuildConfig.SERVER_BASE_URL), vault
+                ).sync(token)
+                showStatus("Sync complete (" + result.mode + "): " +
+                    result.imported + " records updated, " + result.deleted + " removed.")
+            } catch (_: Exception) {
+                showStatus("Sync incomplete. Your acknowledged history is safe. Retry with the app open.")
+            } finally { working = false; updateControls() }
+        }
+    }
+
 }

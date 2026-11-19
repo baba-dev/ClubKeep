@@ -19,6 +19,8 @@ import {
 } from "./body-paths";
 import "./body-map.css";
 
+/** Primary activities come first, so the cap keeps the most relevant ones. */
+const MAX_ACTIVITIES_SHOWN = 5;
 const MIRROR = "translate(200 0) scale(-1 1)";
 const SIDES: { side: MuscleSide; label: string }[] = [
   { side: "front", label: "Front" },
@@ -29,10 +31,12 @@ export interface BodyMapProps {
   /** Load per muscle on a 0..1 scale (see muscleLoad). Missing muscles count as 0. */
   load: Partial<Record<MuscleId, number>>;
   /** Optional short text per muscle, e.g. a recent girth measurement, shown in the detail panel. */
-  notes?: Partial<Record<MuscleId, string>>;
+  notes?: Partial<Record<MuscleId, string | readonly string[]>>;
+  /** Wording for the load figure in the detail panel, e.g. "of your most-worked muscle". */
+  loadPhrase?: string;
 }
 
-export function BodyMap({ load, notes }: BodyMapProps) {
+export function BodyMap({ load, notes, loadPhrase = "of your most-worked muscle" }: BodyMapProps) {
   const [side, setSide] = useState<MuscleSide>("front");
   const [selected, setSelected] = useState<MuscleId | null>(null);
 
@@ -138,14 +142,25 @@ export function BodyMap({ load, notes }: BodyMapProps) {
         {selectedMuscle ? (
           <>
             <h3>{selectedMuscle.label}</h3>
-            <p>Training load {percent(selectedMuscle.id)}% of your most-worked muscle.</p>
-            {notes?.[selectedMuscle.id] ? <p>{notes[selectedMuscle.id]}</p> : null}
+            <p>
+              Training load {percent(selectedMuscle.id)}% {loadPhrase}.
+            </p>
+            {[notes?.[selectedMuscle.id] ?? []].flat().map((line) => (
+              <p key={line}>{line}</p>
+            ))}
             <ul>
-              {activitiesForMuscle(selectedMuscle.id).map((a) => (
-                <li key={a.key}>
-                  {a.label} <span>({a.role})</span>
+              {activitiesForMuscle(selectedMuscle.id)
+                .slice(0, MAX_ACTIVITIES_SHOWN)
+                .map((a) => (
+                  <li key={a.key}>
+                    {a.label} <span>({a.role})</span>
+                  </li>
+                ))}
+              {activitiesForMuscle(selectedMuscle.id).length > MAX_ACTIVITIES_SHOWN && (
+                <li>
+                  +{activitiesForMuscle(selectedMuscle.id).length - MAX_ACTIVITIES_SHOWN} more
                 </li>
-              ))}
+              )}
             </ul>
           </>
         ) : (

@@ -9,6 +9,7 @@ register("./helpers/src-alias-hook.mjs", import.meta.url);
 const { PrismaClient } = await import("../../src/generated/prisma/client.ts");
 const { PrismaPg } = await import("@prisma/adapter-pg");
 const svc = await import("../../src/lib/personal/personal-service.ts");
+const explorer = await import("../../src/lib/personal/muscle-explorer-service.ts");
 
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 const db = new PrismaClient({ adapter: new PrismaPg(pool) });
@@ -197,4 +198,76 @@ test("activities replace the set, and delete-all erases personal data but keeps 
   } finally {
     await db.user.delete({ where: { id: u.id } }); // cascades any leftover Personal rows
   }
+});
+
+async function withWellness(value, task) {
+  const before = process.env.PERSONAL_WELLNESS_ENABLED;
+  process.env.PERSONAL_WELLNESS_ENABLED = value;
+  try {
+    await task();
+  } finally {
+    if (before === undefined) delete process.env.PERSONAL_WELLNESS_ENABLED;
+    else process.env.PERSONAL_WELLNESS_ENABLED = before;
+  }
+}
+const addWorkout = (tx, userId, daysAgo, exercises) =>
+  tx.workoutSession.create({
+    data: {
+      userId,
+      requestId: `ps-w-${randomUUID()}`,
+      title: "Session",
+      activityKey: "gym-lifting",
+      startedAt: new Date(NOW.getTime() - daysAgo * 86_400_000 - 3_600_000),
+      endedAt: new Date(NOW.getTime() - daysAgo * 86_400_000),
+      durationMinutes: 60,
+      exercises: {
+        create: exercises.map((name, position) => ({
+          name,
+          position,
+          sets: { create: [{ position: 0, reps: 8, weightGrams: 50000 }] },
+        })),
+      },
+    },
+  });
+
+test("the muscle explorer stays dark while wellness is off and for non-adults", async () => {
+  await inRolledBackTx(async (tx) => {
+    const adult = await newUser(tx, "xa");
+    const minor = await newUser(tx, "xm");
+    await svc.updateBio(tx, adult.id, { birthYear: 1990 });
+    await svc.updateBio(tx, minor.id, { birthYear: 2015 });
+    await addWorkout(tx, adult.id, 1, ["Bench press"]);
+    await addWorkout(tx, minor.id, 1, ["Bench press"]);
+
+    await withWellness("false", async () => {
+      assert.equal((await explorer.getMuscleExplorer(tx, adult.id, NOW)).logged, null);
+    });
+    await withWellness("true", async () => {
+      assert.ok((await explorer.getMuscleExplorer(tx, adult.id, NOW)).logged);
+      assert.equal((await explorer.getMuscleExplorer(tx, minor.id, NOW)).logged, null);
+    });
+  });
+});
+
+test("the muscle explorer maps only the signed-in user's own workouts", async () => {
+  await inRolledBackTx(async (tx) => {
+    const me = await newUser(tx, "xme");
+    const other = await newUser(tx, "xother");
+    for (const u of [me, other]) await svc.updateBio(tx, u.id, { birthYear: 1990 });
+    await addWorkout(tx, me.id, 2, ["Back squat"]);
+    await addWorkout(tx, me.id, 40, ["Bench press"]); // outside the 28 day window, inside 90
+    for (let i = 1; i <= 10; i++) await addWorkout(tx, other.id, i, ["Pull-up"]); // never mine
+
+    await withWellness("true", async () => {
+      const { logged } = await explorer.getMuscleExplorer(tx, me.id, NOW);
+      assert.equal(logged[28].workouts, 1);
+      assert.equal(logged[90].workouts, 2);
+      assert.equal(logged[28].setEquivalents.lats, 0); // the other user's pull-ups
+      assert.ok(logged[28].setEquivalents.quadriceps > 0);
+      assert.equal(logged[28].setEquivalents.pectorals, 0); // bench was 40 days ago
+      assert.ok(logged[90].setEquivalents.pectorals > 0);
+      assert.equal(logged[28].lastWorkedDaysAgo.quadriceps, 2);
+      assert.deepEqual(logged[28].unmatchedExercises, []);
+    });
+  });
 });

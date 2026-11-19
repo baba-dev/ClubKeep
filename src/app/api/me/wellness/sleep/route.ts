@@ -6,6 +6,7 @@ export async function GET(request: NextRequest) {
   return wellnessRead(request, (db, userId) => listSleep(db, userId));
 }
 export async function POST(request: NextRequest) {
-  return wellnessPost(request, "sleep-create", 60, sleepInput,
-    (db, userId, input) => recordSleep(db, userId, input));
+  return wellnessPost(request, "sleep-create", 60, sleepInput, (db, userId, input) =>
+    recordSleep(db, userId, input)
+  );
 }

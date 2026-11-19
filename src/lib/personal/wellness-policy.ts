@@ -8,7 +8,11 @@ export function assertWellnessEnabled(): void {
   }
 }
 
-export async function assertWellnessAdult(db: PrismaClient, userId: string, now = new Date()): Promise<void> {
+export async function assertWellnessAdult(
+  db: PrismaClient,
+  userId: string,
+  now = new Date()
+): Promise<void> {
   const profile = await db.personalProfile.findUnique({
     where: { userId },
     select: { birthYear: true },
@@ -21,7 +25,11 @@ export async function assertWellnessAdult(db: PrismaClient, userId: string, now 
 
 export function checkedDate(value: string, now = new Date()): Date {
   const when = new Date(value);
-  if (!Number.isFinite(when.getTime()) || when.getUTCFullYear() < 2000 || when.getTime() > now.getTime() + 5 * 60_000) {
+  if (
+    !Number.isFinite(when.getTime()) ||
+    when.getUTCFullYear() < 2000 ||
+    when.getTime() > now.getTime() + 5 * 60_000
+  ) {
     throw new OnboardingError(400, "Choose a valid date that is not in the future.");
   }
   return when;

@@ -13,7 +13,7 @@ CREATE TABLE "PersonalGoalInstance" (
   "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "updatedAt" TIMESTAMP(3) NOT NULL,
   CONSTRAINT "PersonalGoalInstance_target_check" CHECK ("target" BETWEEN 1 AND 10000000),
   CONSTRAINT "PersonalGoalInstance_dates_check" CHECK ("endsAt" IS NULL OR "endsAt" > "startsAt"),
-  FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE
+  FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 CREATE INDEX "PersonalGoalInstance_userId_status_startsAt_idx" ON "PersonalGoalInstance"("userId","status","startsAt");
 
@@ -27,14 +27,14 @@ CREATE TABLE "WorkoutSession" (
   CONSTRAINT "WorkoutSession_duration_check" CHECK ("durationMinutes" BETWEEN 1 AND 1440),
   CONSTRAINT "WorkoutSession_distance_check" CHECK ("distanceMeters" IS NULL OR "distanceMeters" BETWEEN 0 AND 1000000),
   CONSTRAINT "WorkoutSession_dates_check" CHECK ("endedAt" > "startedAt"),
-  FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE
+  FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 CREATE UNIQUE INDEX "WorkoutSession_userId_requestId_key" ON "WorkoutSession"("userId","requestId");
 CREATE INDEX "WorkoutSession_userId_endedAt_idx" ON "WorkoutSession"("userId","endedAt");
 
 CREATE TABLE "WorkoutExercise" (
   "id" TEXT PRIMARY KEY, "workoutId" TEXT NOT NULL, "name" VARCHAR(100) NOT NULL,
-  "position" INTEGER NOT NULL, FOREIGN KEY ("workoutId") REFERENCES "WorkoutSession"("id") ON DELETE CASCADE
+  "position" INTEGER NOT NULL, FOREIGN KEY ("workoutId") REFERENCES "WorkoutSession"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 CREATE INDEX "WorkoutExercise_workoutId_position_idx" ON "WorkoutExercise"("workoutId","position");
 CREATE TABLE "WorkoutSet" (
@@ -44,7 +44,7 @@ CREATE TABLE "WorkoutSet" (
   CONSTRAINT "WorkoutSet_weight_check" CHECK ("weightGrams" IS NULL OR "weightGrams" BETWEEN 0 AND 1000000),
   CONSTRAINT "WorkoutSet_seconds_check" CHECK ("durationSeconds" IS NULL OR "durationSeconds" BETWEEN 0 AND 86400),
   CONSTRAINT "WorkoutSet_distance_check" CHECK ("distanceMeters" IS NULL OR "distanceMeters" BETWEEN 0 AND 1000000),
-  FOREIGN KEY ("exerciseId") REFERENCES "WorkoutExercise"("id") ON DELETE CASCADE
+  FOREIGN KEY ("exerciseId") REFERENCES "WorkoutExercise"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 CREATE INDEX "WorkoutSet_exerciseId_position_idx" ON "WorkoutSet"("exerciseId","position");
 
@@ -55,7 +55,7 @@ CREATE TABLE "SleepSession" (
   "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "updatedAt" TIMESTAMP(3) NOT NULL,
   CONSTRAINT "SleepSession_dates_check" CHECK ("endedAt" > "startedAt" AND "endedAt" < "startedAt" + INTERVAL '24 hours'),
   CONSTRAINT "SleepSession_quality_check" CHECK ("quality" IS NULL OR "quality" BETWEEN 1 AND 5),
-  FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE
+  FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 CREATE UNIQUE INDEX "SleepSession_userId_requestId_key" ON "SleepSession"("userId","requestId");
 CREATE INDEX "SleepSession_userId_endedAt_idx" ON "SleepSession"("userId","endedAt");
@@ -64,7 +64,7 @@ CREATE TABLE "MealEntry" (
   "id" TEXT PRIMARY KEY, "userId" TEXT NOT NULL, "requestId" VARCHAR(80) NOT NULL,
   "mealType" "WellnessMealType" NOT NULL, "eatenAt" TIMESTAMP(3) NOT NULL, "notes" VARCHAR(300),
   "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "updatedAt" TIMESTAMP(3) NOT NULL,
-  FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE
+  FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 CREATE UNIQUE INDEX "MealEntry_userId_requestId_key" ON "MealEntry"("userId","requestId");
 CREATE INDEX "MealEntry_userId_eatenAt_idx" ON "MealEntry"("userId","eatenAt");
@@ -77,7 +77,7 @@ CREATE TABLE "MealItem" (
   CONSTRAINT "MealItem_protein_check" CHECK ("proteinGrams" IS NULL OR "proteinGrams" BETWEEN 0 AND 10000),
   CONSTRAINT "MealItem_carbs_check" CHECK ("carbsGrams" IS NULL OR "carbsGrams" BETWEEN 0 AND 10000),
   CONSTRAINT "MealItem_fat_check" CHECK ("fatGrams" IS NULL OR "fatGrams" BETWEEN 0 AND 10000),
-  FOREIGN KEY ("mealId") REFERENCES "MealEntry"("id") ON DELETE CASCADE
+  FOREIGN KEY ("mealId") REFERENCES "MealEntry"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 CREATE INDEX "MealItem_mealId_position_idx" ON "MealItem"("mealId","position");
 
@@ -86,7 +86,7 @@ CREATE TABLE "HydrationEntry" (
   "volumeMl" INTEGER NOT NULL, "takenAt" TIMESTAMP(3) NOT NULL,
   "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT "HydrationEntry_volume_check" CHECK ("volumeMl" BETWEEN 1 AND 5000),
-  FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE
+  FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 CREATE UNIQUE INDEX "HydrationEntry_userId_requestId_key" ON "HydrationEntry"("userId","requestId");
 CREATE INDEX "HydrationEntry_userId_takenAt_idx" ON "HydrationEntry"("userId","takenAt");
@@ -101,7 +101,7 @@ CREATE TABLE "RecoveryCheckIn" (
     ("soreness" IS NULL OR "soreness" BETWEEN 1 AND 5) AND
     ("stress" IS NULL OR "stress" BETWEEN 1 AND 5) AND
     ("satisfaction" IS NULL OR "satisfaction" BETWEEN 1 AND 5)),
-  FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE
+  FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 CREATE UNIQUE INDEX "RecoveryCheckIn_userId_localDate_key" ON "RecoveryCheckIn"("userId","localDate");
 
@@ -110,7 +110,7 @@ CREATE TABLE "WellnessSourceRecord" (
   "externalId" VARCHAR(200) NOT NULL, "recordType" VARCHAR(40) NOT NULL,
   "sourceUpdatedAt" TIMESTAMP(3), "deletedAt" TIMESTAMP(3),
   "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "updatedAt" TIMESTAMP(3) NOT NULL,
-  FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE
+  FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 CREATE UNIQUE INDEX "WellnessSourceRecord_userId_provider_recordType_externalId_key" ON "WellnessSourceRecord"("userId","provider","recordType","externalId");
 CREATE INDEX "WellnessSourceRecord_userId_provider_idx" ON "WellnessSourceRecord"("userId","provider");

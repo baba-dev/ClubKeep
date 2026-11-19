@@ -15,18 +15,29 @@ export async function recordSleep(db: PrismaClient, userId: string, input: Sleep
   if (minutes < 1 || minutes >= 1440) {
     throw new OnboardingError(400, "Sleep must be between one minute and under 24 hours.");
   }
-  const existing = await db.sleepSession.findUnique({ where: { userId_requestId: { userId, requestId: input.requestId } } });
+  const existing = await db.sleepSession.findUnique({
+    where: { userId_requestId: { userId, requestId: input.requestId } },
+  });
   if (existing) return { id: existing.id, replayed: true };
   try {
     const row = await db.sleepSession.create({
-      data: { userId, requestId: input.requestId, startedAt, endedAt,
-        quality: input.quality, isNap: input.isNap, source: "MANUAL" },
+      data: {
+        userId,
+        requestId: input.requestId,
+        startedAt,
+        endedAt,
+        quality: input.quality,
+        isNap: input.isNap,
+        source: "MANUAL",
+      },
       select: { id: true },
     });
     return { id: row.id, replayed: false };
   } catch (error) {
     if (typeof error === "object" && error !== null && "code" in error && error.code === "P2002") {
-      const row = await db.sleepSession.findUnique({ where: { userId_requestId: { userId, requestId: input.requestId } } });
+      const row = await db.sleepSession.findUnique({
+        where: { userId_requestId: { userId, requestId: input.requestId } },
+      });
       if (row) return { id: row.id, replayed: true };
     }
     throw error;

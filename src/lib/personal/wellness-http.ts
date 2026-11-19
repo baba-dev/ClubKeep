@@ -9,22 +9,32 @@ import { assertWellnessAdult, assertWellnessEnabled } from "@/lib/personal/welln
 
 /** Every Personal wellness read and write enforces the rollout AND adult policy server-side. */
 export async function wellnessPost<T>(
-  request: NextRequest, scope: string, limit: number, schema: z.ZodType<T>,
+  request: NextRequest,
+  scope: string,
+  limit: number,
+  schema: z.ZodType<T>,
   handler: (db: PrismaClient, userId: string, input: T) => Promise<unknown>
 ): Promise<Response> {
   try {
     assertWellnessEnabled();
-    return await personalPost(request, "wellness-" + scope, limit, schema, async (userId, input) => {
-      await assertWellnessAdult(prisma, userId);
-      return handler(prisma, userId, input);
-    });
+    return await personalPost(
+      request,
+      "wellness-" + scope,
+      limit,
+      schema,
+      async (userId, input) => {
+        await assertWellnessAdult(prisma, userId);
+        return handler(prisma, userId, input);
+      }
+    );
   } catch (error) {
     return onboardingFailure(error);
   }
 }
 
 export async function wellnessRead(
-  request: Request, handler: (db: PrismaClient, userId: string) => Promise<unknown>
+  request: Request,
+  handler: (db: PrismaClient, userId: string) => Promise<unknown>
 ): Promise<Response> {
   const site = request.headers.get("sec-fetch-site");
   if (site && site !== "same-origin" && site !== "none") {

@@ -6,6 +6,7 @@ export async function GET(request: NextRequest) {
   return wellnessRead(request, (db, userId) => listRecovery(db, userId));
 }
 export async function POST(request: NextRequest) {
-  return wellnessPost(request, "recovery-save", 60, recoveryInput,
-    (db, userId, input) => saveRecovery(db, userId, input));
+  return wellnessPost(request, "recovery-save", 60, recoveryInput, (db, userId, input) =>
+    saveRecovery(db, userId, input)
+  );
 }

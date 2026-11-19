@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/required-session";
 import { getOverview } from "@/lib/personal/personal-service";
 import { muscleLabel, type MuscleId } from "@/lib/personal/muscle-map";
+import { WellnessInsightsSection } from "@/components/personal/wellness-insights";
 
 export default async function TodayPage() {
   const session = await requireSession();
@@ -16,6 +17,7 @@ export default async function TodayPage() {
     .slice(0, 3);
   const clubVisits = o.clubs.reduce((n, c) => n + (c.visits28d ?? 0), 0);
   const logged = Object.values(o.measurements).reduce((n, list) => n + list.length, 0);
+  const wellnessReady = process.env.PERSONAL_WELLNESS_ENABLED === "true" && o.canLogMeasurements;
 
   return (
     <>
@@ -24,6 +26,25 @@ export default async function TodayPage() {
         <h1 style={{ margin: 0, fontFamily: "var(--font-hm-display, inherit)" }}>Hello, {name}</h1>
       </header>
 
+      {wellnessReady && (
+        <>
+          <section className="hm-me-card" aria-label="Wellness quick actions">
+            <h2>Your wellness</h2>
+            <p className="hm-small">
+              Built around your actual records, not guessed readiness scores.
+            </p>
+            <nav className="hm-me-launch-grid" aria-label="Wellness destinations">
+              <Link href="/me/workouts">Workouts</Link>
+              <Link href="/me/goals">Goals</Link>
+              <Link href="/me/sleep">Sleep</Link>
+              <Link href="/me/nutrition">Nutrition</Link>
+              <Link href="/me/recovery">Recovery</Link>
+              <Link href="/me/insights">Insights</Link>
+            </nav>
+          </section>
+          <WellnessInsightsSection userId={session.user.id} />
+        </>
+      )}
       <div className="hm-me-stats">
         <OperationsStat label="Activities" value={o.activities.length} icon={Activity} />
         <OperationsStat

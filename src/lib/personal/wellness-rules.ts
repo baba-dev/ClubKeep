@@ -5,9 +5,12 @@ export function sleepMinutes(startedAt: Date, endedAt: Date): number {
 export function localDate(at: Date, zone: string): string {
   try {
     const parts = new Intl.DateTimeFormat("en-GB", {
-      timeZone: zone, day: "2-digit", month: "2-digit", year: "numeric",
+      timeZone: zone,
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
     }).formatToParts(at);
-    const part = (name: string) => parts.find(x => x.type === name)?.value ?? "";
+    const part = (name: string) => parts.find((x) => x.type === name)?.value ?? "";
     return part("year") + "-" + part("month") + "-" + part("day");
   } catch {
     return at.toISOString().slice(0, 10);
@@ -15,7 +18,7 @@ export function localDate(at: Date, zone: string): string {
 }
 export function mondayUtc(date: Date): Date {
   const result = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
-  result.setUTCDate(result.getUTCDate() - (result.getUTCDay() + 6) % 7);
+  result.setUTCDate(result.getUTCDate() - ((result.getUTCDay() + 6) % 7));
   return result;
 }
 export function safeRate(numerator: number, denominator: number): number | null {

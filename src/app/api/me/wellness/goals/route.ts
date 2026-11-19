@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
   return wellnessRead(request, (db, userId) => listGoals(db, userId));
 }
 export async function POST(request: NextRequest) {
-  return wellnessPost(request, "goals-create", 30, goalInput,
-    (db, userId, input) => createGoal(db, userId, input));
+  return wellnessPost(request, "goals-create", 30, goalInput, (db, userId, input) =>
+    createGoal(db, userId, input)
+  );
 }

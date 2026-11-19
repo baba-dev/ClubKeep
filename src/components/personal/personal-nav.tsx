@@ -7,7 +7,7 @@ import { Activity, Dumbbell, LineChart, Sun, UserRound } from "lucide-react";
 const TABS = [
   { href: "/me", label: "Today", Icon: Sun },
   { href: "/me/body", label: "Body", Icon: Dumbbell },
-  { href: "/me/activity", label: "Activity", Icon: Activity },
+  { href: "/me/activity", label: "Train", Icon: Activity },
   { href: "/me/progress", label: "Progress", Icon: LineChart },
   { href: "/me/profile", label: "Profile", Icon: UserRound },
 ] as const;

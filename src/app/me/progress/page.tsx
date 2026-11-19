@@ -4,6 +4,7 @@ import { getOverview } from "@/lib/personal/personal-service";
 import { MEASUREMENT_KINDS, displayUnit, type MeasurementKind } from "@/lib/personal/measurements";
 import { MEASUREMENT_LABEL } from "@/lib/personal/measurement-muscles";
 import { MeasurementForm, RemoveMeasurement } from "@/components/personal/measurement-form";
+import { WellnessInsightsSection } from "@/components/personal/wellness-insights";
 
 function Sparkline({ values }: { values: number[] }) {
   if (values.length < 2) return null;
@@ -32,6 +33,9 @@ export default async function ProgressPage() {
       <header>
         <h1 style={{ margin: 0, fontFamily: "var(--font-hm-display, inherit)" }}>Progress</h1>
       </header>
+      {process.env.PERSONAL_WELLNESS_ENABLED === "true" && o.canLogMeasurements && (
+        <WellnessInsightsSection userId={session.user.id} />
+      )}
       <MeasurementForm units={o.profile.units} enabled={o.canLogMeasurements} reason={reason} />
       {MEASUREMENT_KINDS.filter((k) => o.measurements[k]?.length).map((kind: MeasurementKind) => {
         const list = o.measurements[kind]; // newest first

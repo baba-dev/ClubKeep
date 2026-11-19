@@ -4,17 +4,29 @@ import type { RecoveryInput } from "@/lib/validations/wellness";
 import { localDate } from "./wellness-rules";
 
 export async function listRecovery(db: PrismaClient, userId: string) {
-  return db.recoveryCheckIn.findMany({ where: { userId }, orderBy: { localDate: "desc" }, take: 90 });
+  return db.recoveryCheckIn.findMany({
+    where: { userId },
+    orderBy: { localDate: "desc" },
+    take: 90,
+  });
 }
 
 export async function saveRecovery(db: PrismaClient, userId: string, input: RecoveryInput) {
-  const profile = await db.personalProfile.findUnique({ where: { userId }, select: { timezone: true } });
+  const profile = await db.personalProfile.findUnique({
+    where: { userId },
+    select: { timezone: true },
+  });
   const today = localDate(new Date(), profile?.timezone ?? "UTC");
   if (input.localDate > today || input.localDate < "2000-01-01") {
     throw new OnboardingError(400, "Choose a day that has already started.");
   }
-  const data = { energy: input.energy, soreness: input.soreness, stress: input.stress,
-    satisfaction: input.satisfaction, notes: input.notes };
+  const data = {
+    energy: input.energy,
+    soreness: input.soreness,
+    stress: input.stress,
+    satisfaction: input.satisfaction,
+    notes: input.notes,
+  };
   const row = await db.recoveryCheckIn.upsert({
     where: { userId_localDate: { userId, localDate: input.localDate } },
     create: { userId, localDate: input.localDate, ...data },

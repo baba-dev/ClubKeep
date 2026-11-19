@@ -22,10 +22,16 @@ export function GoalForm() {
   return (
     <form action={submit} className="hm-me-card" aria-busy={pending}>
       <h2>Set a personal goal</h2>
-      <p className="hm-small">Only completed sessions and logged observations count toward your goal.</p>
-      <label className="hm-me-field">Goal name<input name="title" maxLength={80} required placeholder="Move three times a week" /></label>
+      <p className="hm-small">
+        Only completed sessions and logged observations count toward your goal.
+      </p>
+      <label className="hm-me-field">
+        Goal name
+        <input name="title" maxLength={80} required placeholder="Move three times a week" />
+      </label>
       <div className="hm-me-grid">
-        <label className="hm-me-field">Track
+        <label className="hm-me-field">
+          Track
           <select name="metric" defaultValue="WORKOUT_SESSIONS">
             <option value="WORKOUT_SESSIONS">Completed workouts</option>
             <option value="ACTIVITY_MINUTES">Activity minutes</option>
@@ -33,13 +39,26 @@ export function GoalForm() {
             <option value="HYDRATION_ML">Logged water (mL)</option>
           </select>
         </label>
-        <label className="hm-me-field">Cadence
-          <select name="cadence"><option value="WEEKLY">Each week</option><option value="TOTAL">Since goal creation</option></select>
+        <label className="hm-me-field">
+          Cadence
+          <select name="cadence">
+            <option value="WEEKLY">Each week</option>
+            <option value="TOTAL">Since goal creation</option>
+          </select>
         </label>
-        <label className="hm-me-field">Target<input name="target" type="number" min={1} max={10000000} defaultValue={3} required /></label>
+        <label className="hm-me-field">
+          Target
+          <input name="target" type="number" min={1} max={10000000} defaultValue={3} required />
+        </label>
       </div>
-      <button disabled={pending} className="hm-button hm-button-primary">Add goal</button>
-      {message && <span role="status" className="hm-small">{message}</span>}
+      <button disabled={pending} className="hm-button hm-button-primary">
+        Add goal
+      </button>
+      {message && (
+        <span role="status" className="hm-small">
+          {message}
+        </span>
+      )}
     </form>
   );
 }
@@ -55,13 +74,34 @@ export function GoalActions({ id, status }: { id: string; status: string }) {
       if (res.ok) router.refresh();
     });
   }
-  return <div className="hm-me-row">
-    <button className="hm-button hm-button-secondary" type="button" disabled={pending}
-      onClick={() => action("/api/me/wellness/goals/change", { id, status: status === "ACTIVE" ? "PAUSED" : "ACTIVE" })}>
-      {status === "ACTIVE" ? "Pause" : "Resume"}
-    </button>
-    <button className="hm-button hm-button-secondary" type="button" disabled={pending}
-      onClick={() => action("/api/me/wellness/goals/change", { id, status: "ARCHIVED" })}>Archive</button>
-    {message && <span className="hm-small" role="status">{message}</span>}
-  </div>;
+  return (
+    <div className="hm-me-row">
+      <button
+        className="hm-button hm-button-secondary"
+        type="button"
+        disabled={pending}
+        onClick={() =>
+          action("/api/me/wellness/goals/change", {
+            id,
+            status: status === "ACTIVE" ? "PAUSED" : "ACTIVE",
+          })
+        }
+      >
+        {status === "ACTIVE" ? "Pause" : "Resume"}
+      </button>
+      <button
+        className="hm-button hm-button-secondary"
+        type="button"
+        disabled={pending}
+        onClick={() => action("/api/me/wellness/goals/change", { id, status: "ARCHIVED" })}
+      >
+        Archive
+      </button>
+      {message && (
+        <span className="hm-small" role="status">
+          {message}
+        </span>
+      )}
+    </div>
+  );
 }

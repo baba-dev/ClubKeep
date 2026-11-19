@@ -28,6 +28,10 @@
         <com.google.android.material.button.MaterialButton android:id="@+id/permissions"
             android:layout_width="match_parent" android:layout_height="wrap_content"
             android:text="@string/permissions" android:minHeight="50dp" android:layout_marginTop="8dp" />
+        <CheckBox android:id="@+id/includeHydration"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Also include optional hydration data"
+            android:checked="false" android:minHeight="48dp" android:layout_marginTop="10dp"/>
         <com.google.android.material.button.MaterialButton android:id="@+id/sync"
             android:layout_width="match_parent" android:layout_height="wrap_content"
             android:text="@string/sync_now" android:minHeight="50dp" android:layout_marginTop="8dp" />
